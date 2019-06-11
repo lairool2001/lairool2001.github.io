@@ -6,59 +6,74 @@
     <meta http-equiv="content-language" content="zh-tw">
     <title>Q and A 2</title>
     <style type="text/css">
-	textarea.textarea1,textarea.textareaWrongs
-	{
-		width:90%;
-		height:350px;
-	}
 	div.div2,div.div4,div.div5
 	{
 		display:none;
 	}
-	textarea.textareaQ,textarea.textareaA
-	{
-		font-size:50px;
-	}
 	body
 	{
+		margin-top:100px;
 		background-color:black;
-	}
-	p
-	{
-		font-size:3em;
 	}
 	div.divContent
 	{
-		box-shadow:0px 0px 5px 3px white;line-height:auto; width:50%;
+		box-shadow:0px 0px 10px 10px white;line-height:auto; width:50%;
 		background-color:white;
 		margin:0px auto;
+	}
+	textarea.textarea
+	{
+		width:90%;
+		min-height:300px;
+		font-size:50px;
+		border-style:groove;
+	}
+	
+	@media screen and (max-device-width: 480px) 
+	{ 
+		div.divContent
+		{
+			-webkit-transform: scale(1.5);
+			-moz-transform:scale(1.5)
+			transform: scale(1.5);
+		}
+		body
+		{
+			margin-top:250px;
+		}
+		button
+		{
+			width:220px;
+			height:auto;
+			font-size:3em;
+		}
 	}
 	</style>
   </head>
   <body>
 	<div class="divContent" id="divContent">
 		<div class="div1" id="div1">
-		<p>出題表</p>
-		<textarea id="textarea1" class="textarea1">apple/蘋果
-banana/香蕉</textarea></br>
-		<button onmousedown="Test(0)" id="buttonAB">A-B考試</button>
-		<button onmousedown="Test(1)" id="buttonBA">B-A考試</button>
+		<h1>出題表</h1>
+		<textarea id="textarea1" class="textarea">apple/蘋果
+banana/香蕉</textarea></br></br>
+		<button onmousedown="Test(0)" id="buttonAB" class="button">A-B考試</button>
+		<button onmousedown="Test(1)" id="buttonBA" class="button">B-A考試</button>
 		</div>
 		<div class="div2" id="div2">
-		<textarea id="textareaQ" class="textareaQ">Q</textarea></br>
-		<textarea id="textareaA" class="textareaA">A</textarea></br>
+		<textarea readonly="readonly" id="textareaQ" class="textarea">Q</textarea></br>
+		<textarea readonly="readonly" id="textareaA" class="textarea">A</textarea></br></br>
 			<div class="div3" id="div3">
-			<button onmousedown="show_answer()" id="buttonBA">秀出答案</button>
+			<button onmousedown="show_answer()" id="buttonBA" class="button">秀出答案</button>
 			</div>
 			<div class="div4" id="div4">
-			<button onmousedown="correct()" id="button_correct">答對</button>
-			<button onmousedown="wrong()" id="button_wrong">答錯</button>
+			<button onmousedown="correct()" id="button_correct" class="button">答對</button>
+			<button onmousedown="wrong()" id="button_wrong" class="button">答錯</button>
 			</div>
 		</div>
 		<div class="div5" id="div5">
-		<p>總錯誤表</p>
-		<textarea id="textareaWrongs" class="textareaWrongs"></textarea></br>
-		<button onmousedown="back_to_start();" id="button_wrong">回一開始</button>
+		<h1>總錯誤表</h1>
+		<textarea id="textareaWrongs" class="textarea"></textarea></br>
+		<button onmousedown="back_to_start();" id="button_wrong">回一開始</button><br /><br />
 		<button onmousedown="fix_q();" id="button_fix_wrong">再考一次錯誤的</button>
 		</div>
 	</div>
