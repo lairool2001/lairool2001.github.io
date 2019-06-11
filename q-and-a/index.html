@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="content-language" content="zh-tw">
+    <title>Q and A 2</title>
+    <style type="text/css">
+	textarea.textarea1,textarea.textareaWrongs
+	{
+		width:90%;
+		height:350px;
+	}
+	div.div2,div.div4,div.div5
+	{
+		display:none;
+	}
+	textarea.textareaQ,textarea.textareaA
+	{
+		font-size:50px;
+	}
+	body
+	{
+		background-color:black;
+	}
+	p
+	{
+		font-size:3em;
+	}
+	div.divContent
+	{
+		box-shadow:0px 0px 5px 3px white;line-height:auto; width:50%;
+		background-color:white;
+		margin:0px auto;
+	}
+	</style>
+  </head>
+  <body>
+	<div class="divContent" id="divContent">
+		<div class="div1" id="div1">
+		<p>出題表</p>
+		<textarea id="textarea1" class="textarea1">apple/蘋果
+banana/香蕉</textarea></br>
+		<button onmousedown="Test(0)" id="buttonAB">A-B考試</button>
+		<button onmousedown="Test(1)" id="buttonBA">B-A考試</button>
+		</div>
+		<div class="div2" id="div2">
+		<textarea id="textareaQ" class="textareaQ">Q</textarea></br>
+		<textarea id="textareaA" class="textareaA">A</textarea></br>
+			<div class="div3" id="div3">
+			<button onmousedown="show_answer()" id="buttonBA">秀出答案</button>
+			</div>
+			<div class="div4" id="div4">
+			<button onmousedown="correct()" id="button_correct">答對</button>
+			<button onmousedown="wrong()" id="button_wrong">答錯</button>
+			</div>
+		</div>
+		<div class="div5" id="div5">
+		<p>總錯誤表</p>
+		<textarea id="textareaWrongs" class="textareaWrongs"></textarea></br>
+		<button onmousedown="back_to_start();" id="button_wrong">回一開始</button>
+		<button onmousedown="fix_q();" id="button_fix_wrong">再考一次錯誤的</button>
+		</div>
+	</div>
+  </body>
+  	<script>
+	var arr;
+	var type=0;
+	var q;
+	var a;
+	function Test(set_type)
+	{
+		console.log("ab-test");
+		console.log(textarea1.value);
+		arr=textarea1.value.split('\n');
+		type=set_type;
+		div1.style.display="none";
+		div2.style.display="block";
+		correct_count=0;
+		wrong_count=0;
+		wroug_data=[];
+		textareaQ.value="";
+		textareaA.value="";
+		push_q();
+	}
+	function push_q()
+	{
+		var rIndex=getRandomInt(arr.length);
+		var qa= arr[rIndex].split('/');
+		if(type==0)
+		{
+		q=qa[0];
+		a=qa[1];
+		}
+		else if(type==1)
+		{
+		q=qa[1];
+		a=qa[0];
+		}
+		arr.splice(rIndex,1);
+		textareaQ.value=q;
+		textareaA.value="";
+		
+	}
+	function getRandomInt(max) 
+	{
+	  return Math.floor(Math.random() * Math.floor(max));
+	}
+	function show_answer()
+	{
+		textareaA.value=a;
+		div3.style.display="none";
+		div4.style.display="block";
+	}
+	var correct_count;
+	function correct()
+	{
+		correct_count+=1;
+		next();
+	}
+	var wrong_count;
+	var wroug_data;
+	function wrong()
+	{
+		wroug_data.push(q+"/"+a);
+		wrong_count+=1;
+		next();
+	}
+	function next()
+	{
+		if(correct_count+wrong_count>arr.length)
+		{
+			show_result();
+		}
+		else
+		{
+			push_q();
+		}
+		
+		div4.style.display="none";
+		div3.style.display="block";
+	}
+	function show_result()
+	{
+		textareaWrongs.value=wroug_data.join('\n');
+		
+		div2.style.display="none";
+		div5.style.display="block";
+		
+		button_fix_wrong.style.display=(wrong_count>0)?"block":"none";
+	}
+	function back_to_start()
+	{
+		div5.style.display="none";
+		div1.style.display="block";
+	}
+	function fix_q()
+	{
+		div5.style.display="none";
+		textarea1.value=textareaWrongs.value;
+		Test(type);
+	}
+	</script>
+</body>
+</html>
