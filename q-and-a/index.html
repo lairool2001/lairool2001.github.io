@@ -113,6 +113,7 @@ banana/香蕉</textarea></br></br>
 	}
 	function push_q()
 	{
+		console.log("push_q");
 		if(arr.length==0)
 		{
 			return;
@@ -121,8 +122,10 @@ banana/香蕉</textarea></br></br>
 		var qa= arr[rIndex].split('/');
 		arr.splice(rIndex,1);
 		
+		console.log("qa.length:"+qa.length);
 		if(qa.length<2)
 		{
+		
 			push_q();
 		}
 		else
@@ -144,7 +147,7 @@ banana/香蕉</textarea></br></br>
 	}
 	function getRandomInt(max) 
 	{
-	  return Math.floor(Math.random() * Math.floor(max));
+		return Math.floor(Math.random() * Math.floor(max));
 	}
 	function show_answer()
 	{
@@ -168,7 +171,7 @@ banana/香蕉</textarea></br></br>
 	}
 	function next()
 	{
-		if(correct_count+wrong_count>arr.length)
+		if(arr.length==0)
 		{
 			show_result();
 		}
