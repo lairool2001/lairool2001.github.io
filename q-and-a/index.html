@@ -98,7 +98,14 @@ banana/香蕉</textarea></br></br>
 	}
 	function Test(set_type)
 	{
-		console.log("ab-test");
+		if(set_type==0)
+		{
+			console.log("ab-test");
+		}
+		else if(set_type==1)
+		{
+			console.log("ba-test");
+		}
 		console.log(textarea1.value);
 		arr=textarea1.value.split('\n');
 		type=set_type;
@@ -201,7 +208,7 @@ banana/香蕉</textarea></br></br>
 	{
 		div5.style.display="none";
 		textarea1.value=textareaWrongs.value;
-		Test(type);
+		Test(0);
 	}
 	</script>
 </body>
