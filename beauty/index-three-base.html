@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="content-language" content="zh-tw">
+    <title>bgw的好看網頁</title>
+    <style type="text/css">
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+    </style>
+</head>
+
+<body>
+
+</body>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/96/three.min.js"></script>
+<script>
+    scene = new THREE.Scene()
+
+    renderer = new THREE.WebGLRenderer()
+    console.log(renderer)
+    renderer.setSize(window.innerWidth, window.innerHeight)
+    renderer.setClearColor(0xeeeeee, 1.0)
+    renderer.shadowMap.enable = true
+
+    console.log(document.body)
+    document.body.appendChild(renderer.domElement)
+
+    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100)
+    camera.position.set(10, 10, 10)
+    camera.lookAt(scene.position)
+
+    let pointLight = new THREE.PointLight(0xffffff)
+    pointLight.position.set(10, 10, -10)
+    scene.add(pointLight);
+
+    const geometry = new THREE.BoxGeometry(1, 1, 1) // 幾何體
+    const material = new THREE.MeshPhongMaterial({
+        color: 0x0000ff
+    }) // 材質
+    cube = new THREE.Mesh(geometry, material) // 建立網格物件
+    cube.position.set(0, 0, 0)
+    scene.add(cube)
+
+    function animate() {
+        cube.rotation.x += 0.01
+        cube.rotation.y += 0.01
+    }
+
+    function render() {
+        animate()
+        requestAnimationFrame(render)
+        renderer.render(scene, camera)
+    }
+    window.addEventListener('resize', function() {
+        camera.aspect = window.innerWidth / window.innerHeight
+        camera.updateProjectionMatrix()
+        renderer.setSize(window.innerWidth, window.innerHeight)
+    })
+    render()
+
+</script>
+
+</html>
