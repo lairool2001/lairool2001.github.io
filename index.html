@@ -69,6 +69,15 @@
             font-size: 0.4em;
         }
 
+        .no_select_menu {}
+
+        .select_menu {
+            border-width: 2px;
+            border-bottom-style: dashed;
+            border-color: gainsboro;
+            padding: 5px;
+        }
+
         @media screen and (max-device-width: 480px) {
             div.top-menu {
                 font-size: 2em;
@@ -129,9 +138,10 @@
         };
         top_menu_content.innerHTML = "";
         for (var i = 0; i < one_menu.length; i++) {
-            var page = pages[one_menu[i]];
+            var index = one_menu[i];
+            var page = pages[index];
             //<a onclick="home_page()">首頁</a>／<a onclick="tip()">資源</a>
-            top_menu_content.innerHTML += `<a onmousedown="set_page(` + i + `)"><ruby>` + page.show_name + `<rt>` + page.name + `</rt>` + `</ruby></a>`;
+            top_menu_content.innerHTML += `<a id="menu_item_` + index + `" class="no_select_menu" onmousedown="set_page(` + i + `)"><ruby>` + page.show_name + `<rt>` + page.name + `</rt>` + `</ruby></a>`;
             if (i < one_menu.length - 1) {
                 top_menu_content.innerHTML += "／";
             }
@@ -182,6 +192,7 @@
         }
 
         var old_p_number = 0;
+        var old_select_item = null;
 
         function set_page(p) {
             window.scrollTo(0, 0);
@@ -191,6 +202,12 @@
                     div1.display = "none";
                     div1.innerHTML = page.html;
                     div1.display = "block";
+                    if (old_select_item != null) {
+                        old_select_item.className = "no_select_menu";
+                    }
+                    var menu_item = document.getElementById("menu_item_" + p);
+                    menu_item.className = "select_menu";
+                    old_select_item = menu_item;
                 }
                 change_url(page.name);
                 old_p_number = p;
