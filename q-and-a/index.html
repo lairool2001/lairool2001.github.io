@@ -1,215 +1,217 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
     <meta charset="UTF-8">
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta http-equiv="content-language" content="zh-tw">
     <title>Q and A 2</title>
     <style type="text/css">
-	div.div2,div.div4,div.div5
-	{
-		display:none;
-	}
-	body
-	{
-		margin-top:100px;
-		background-color:black;
-	}
-	div.divContent
-	{
-		box-shadow:0px 0px 10px 10px white;line-height:auto; width:50%;
-		background-color:white;
-		margin:0px auto;
-	}
-	textarea.textarea
-	{
-		width:90%;
-		min-height:300px;
-		font-size:50px;
-		border-style:groove;
-	}
-	
-	@media screen and (max-device-width: 480px) 
-	{ 
-		div.divContent
-		{
-			-webkit-transform: scale(1.5);
-			-moz-transform:scale(1.5)
-			transform: scale(1.5);
-		}
-		body
-		{
-			margin-top:250px;
-		}
-		button
-		{
-			width:220px;
-			height:auto;
-			font-size:3em;
-		}
-	}
-	</style>
-  </head>
-  <body>
-	<div class="divContent" id="divContent">
-		<div class="div1" id="div1">
-			<h1>出題表</h1>
-			<textarea oninput="change_text()" id="textarea1" class="textarea">apple/蘋果
+        div.div2,
+        div.div4,
+        div.div5 {
+            display: none;
+        }
+
+        body {
+            margin-top: 100px;
+            background-color: black;
+        }
+
+        div.divContent {
+            box-shadow: 0px 0px 10px 10px white;
+            line-height: auto;
+            width: 50%;
+            background-color: white;
+            margin: 0px auto;
+        }
+
+        textarea.textarea {
+            width: 90%;
+            min-height: 300px;
+            font-size: 50px;
+            border-style: groove;
+        }
+
+        @media screen and (max-device-width: 480px) {
+            div.divContent {
+                -webkit-transform: scale(1.5);
+                -moz-transform: scale(1.5) transform: scale(1.5);
+            }
+
+            body {
+                margin-top: 250px;
+            }
+
+            button {
+                width: 220px;
+                height: auto;
+                font-size: 3em;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="divContent" id="divContent">
+        <div class="div1" id="div1">
+            <h1>
+                <ruby>出題表<rt>Topic</rt>
+                    </rt></ruby>
+            </h1>
+            <textarea oninput="change_text()" id="textarea1" class="textarea">apple/蘋果
 banana/香蕉</textarea></br></br>
-			<div class="div" id="div_test">
-				<button onmousedown="Test(0)" id="buttonAB" class="button">A-B考試</button>
-				<button onmousedown="Test(1)" id="buttonBA" class="button">B-A考試</button>
-			</div>
-		</div>
-		<div class="div2" id="div2">
-		<textarea readonly="readonly" id="textareaQ" class="textarea">Q</textarea></br>
-		<textarea readonly="readonly" id="textareaA" class="textarea">A</textarea></br></br>
-			<div class="div3" id="div3">
-			<button onmousedown="show_answer()" id="buttonBA" class="button">秀出答案</button>
-			</div>
-			<div class="div4" id="div4">
-			<button onmousedown="correct()" id="button_correct" class="button">答對</button>
-			<button onmousedown="wrong()" id="button_wrong" class="button">答錯</button>
-			</div>
-		</div>
-		<div class="div5" id="div5">
-		<h1>總錯誤表</h1>
-		<textarea id="textareaWrongs" class="textarea"></textarea></br>
-		<button onmousedown="back_to_start();" id="button_wrong">回一開始</button><br /><br />
-		<button onmousedown="fix_q();" id="button_fix_wrong">再考一次錯誤的</button>
-		</div>
-	</div>
-  </body>
-  	<script>
-	var arr;
-	var type=0;
-	var q;
-	var a;
-	function change_text()
-	{
-		if(textarea1.value.trim().replace(' ','').replace('\n','').replace('\t','').replace('\r','')=="")
-		{
-			div_test.style.display="none";
-		}
-		else
-		{
-			div_test.style.display="block";
-		}
-	}
-	function Test(set_type)
-	{
-		if(set_type==0)
-		{
-			console.log("ab-test");
-		}
-		else if(set_type==1)
-		{
-			console.log("ba-test");
-		}
-		console.log(textarea1.value);
-		arr=textarea1.value.split('\n');
-		type=set_type;
-		div1.style.display="none";
-		div2.style.display="block";
-		correct_count=0;
-		wrong_count=0;
-		wroug_data=[];
-		textareaQ.value="";
-		textareaA.value="";
-		push_q();
-	}
-	function push_q()
-	{
-		console.log("push_q");
-		if(arr.length==0)
-		{
-			return;
-		}
-		var rIndex=getRandomInt(arr.length);
-		var qa= arr[rIndex].split('/');
-		arr.splice(rIndex,1);
-		
-		console.log("qa.length:"+qa.length);
-		if(qa.length<2)
-		{
-		
-			push_q();
-		}
-		else
-		{
-			if(type==0)
-			{
-				q=qa[0];
-				a=qa[1];
-			}
-			else if(type==1)
-			{
-				q=qa[1];
-				a=qa[0];
-			}			
-			textareaQ.value=q;
-			textareaA.value="";
-		}
-		
-	}
-	function getRandomInt(max) 
-	{
-		return Math.floor(Math.random() * Math.floor(max));
-	}
-	function show_answer()
-	{
-		textareaA.value=a;
-		div3.style.display="none";
-		div4.style.display="block";
-	}
-	var correct_count;
-	function correct()
-	{
-		correct_count+=1;
-		next();
-	}
-	var wrong_count;
-	var wroug_data;
-	function wrong()
-	{
-		wroug_data.push(q+"/"+a);
-		wrong_count+=1;
-		next();
-	}
-	function next()
-	{
-		if(arr.length==0)
-		{
-			show_result();
-		}
-		else
-		{
-			push_q();
-		}
-		
-		div4.style.display="none";
-		div3.style.display="block";
-	}
-	function show_result()
-	{
-		textareaWrongs.value=wroug_data.join('\n');
-		
-		div2.style.display="none";
-		div5.style.display="block";
-		
-		button_fix_wrong.style.display=(wrong_count>0)?"block":"none";
-	}
-	function back_to_start()
-	{
-		div5.style.display="none";
-		div1.style.display="block";
-	}
-	function fix_q()
-	{
-		div5.style.display="none";
-		textarea1.value=textareaWrongs.value;
-		Test(0);
-	}
-	</script>
+            <div class="div" id="div_test">
+                <button onmousedown="Test(0)" id="buttonAB" class="button">
+                    <ruby>A-B考試<rt>A-B Test</rt>
+                        </rt></ruby>
+                </button>
+                <button onmousedown="Test(1)" id="buttonBA" class="button">
+                    <ruby>B-A考試<rt>B-A Test</rt>
+                        </rt></ruby>
+                </button>
+            </div>
+        </div>
+        <div class="div2" id="div2">
+            <textarea readonly="readonly" id="textareaQ" class="textarea">Q</textarea></br>
+            <textarea readonly="readonly" id="textareaA" class="textarea">A</textarea></br></br>
+            <div class="div3" id="div3">
+                <button onmousedown="show_answer()" id="buttonBA" class="button"><ruby>秀出答案<rt>show correct answer</rt>
+                        </rt></ruby></button>
+            </div>
+            <div class="div4" id="div4">
+                <button onmousedown="correct()" id="button_correct" class="button"><ruby>答對<rt>correct</rt></button>
+                <button onmousedown="wrong()" id="button_wrong" class="button"><ruby>答錯<rt>wrong</rt></button>
+            </div>
+        </div>
+        <div class="div5" id="div5">
+            <div id="end_result"></div>
+            <h1><ruby>總錯誤表<rt>wrongs</rt>
+            </h1>
+            <textarea id="textareaWrongs" class="textarea"></textarea></br>
+            <button onmousedown="back_to_start();" id="button_wrong"><ruby>回一開始<rt>back to start</rt></button><br /><br />
+            <button onmousedown="fix_q();" id="button_fix_wrong"><ruby>再考一次錯誤的<rt>quiz wrong</rt></button>
+        </div>
+    </div>
 </body>
+<script>
+    var arr;
+    var type = 0;
+    var q;
+    var a;
+
+    function change_text() {
+        if (textarea1.value.trim().replace(' ', '').replace('\n', '').replace('\t', '').replace('\r', '') == "") {
+            div_test.style.display = "none";
+        } else {
+            div_test.style.display = "block";
+        }
+    }
+
+    function Test(set_type) {
+        if (set_type == 0) {
+            console.log("ab-test");
+        } else if (set_type == 1) {
+            console.log("ba-test");
+        }
+        console.log(textarea1.value);
+        arr = textarea1.value.split('\n');
+        type = set_type;
+        div1.style.display = "none";
+        div2.style.display = "block";
+        correct_count = 0;
+        wrong_count = 0;
+        wroug_data = [];
+        textareaQ.value = "";
+        textareaA.value = "";
+        push_q();
+    }
+
+    function push_q() {
+        console.log("push_q");
+        if (arr.length == 0) {
+            return;
+        }
+        var rIndex = getRandomInt(arr.length);
+        var qa = arr[rIndex].split('/');
+        arr.splice(rIndex, 1);
+
+        console.log("qa.length:" + qa.length);
+        if (qa.length < 2) {
+
+            push_q();
+        } else {
+            if (type == 0) {
+                q = qa[0];
+                a = qa[1];
+            } else if (type == 1) {
+                q = qa[1];
+                a = qa[0];
+            }
+            textareaQ.value = q;
+            textareaA.value = "";
+        }
+
+    }
+
+    function getRandomInt(max) {
+        return Math.floor(Math.random() * Math.floor(max));
+    }
+
+    function show_answer() {
+        textareaA.value = a;
+        div3.style.display = "none";
+        div4.style.display = "block";
+    }
+    var correct_count;
+
+    function correct() {
+        correct_count += 1;
+        next();
+    }
+    var wrong_count;
+    var wroug_data;
+
+    function wrong() {
+        wroug_data.push(q + "/" + a);
+        wrong_count += 1;
+        next();
+    }
+
+    function next() {
+        if (arr.length == 0) {
+            show_result();
+        } else {
+            push_q();
+        }
+
+        div4.style.display = "none";
+        div3.style.display = "block";
+    }
+
+    function show_result() {
+        textareaWrongs.value = wroug_data.join('\n');
+
+        div2.style.display = "none";
+        div5.style.display = "block";
+
+        end_result.innerHTML = "<ruby>正確率<rt>correct percent</rt></ruby>:" + (correct_count * 100 / (correct_count + wrong_count)) + "%";
+        button_fix_wrong.style.display = (wrong_count > 0) ? "block" : "none";
+    }
+
+    function back_to_start() {
+        div5.style.display = "none";
+        div1.style.display = "block";
+    }
+
+    function fix_q() {
+        div5.style.display = "none";
+        textarea1.value = textareaWrongs.value;
+        Test(0);
+    }
+
+</script>
+</body>
+
 </html>
