@@ -33,6 +33,24 @@
             border-style: groove;
         }
 
+        .button {
+            width: 220px;
+            height: auto;
+            font-size: 3em;
+        }
+
+        .button2 {
+            width: 80%;
+            height: auto;
+            font-size: 3em;
+        }
+
+        .button3 {
+            width: 60%;
+            height: auto;
+            font-size: 3em;
+        }
+
         @media screen and (max-device-width: 480px) {
             div.divContent {
                 -webkit-transform: scale(1.5);
@@ -43,11 +61,12 @@
                 margin-top: 250px;
             }
 
-            button {
+            .button {
                 width: 220px;
                 height: auto;
                 font-size: 3em;
             }
+
         }
 
     </style>
@@ -58,18 +77,18 @@
         <div class="div1" id="div1">
             <h1>
                 <ruby>出題表<rt>Topic</rt>
-                    </rt></ruby>
+                </ruby>
             </h1>
             <textarea oninput="change_text()" id="textarea1" class="textarea">apple/蘋果
 banana/香蕉</textarea></br></br>
             <div class="div" id="div_test">
                 <button onmousedown="Test(0)" id="buttonAB" class="button">
                     <ruby>A-B考試<rt>A-B Test</rt>
-                        </rt></ruby>
+                    </ruby>
                 </button>
                 <button onmousedown="Test(1)" id="buttonBA" class="button">
                     <ruby>B-A考試<rt>B-A Test</rt>
-                        </rt></ruby>
+                    </ruby>
                 </button>
             </div>
         </div>
@@ -77,22 +96,24 @@ banana/香蕉</textarea></br></br>
             <textarea readonly="readonly" id="textareaQ" class="textarea">Q</textarea></br>
             <textarea readonly="readonly" id="textareaA" class="textarea">A</textarea></br></br>
             <div class="div3" id="div3">
-                <button onmousedown="show_answer()" id="buttonBA" class="button"><ruby>秀出答案<rt>show correct answer</rt>
-                        </rt></ruby></button>
+                <button onmousedown="show_answer()" id="buttonBA" class="button2"><ruby>秀出答案<rt>show correct answer</rt>
+                    </ruby></button>
             </div>
             <div class="div4" id="div4">
-                <button onmousedown="correct()" id="button_correct" class="button"><ruby>答對<rt>correct</rt></button>
-                <button onmousedown="wrong()" id="button_wrong" class="button"><ruby>答錯<rt>wrong</rt></button>
+                <button onmousedown="correct()" id="button_correct" class="button"><ruby>答對<rt>correct</rt></ruby></button>
+                <button onmousedown="wrong()" id="button_wrong" class="button"><ruby>答錯<rt>wrong</rt></ruby></button>
             </div>
         </div>
         <div class="div5" id="div5">
-            <div id="end_result"></div>
-            <h1><ruby>總錯誤表<rt>wrongs</rt>
+            <h1 id="end_result">
+            </h1>
+            <h1><ruby>總錯誤表<rt>wrongs</rt></ruby>
             </h1>
             <textarea id="textareaWrongs" class="textarea"></textarea></br>
-            <button onmousedown="back_to_start();" id="button_wrong"><ruby>回一開始<rt>back to start</rt></button><br /><br />
-            <button onmousedown="fix_q();" id="button_fix_wrong"><ruby>再考一次錯誤的<rt>quiz wrong</rt></button>
+            <button class="button" onmousedown="back_to_start();" id="button_wrong"><ruby>回一開始<rt>back to start</rt></ruby></button><br /><br />
+            <button class="button3" onmousedown="fix_q();" id="button_fix_wrong"><ruby>再考一次錯誤的<rt>wrong quiz</rt></ruby></button>
         </div>
+    </div>
     </div>
 </body>
 <script>
