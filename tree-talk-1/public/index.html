@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+<script>
+    server_url = "http://127.0.0.1:80"
+
+</script>
+
+<head>
+    <meta charset="UTF-8">
+    <title>websocket server</title>
+    <script>
+        window.$q = [];
+        window.$ = window.jQuery = function(a) {
+            window.$q.push(a);
+        };
+
+    </script>
+</head>
+<style>
+    #output {
+        width: auto;
+        height: 500px;
+        background-color: gray;
+        overflow: auto;
+    }
+
+    #input1 {
+        width: 500px;
+        height: 100px;
+    }
+
+</style>
+<link rel="stylesheet" href="//static.jstree.com/3.3.8/assets/bootstrap/css/bootstrap.min.css" />
+<link rel="stylesheet" href="dist/themes/default/style.min.css" />
+
+<body>
+    <div>
+        <div id="output">
+            <ul>
+                <li data-jstree='{ "opened" : true }'>Root node
+                </li>
+            </ul>
+
+        </div>
+        <input type="text" id="input_name" value="無名"></input>
+        <textarea id="input1" onkeydown="onKeyDown(event)" onkeyUp="onKeyUp(event)"></textarea><input type="checkbox" id="if_new_move" checked>有新訊息自動切換到該位置</input><br />
+        <button id="send" onclick="onClick()">send</button>
+    </div>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="//static.jstree.com/3.3.8/assets/jquery.address-1.6.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+    <script src="dist/jstree.min.js"></script>
+    <script>
+        var no_event = false;
+
+        function ini() {
+            var r = $('#output').jstree({
+                "core": {
+                    "animation": 0,
+                    "check_callback": true,
+                    "themes": {
+                        "stripes": true
+                    }
+                },
+                "types": {
+                    "#": {
+                        "max_children": Infinity,
+                        "max_depth": Infinity,
+                        "valid_children": ["root"]
+                    },
+                    "root": {
+                        "valid_children": ["default"]
+                    },
+                    "default": {
+                        "valid_children": ["default", "file"]
+                    },
+                    "file": {
+                        "icon": "glyphicon glyphicon-file",
+                        "valid_children": ["default", "file"]
+                    }
+                },
+                "plugins": [
+                    "contextmenu", "dnd", "search",
+                    "state", "types", "wholerow", "themes", "json_data"
+                ]
+            });
+            console.log(r);
+        }
+        ini();
+
+        function ini_event() {
+            $('#output').on('create_node.jstree', function(n, p, pos) {
+                if (no_event) {
+                    return;
+                }
+                console.log('create_node');
+
+                var v = $('#output').jstree().get_json('#', {});
+                socket.emit('send_all_data', v);
+            }).jstree();
+            $('#output').on('rename_node.jstree', function(n, t, old) {
+                if (no_event) {
+                    return;
+                }
+                console.log('rename_node');
+
+                var v = $('#output').jstree().get_json('#', {});
+                socket.emit('send_all_data', v);
+            }).jstree();
+            $('#output').on('delete_node.jstree', function(n, p) {
+                if (no_event) {
+                    return;
+                }
+                console.log('delete_node');
+
+                var v = $('#output').jstree().get_json('#', {});
+                socket.emit('send_all_data', v);
+            }).jstree();
+            $('#output').on('copy.jstree', function(n) {
+                if (no_event) {
+                    return;
+                }
+                console.log('copy');
+
+                var v = $('#output').jstree().get_json('#', {});
+                socket.emit('send_all_data', v);
+            }).jstree();
+            $('#output').on('paste.jstree', function(p, n, m) {
+                if (no_event) {
+                    return;
+                }
+                console.log('paste');
+
+                var v = $('#output').jstree().get_json('#', {});
+                socket.emit('send_all_data', v);
+            }).jstree();
+        }
+        ini_event();
+
+        $('#output').jstree().select_node('j1_1');
+        //$('#output').jstree().move_node('j1_2', 'j1_1', "last");
+        var root = $('#output').jstree().get_node('j1_1');
+        console.log(root);
+
+        var socket = io.connect(server_url);
+        socket.on('set_data', function(dataIn) {
+            console.log('set_data');
+            console.log(dataIn);
+            no_event = true;
+            var origin_scroll = output.scrollTop;
+            var timeoutID = window.setTimeout((() => {
+                console.log("re set scroll.");
+                //output.scrollTop = origin_scroll;
+            }), 300);
+            $("#output").jstree().destroy(false);
+            $('#output').jstree({
+                "core": {
+                    "animation": 0,
+                    "check_callback": true,
+                    "themes": {
+                        "stripes": true
+                    },
+                    "data": dataIn
+                },
+                "types": {
+                    "#": {
+                        "max_children": Infinity,
+                        "max_depth": Infinity,
+                        "valid_children": ["root"]
+                    },
+                    "root": {
+                        "valid_children": ["default"]
+                    },
+                    "default": {
+                        "valid_children": ["default", "file"]
+                    },
+                    "file": {
+                        "icon": "glyphicon glyphicon-file",
+                        "valid_children": ["default", "file"]
+                    }
+                },
+                "plugins": [
+                    "contextmenu", "dnd", "search",
+                    "state", "types", "wholerow", "themes", "json_data"
+                ]
+            });
+            //$('#output').jstree().refresh();
+            ini_event();
+            no_event = false;
+        });
+        socket.on('get_data', function() {
+            console.log('get_data');
+            var v = $('#output').jstree().get_json('#', {});
+            //var json_obj = JSON.stringify(v); //This is all you need
+            //console.log(json_obj);
+            socket.emit('send_all_data', v);
+        });
+        socket.on('chat', function(data) {
+            no_event = true;
+            //output.innerHTML+='<p>'+data.message+'</p>';
+            console.log(data.node);
+
+            var node_parent = data.node;
+            $('#output').jstree().open_node(node_parent);
+            console.log(node_parent);
+            while (node_parent) {
+                var p = $('#output').jstree().get_parent(node_parent);
+                if (p) {
+                    //$('#output').jstree().move_node(node_parent, p, "last");
+                    $('#output').jstree().open_node(node_parent);
+                }
+                node_parent = p;
+            }
+            no_event = true;
+            var new_node = $('#output').jstree().create_node(data.node, {
+                "id": data.id,
+                "type": "file"
+            });
+            if (!new_node) {
+                console.error("Can not create a new node!");
+            }
+            //new_node.id = data.id;
+            console.log(new_node);
+
+            $('#output').jstree().rename_node(new_node, '[' + data.writer + ']' + ' ' + data.message);
+
+            $('#output').jstree().open_node(data.node);
+
+            //            var path = $('#output').jstree().get_path(new_node, null, true);
+            //            console.log(path);
+            //            var last_id = path[path.length - 1];
+            //            console.log(last_id);
+            //            document.getElementById(last_id).scrollIntoView();
+
+
+            //$('#output').jstree().rename_node(new_node, data.message);
+
+            console.log($('#output').jstree().get_node(new_node));
+            console.log($('#output').jstree().get_node(new_node).id);
+            console.log(document.getElementById($('#output').jstree().get_node(new_node).id));
+
+            var new_node_element = document.getElementById($('#output').jstree().get_node(new_node).id);
+
+            //            var id = $('#output').jstree().get_node(new_node).id;
+            //            var target_offset = $('#' + id).offset() ? $('#' + id).offset().top : 0;
+            //            var customoffset = 15;
+            //            output.scrollTop = target_offset - customoffset;
+            if (if_new_move.checked) {
+                document.getElementById($('#output').jstree().get_node(new_node).id).scrollIntoView();
+            }
+            //scrollTo($('#output').jstree().get_node(new_node).id);
+            //            if (output.scrollTop < output.scrollHeight) {
+            //                output.scrollTop -= 10;
+            //            }
+            //            var myDiv = $("#output");
+            //            //var scrollto = new_node_element.scrollHeight + (myDiv.height() / 2);
+            //            var scrollto = new_node_element.scrollHeight;
+            //            myDiv.animate({
+            //                scrollTop: scrollto
+            //            });
+
+            //output.scrollTop = output.scrollHeight;
+            no_event = false;
+        })
+
+        function onKeyUp(e) {
+            if (e.keyCode == 13 && !e.shiftKey) {
+                input1.value = "";
+            }
+        }
+
+        function onKeyDown(e) {
+            console.log(e.keyCode);
+            //13 is enter
+            if (e.keyCode == 13 && !e.shiftKey) {
+                onClick();
+            }
+        }
+
+        function onClick() {
+            var s = $('#output').jstree().get_selected(true)[0];
+            if (!s) {
+                $('#output').jstree().select_node('j1_1');
+                s = $('#output').jstree().get_selected(true)[0];
+                if (!s) {
+                    console.error("no select!");
+                }
+            }
+            console.log(s);
+            socket.emit('chat', {
+                message: input1.value,
+                node: s,
+                id: createID(),
+                writer: input_name.value
+            });
+            input1.value = "";
+            input1.select();
+        }
+
+        function createID() {
+            do {
+                var random_id = _uuid();
+                var e = document.getElementById(random_id);
+            } while (e);
+            console.log(random_id + ' created.');
+            return random_id;
+        }
+
+        function _uuid() {
+            var d = Date.now();
+            if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
+                d += performance.now(); //use high-precision timer if available
+            }
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = (d + Math.random() * 16) % 16 | 0;
+                d = Math.floor(d / 16);
+                return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+            });
+        }
+        //        function scrollTo(id) {
+        //            //            $('#output').animate({
+        //            //                scrollTop: $("#" + id).offset().top - $(window).height() / 2
+        //            //            }, 0);
+        //            output.scrollTop = $("#" + id).offset().top;
+        //            //            $('#output').animate({// scrollTop: $("#" + id).offset().top - $(window).height() / 2
+        //            // }, 0);
+        //        }
+
+    </script>
+
+</body>
+
+</html>
