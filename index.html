@@ -170,6 +170,9 @@
 
         function load_page() {
             loading = true;
+            if (typeof old_select_item === 'undefined') {
+                old_select_item = null;
+            }
             var found = false;
             if (location.search == "") {
                 set_page(0);
@@ -204,24 +207,26 @@
         }
 
         var old_p_number = -1;
-        var old_select_item = document.getElementById("menu_item_" + 0);;
 
         function set_page(p) {
             window.scrollTo(0, 0);
             if (typeof p == "number") {
+                console.log('set_page(' + p + ')');
                 var page = pages[p];
                 if (p != old_p_number) {
                     div1.display = "none";
                     div1.innerHTML = page.html;
                     div1.display = "block";
-                    if (old_select_item != null) {
+                    if (old_select_item != undefined) {
                         old_select_item.className = "no_select_menu";
                     }
                     var menu_item = document.getElementById("menu_item_" + p);
                     menu_item.className = "select_menu";
-                    old_select_item = menu_item;
                 }
                 change_url(page.name);
+                //console.log(menu_item);
+                old_select_item = menu_item;
+                //console.log(old_select_item);
                 old_p_number = p;
             } else if (typeof p == "string") {
                 for (i = 0; i < pages.length; i++) {
