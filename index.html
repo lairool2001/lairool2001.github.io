@@ -203,8 +203,8 @@
             return fn.toString().split('\n').slice(1, -1).join('\n') + '\n'
         }
 
-        var old_p_number = 0;
-        var old_select_item = null;
+        var old_p_number = -1;
+        var old_select_item = document.getElementById("menu_item_" + 0);;
 
         function set_page(p) {
             window.scrollTo(0, 0);
