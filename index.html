@@ -222,12 +222,13 @@
                     }
                     var menu_item = document.getElementById("menu_item_" + p);
                     menu_item.className = "select_menu";
+
+                    change_url(page.name);
+                    //console.log(menu_item);
+                    old_select_item = menu_item;
+                    //console.log(old_select_item);
+                    old_p_number = p;
                 }
-                change_url(page.name);
-                //console.log(menu_item);
-                old_select_item = menu_item;
-                //console.log(old_select_item);
-                old_p_number = p;
             } else if (typeof p == "string") {
                 for (i = 0; i < pages.length; i++) {
                     var page = pages[i];
