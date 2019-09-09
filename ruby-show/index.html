@@ -51,8 +51,11 @@
                 ParaVal = getPara[i].split("=");
                 aryPara.push(ParaVal[0]);
                 aryPara[ParaVal[0]] = ParaVal[1];
-                showHtml += decodeURIComponent(ParaVal[0]);
-                showHtml += "<rt>" + decodeURIComponent(ParaVal[1]) + "</rt>";
+                console.log(aryPara[0]);
+                if (ParaVal[0] != "fbclid") {
+                    showHtml += decodeURIComponent(ParaVal[0]);
+                    showHtml += "<rt>" + decodeURIComponent(ParaVal[1]) + "</rt>";
+                }
             }
             showHtml += "</rubt>";
             //alert(aryPara);
