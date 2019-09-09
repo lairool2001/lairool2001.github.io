@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="content-language" content="zh-tw">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <title>ruby word show</title>
+    <style type="text/css">
+        #a1 {
+            width: 100%;
+            height: 75vh;
+            //border: 1px solid #f00;
+            margin: auto;
+            position: relative;
+        }
+
+        #show_div1 {
+            color: white;
+            text-shadow: black 0em 0em 0.5em, black 0em 0em 0.1em;
+            text-align: center;
+            font-size: 120px;
+            width: 100%;
+            height: 70px;
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            margin: auto;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div id="a1">
+        <div id="show_div1"></div>
+    </div>
+    <script type="text/javascript">
+        var strUrl = location.search;
+        var getPara, ParaVal;
+        var aryPara = [];
+        var showHtml = "";
+        if (strUrl.indexOf("?") != -1) {
+            var getSearch = strUrl.split("?");
+            getPara = getSearch[1].split("&");
+            showHtml += "<ruby>";
+            for (i = 0; i < getPara.length; i++) {
+                ParaVal = getPara[i].split("=");
+                aryPara.push(ParaVal[0]);
+                aryPara[ParaVal[0]] = ParaVal[1];
+                showHtml += decodeURIComponent(ParaVal[0]);
+                showHtml += "<rt>" + decodeURIComponent(ParaVal[1]) + "</rt>";
+            }
+            showHtml += "</rubt>";
+            //alert(aryPara);
+        }
+        show_div1.innerHTML = showHtml;
+
+    </script>
+</body>
+
+</html>
