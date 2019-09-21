@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="content-language" content="zh-tw">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <title>unity-log-easy-viewer</title>
+    <style type="text/css">
+        textarea.textarea1 {
+            min-width: 40%;
+            width: 40%;
+            min-height: 89vh;
+            height: 89vh;
+        }
+
+        div.textarea2 {
+            position: relative;
+            top: -31vh;
+            left: 39.7vw;
+            min-width: 40%;
+            width: 40%;
+            min-height: 29vh;
+            height: 29vh;
+        }
+
+        #sel {
+            position: relative;
+            top: -31vh;
+            min-width: 40%;
+            width: 40%;
+            min-height: 59vh;
+            height: 59vh;
+        }
+
+    </style>
+</head>
+
+<body>
+    <textarea class="textarea1" id="t1" oninput="t1_onchange();"></textarea>
+    <select id="sel" size="40" onchange="sel_onselect();" onfocus="sel.selectedIndex=-1;"></select>
+    <div class="textarea2" id="t2" oninput=""></div>
+    <script>
+        function sel_onselect() {
+            console.log("sel_onselect " + sel.selectedIndex);
+            if (sel.selectedIndex != -1) {
+                t2.innerHTML = sel.options.item(sel.selectedIndex).value;
+                console.log(sel.options);
+                console.log(sel.options.item(sel.selectedIndex).value);
+            }
+        }
+
+        function t1_onchange() {
+            var t = t1.value;
+            var arr = t.split('\n');
+            var tm2 = "";
+            var newSegment = true;
+            sel.options.length = 0;
+            var option;
+            for (i = 0; i < arr.length; i++) {
+                var l = arr[i];
+                if (l == "") {
+                    newSegment = true;
+                    console.log("newSegment = true;");
+                } else {
+                    if (newSegment) {
+                        //tm2 += arr[i] + "\n";
+                        newSegment = false;
+                        option = document.createElement("option");
+                        option.text = arr[i];
+                        option.value = "<B>" + l + "</B>" + "<br/><br/>";
+                        sel.options.add(option);;
+                    } else {
+                        option.value += l + "<br/>";
+                    }
+                    console.log(option);
+                }
+            }
+            sel.value = tm2;
+        }
+
+    </script>
+</body>
+
+</html>

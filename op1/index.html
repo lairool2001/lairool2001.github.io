@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="content-language" content="zh-tw">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <title>bgw的op</title>
+    <script src="processing.min.js"></script>
+
+    <style type="text/css">
+    </style>
+</head>
+
+<body>
+    <script type="application/processing">
+        int px,py;
+        void setup(){
+        size(500,500);
+        px=mouseX;
+        py=mouseY;
+    }
+    void draw(){
+    noStroke();
+    
+    for(int i=0;i<=1;i+=0.01){
+    
+    int x= lerp(px,mouseX,i);
+    int y= lerp(py,mouseY,i);
+    
+    ellipse(x, y, 20, 20);
+    }
+    
+  
+        px=mouseX;
+        py=mouseY;
+    }
+    
+</script><canvas width="500" height="500"></canvas></p>
+
+    <script type="application/processing">
+        float a = 0;
+ PImage p;
+void setup() {
+  size(400, 400, P3D);
+   p = loadImage("cropped-LOGO512-1.jpg");
+}
+
+void draw() {
+  background(255);
+    
+  lights();
+  
+  translate(width/2, height/2, -100);
+  
+  noFill();
+  stroke(0);
+  rect(-width/2+1, -height/2+1, width-1, height-1);
+  
+  a = a + 0.01;
+  rotateY(a);
+  ambientLight(150, 150, 150);
+  
+  
+  fill();
+  noStroke();
+  
+  print(a);
+  if(a%90!=0)
+  {
+    image(p, -width/2, -height/2, width, height);
+  }
+    
+}
+</script><canvas width="500" height="500"></canvas></p>
+</body>
+
+</html>
