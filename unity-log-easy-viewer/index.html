@@ -19,8 +19,8 @@
             position: relative;
             top: -31vh;
             left: 39.7vw;
-            min-width: 40%;
-            width: 40%;
+            min-width: 100%;
+            width: 100%;
             min-height: 29vh;
             height: 29vh;
         }
@@ -32,6 +32,11 @@
             width: 40%;
             min-height: 59vh;
             height: 59vh;
+        }
+
+        span.p1 {
+            font-size: 20px;
+            line-height: 1.2em;
         }
 
     </style>
@@ -58,6 +63,7 @@
             var newSegment = true;
             sel.options.length = 0;
             var option;
+            var debugLinez = true;
             for (i = 0; i < arr.length; i++) {
                 var l = arr[i];
                 if (l == "") {
@@ -70,11 +76,20 @@
                         option = document.createElement("option");
                         option.text = arr[i];
                         option.value = "<B>" + l + "</B>" + "<br/><br/>";
-                        sel.options.add(option);;
+                        sel.options.add(option);
+                        debugLinez = true;
                     } else {
-                        option.value += l + "<br/>";
+                        if (debugLinez) {
+                            option.value += "<i>" + l + "</i><br/>";
+                        } else {
+                            option.value += "<span class='p1'>" + l + "</span><br/>";
+                        }
                     }
                     console.log(option);
+                }
+                if (l == "UnityEngine.MonoBehaviour:print(Object)") {
+                    debugLinez = false;
+                    option.value += "<hr/>";
                 }
             }
             sel.value = tm2;
