@@ -82,12 +82,19 @@
         </table>
     </div>
     <script>
-        day = new Date().getDay();
-        if (day == 0) {
-            day = 7;
+        window.setInterval(updateDayToTable, 1000);
+        updateDayToTable();
+
+        function updateDayToTable() {
+
+            day = new Date().getDay();
+            if (day == 0) {
+                day = 7;
+            }
+            console.log(a2.children);
+            a2.children[day].className = "set1";
+
         }
-        console.log(a2.children);
-        a2.children[day].className = "set1";
 
     </script>
 </body>
