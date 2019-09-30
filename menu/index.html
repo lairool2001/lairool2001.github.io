@@ -33,47 +33,63 @@
             background-color: pink;
         }
 
+        .set1 {
+            background-color: hotpink;
+            border: 2px double red;
+        }
+
     </style>
 </head>
 
 <body>
     <div>
         <table border="1">
-            <tr class="title">
-                <td>星期幾</td>
-                <td>型態</td>
-            </tr>
+            <tbody id="a2">
+                <tr class="title">
+                    <td>星期幾</td>
+                    <td>型態</td>
+                </tr>
 
-            <tr>
-                <td>星期一</td>
-                <td>媽人餐</td>
-            </tr>
-            <tr>
-                <td>星期二</td>
-                <td>基礎(200以下)</td>
-            </tr>
-            <tr>
-                <td>星期三</td>
-                <td>素食</td>
-            </tr>
-            <tr>
-                <td>星期四</td>
-                <td>中級(200~400)</td>
-            </tr>
-            <tr>
-                <td>星期五</td>
-                <td>高級(400以上)</td>
-            </tr>
-            <tr>
-                <td>星期六</td>
-                <td>中級(200~400)</td>
-            </tr>
-            <tr>
-                <td>星期日</td>
-                <td>中級(200~400)</td>
-            </tr>
+                <tr>
+                    <td>星期一</td>
+                    <td>媽人餐</td>
+                </tr>
+                <tr>
+                    <td>星期二</td>
+                    <td>基礎(200以下)</td>
+                </tr>
+                <tr>
+                    <td>星期三</td>
+                    <td>素食</td>
+                </tr>
+                <tr>
+                    <td>星期四</td>
+                    <td>中級(200~400)</td>
+                </tr>
+                <tr>
+                    <td>星期五</td>
+                    <td>高級(400以上)</td>
+                </tr>
+                <tr>
+                    <td>星期六</td>
+                    <td>中級(200~400)</td>
+                </tr>
+                <tr>
+                    <td>星期日</td>
+                    <td>中級(200~400)</td>
+                </tr>
+            </tbody>
         </table>
     </div>
+    <script>
+        day = new Date().getDay();
+        if (day == 0) {
+            day = 7;
+        }
+        console.log(a2.children);
+        a2.children[day].className = "set1";
+
+    </script>
 </body>
 
 </html>
