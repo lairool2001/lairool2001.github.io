@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="content-language" content="zh-tw">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <title>圖型編輯器</title>
+    <style type="text/css">
+        #div_left {
+            width: 300px;
+            min-height: 90vh;
+            background-color: antiquewhite;
+            float: left;
+        }
+
+        #div_right {
+            padding: 0px;
+            margin: 0px;
+            background-color: aquamarine;
+            float: left;
+        }
+
+        #t1 {
+            left: 100px;
+            top: 50px;
+            margin: 0px;
+            padding: 0px;
+            float: left;
+        }
+
+        #svg1 {
+            border: 1px double black;
+        }
+
+        .rect1_text {
+            text-anchor: middle;
+            font-size: 20px;
+            font-family: 微軟正黑體;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div id="div_left">
+        <textarea id="t1"></textarea>
+    </div>
+    <div id="div_right">
+        <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="svg1" width="70vw" height="90vh" onContextMenu="return false" onMouseUp="onMouseUp(event);"></svg>
+    </div>
+    <script>
+        drag = false;
+        select_rect = null;
+        select_text = null;
+        connect1_rect = null;
+        connect1_text = null;
+        connect2_rect = null;
+        connect2_text = null;
+        flow_id_block = 0;
+        flow_id_line = 0;
+        var blockz = [];
+        connect = 0;
+
+
+        addABlock();
+        addABlock();
+
+        function onMouseUp() {
+            drag = false;
+            select_rect = null;
+            select_text = null;
+            //console.log("onMouseUp()");
+        }
+
+        function addABlock() {
+            svg1.innerHTML += `<rect x="100" y="50" z="1" width="40" height="40" stroke="black" stroke-width="2" fill="red" onmousedown="c1_click(event,this);" id="rect` + flow_id_block + `"></rect>
+            <text x="100" y="50" z="1" id="rect` + flow_id_block + `_text" class="rect1_text" onmousedown="c1_click(event,rect` + flow_id_block + `);">123</text>`;
+            var r = document.getElementById(`rect` + flow_id_block);
+            var t = document.getElementById("rect" + flow_id_block + "_text");
+            //console.log(r);
+            //console.log(t);
+            var b = {};
+            b.rect = r;
+            b.text = t;
+            b.connectz = [];
+            blockz.push(b);
+            r.block = b;
+            t.block = b;
+            set_text_in_rect(t, r);
+            flow_id_block += 1;
+        }
+
+        function addALine(x1, y1, x2, y2) {
+            svg1.innerHTML = `<line x1="` + x1 + `" y1="` + y1 + `" x2="` + x2 + `" y2="` + y2 + `" z="2" style="stroke: Tomato;stroke-width: 3px" id="line` + flow_id_line + `"/>` + svg1.innerHTML;
+            flow_id_line += 1;
+        }
+
+        //console.log(div_right.offsetLeft);
+        svg1.onmousemove = on_mouse_move;
+
+        function on_mouse_move(event) {
+
+            if (select_rect != null && drag) {
+                select_rect.setAttributeNS(null, 'x', event.clientX - div_right.offsetLeft);
+                //select_text.x = event.clientX - div_right.offsetLeft;
+                select_rect.setAttributeNS(null, 'y', event.clientY - div_right.offsetTop);
+                set_text_in_rect(select_text, select_rect);
+            }
+        }
+
+        function getMiddle(rect) {
+            var p = {};
+            p.x = parseFloat(rect.getAttributeNS(null, 'x')) + parseFloat(rect.getAttributeNS(null, 'width') / 2);
+            p.y = parseFloat(rect.getAttributeNS(null, 'y')) + parseFloat(rect.getAttributeNS(null, 'height') / 2);
+            return p;
+        }
+
+        function c1_click(event, s) {
+            console.log("c1_click");
+            console.log(event);
+            drag = !drag;
+            if (event.button == 2) {
+                if (connect == 0) {
+                    connect = 1;
+                    connect1_rect = s;
+                    connect1_text = et = document.getElementById(s.id + "_text");
+                } else if (connect == 1) {
+                    connect = 0;
+                    connect2_rect = s;
+                    connect2_text = et = document.getElementById(s.id + "_text");
+                    p1 = getMiddle(connect1_rect);
+                    p2 = getMiddle(connect2_rect);
+                    console.log(p1);
+                    addALine(p1.x, p1.y, p2.x, p2.y);
+                    console.log('connect');
+                }
+            }
+            if (drag && event.button == 0) {
+                select_rect = s;
+                select_text = et = document.getElementById(s.id + "_text");
+                t1.value = et.innerHTML;
+                t1.oninput = function() {
+                    et.innerHTML = t1.value;
+                    //console.log(et.innerHTML);
+                    set_text_in_rect(et, s);
+                    //t1.style.left = s.getBoundingClientRect().left + 'px';
+                    //console.log(s.getBoundingClientRect());
+                    //console.log(s.width.animVal.value);
+                };
+                on_mouse_move(event);
+            } else {}
+        }
+
+        function set_text_in_rect(text, r1) {
+            //console.log(text.x);
+            //console.log(text.y);
+            size = textSize("20px", "微軟正黑體", escape(text.innerHTML));
+            w = size.width + 30;
+            if (w == 0) {
+                w = 10;
+            }
+            h = size.height;
+            if (h == 0) {
+                h = 10;
+            }
+            r1.setAttributeNS(null, 'width', w);
+            r1.setAttributeNS(null, 'hight', h);
+            text.setAttributeNS(null, 'x', parseFloat(r1.getAttributeNS(null, 'x')) + parseFloat(r1.getAttributeNS(null, 'width')) / 2);
+            text.setAttributeNS(null, 'y', parseFloat(r1.getAttributeNS(null, 'y')) + parseFloat(r1.getAttributeNS(null, 'height')) / 2 + 7);
+            //console.log(text.innerHTML.length);
+            //console.log(text.y);
+        }
+        /*
+版权声明：本文为CSDN博主「zy1281539626」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/zy1281539626/article/details/78489279
+        */
+
+        function textSize(fontSize, fontFamily, text) {
+            var span = document.createElement("span");
+            var result = {};
+            result.width = span.offsetWidth;
+            result.height = span.offsetHeight;
+            span.style.visibility = "hidden";
+            span.style.fontSize = fontSize;
+            span.style.fontFamily = fontFamily;
+            span.style.display = "inline-block";
+            document.body.appendChild(span);
+            if (typeof span.textContent != "undefined") {
+                span.textContent = text;
+            } else {
+                span.innerText = text;
+            }
+            result.width = parseFloat(window.getComputedStyle(span).width) - result.width;
+            result.height = parseFloat(window.getComputedStyle(span).height) - result.height;
+            document.body.removeChild(span);
+            return result;
+        }
+
+        function escape(s) {
+            return s.replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/'/g, "&#39;")
+                .replace(/"/g, "&quot;");
+        }
+
+    </script>
+</body>
+
+</html>
