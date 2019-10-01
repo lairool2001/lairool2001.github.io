@@ -91,7 +91,11 @@
             if (day == 0) {
                 day = 7;
             }
-            console.log(a2.children);
+            //console.log(day);
+            for (i = 0; i <= 7; i++) {
+                a2.children[i].className = "";
+            }
+            //console.log(a2.children);
             a2.children[day].className = "set1";
 
         }
