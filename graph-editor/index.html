@@ -27,7 +27,8 @@
             top: 50px;
             margin: 0px;
             padding: 0px;
-            float: left;
+            min-width: 200px;
+            min-height: 400px;
         }
 
         #svg1 {
@@ -38,17 +39,27 @@
             text-anchor: middle;
             font-size: 20px;
             font-family: 微軟正黑體;
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -o-user-select: none;
         }
 
     </style>
 </head>
 
-<body>
+<body onkeydown="body_onkeydown(event);">
     <div id="div_left">
+        <button onclick="create_onclick(this,event);">create block</button>
+        <p>Load:<input type="file" id="file1" onchange="onChange(event);"></p>
         <textarea id="t1"></textarea>
+        <br />
+        <br />
+        <button onclick="save_onclick(this,event);">save</button>
     </div>
     <div id="div_right">
-        <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="svg1" width="70vw" height="90vh" onContextMenu="return false" onMouseUp="onMouseUp(event);"></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="svg1" width="900" height="800" onContextMenu="return false" viewBox="0 0 900 800" onMouseUp="onMouseUp(event);"></svg>
     </div>
     <script>
         drag = false;
@@ -63,15 +74,141 @@
         blockz = [];
         blockById = {};
         connect = 0;
+        ab = {};
+        svg1.onmousemove = on_mouse_move;
 
-        addABlock();
-        addABlock();
+        console.log(svg1.viewBox);
         addABlock();
         addABlock();
 
-        for (i = 0; i < blockz.length; i++) {
-            var a = document.getElementById(`rect` + i);
-            console.log(blockById[a.id]);
+        check_blockById();
+
+        function check_blockById() {
+            for (i = 0; i < blockz.length; i++) {
+                var a = document.getElementById(`rect` + i);
+                console.log(blockById[a.id]);
+            }
+        }
+
+        function body_onkeydown(event) {
+            var power = 10;
+            console.log(svg1.viewBox);
+            console.log(event.keyCode);
+
+            xMin = svg1.viewBox.animVal.x;
+            yMin = svg1.viewBox.animVal.y;
+            width = svg1.viewBox.animVal.width;
+            height = svg1.viewBox.animVal.height;
+            switch (event.keyCode) {
+                case 87:
+                    //w
+                    yMin -= power;
+                    break;
+                case 83:
+                    //s
+                    yMin += power;
+                    break;
+                case 65:
+                    //a
+                    xMin -= power;
+                    break;
+                case 68:
+                    //d
+                    xMin += power;
+                    break;
+                case 46:
+                    //del
+                    break;
+            }
+            viewBox = `${xMin} ${yMin} ${width} ${height}`;
+            svg1.setAttribute('viewBox', viewBox)
+        }
+
+        function onChange(e) {
+            file = e.target.files[0];
+            file.text().then(a => {
+                text = a;
+                console.log(text);
+                //console.log(e.target.files[0]);
+                var data = JSON.parse(text);
+                console.log(data);
+                flow_id_block = data.flow_id_block;
+                flow_id_line = data.flow_id_line;
+                blockz = data.blockz;
+                ab = data.ab;
+                //data.blockById = blockById;
+                //rebuild blockById
+                blockById = data.blockById;
+                blockz = data.blockz;
+                div_right.innerHTML = data.innerHTML;
+                for (let i = 0; i < flow_id_block; i++) {
+                    e = document.getElementById('rect' + i);
+                    blockz[i] = blockById[e.id] = getBlock(e);
+                    console.log(e);
+                }
+                check_blockById();
+                svg1.onmousemove = on_mouse_move;
+                console.log("load completed");
+            });
+        }
+
+        function save_onclick(button, event) {
+            var data = {};
+            data.flow_id_block = flow_id_block;
+            data.flow_id_line = flow_id_line;
+            data.ab = ab;
+            data.blockById = blockById;
+            data.blockz = blockz;
+            data.innerHTML = div_right.innerHTML;
+
+            str = JSON.stringify(data);
+            saveTextAsFile("123.txt", str);
+            console.log('a')
+        }
+
+        function saveTextAsFile(_fileName, _text) {
+            var textFileAsBlob = new Blob([_text], {
+                type: 'text/plain'
+            });
+
+            var downloadLink = document.createElement("a");
+            downloadLink.download = _fileName;
+            downloadLink.innerHTML = "Download File";
+            if (window.webkitURL != null) {
+                // Chrome allows the link to be clicked
+                // without actually adding it to the DOM.
+                downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+            } else {
+                // Firefox requires the link to be added to the DOM
+                // before it can be clicked.
+                downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+                downloadLink.onclick = destroyClickedElement;
+                downloadLink.style.display = "none";
+                document.body.appendChild(downloadLink);
+            }
+
+            downloadLink.click();
+        }
+
+        function destroyClickedElement(event) {
+            document.body.removeChild(event.target);
+        }
+
+        function load_onclick(button, event) {
+
+        }
+
+        function create_onclick(button, event) {
+            b = addABlock();
+            console.log(svg1.width.animVal.value);
+            x = svg1.viewBox.animVal.x;
+            y = svg1.viewBox.animVal.y;
+            width = svg1.viewBox.animVal.width;
+            height = svg1.viewBox.animVal.height;
+            r = document.getElementById(b.rectId);
+            r.setAttributeNS(null, 'x', width / 2 + x);
+            r.setAttributeNS(null, 'y', height / 2 + y);
+            updateBlock(b);
         }
 
         function onMouseUp() {
@@ -81,26 +218,30 @@
             //console.log("onMouseUp()");
         }
 
+        function updateBlock(b) {
+            set_text_in_rect(b.textId, b.rectId);
+        }
+
         function addABlock() {
             svg1.innerHTML += `<rect x="100" y="50" z="1" width="40" height="40" stroke="black" stroke-width="2" fill="red" onmousedown="mouse_down(event,this);" id="rect` + flow_id_block + `"></rect>
-            <text x="100" y="50" z="1" id="rect` + flow_id_block + `_text" class="rect1_text" onmousedown="mouse_down(event,rect` + flow_id_block + `);">123</text>`;
+            <text x="100" y="50" z="1" onselectstart="return false;" unselectable id="rect` + flow_id_block + `_text" class="rect1_text" onmousedown="mouse_down(event,rect` + flow_id_block + `);">123</text>`;
             r = document.getElementById(`rect` + flow_id_block);
             t = document.getElementById("rect" + flow_id_block + "_text");
             //console.log(r);
             //console.log(t);
             b = {};
-            b.rect = r;
-            b.text = t;
-            b.linez = [];
-            b.connectz = [];
+            b.rectId = r.id;
+            b.textId = t.id;
+            b.linezId = [];
+            b.id = r.id;
+            console.log(b.id);
             blockz.push(b);
             blockById[r.id] = b;
             //r.setAttributeNS(null, 'block', JSON.stringify(b));
-            r.block = b;
-            t.block = b;
             //console.log(r.block);
-            set_text_in_rect(t, r);
+            set_text_in_rect(t.id, r.id);
             flow_id_block += 1;
+            return b;
         }
 
         function addALine(x1, y1, x2, y2) {
@@ -110,28 +251,44 @@
             ab[l.id] = {};
             return l;
         }
-        var ab = {};
 
         function getAB(l) {
             return ab[l.id];
         }
         //console.log(div_right.offsetLeft);
-        svg1.onmousemove = on_mouse_move;
 
         function on_mouse_move(event) {
+            mouse_event = event;
+
             if (select_rect != null && drag) {
+                let startViewBox = svg1.getAttribute('viewBox').split(' ').map(n => parseFloat(n))
+                let startClient = {
+                    x: event.clientX,
+                    y: event.clientY
+                }
+                let newSVGPoint = svg1.createSVGPoint()
+                let CTM = svg1.getScreenCTM()
+                newSVGPoint.x = startClient.x
+                newSVGPoint.y = startClient.y
+                let startSVGPoint = newSVGPoint.matrixTransform(CTM.inverse())
+
+                x = svg1.viewBox.animVal.x;
+                y = svg1.viewBox.animVal.y;
                 select_rect = document.getElementById(select_rect.id);
-                select_rect.setAttributeNS(null, 'x', event.clientX - div_right.offsetLeft);
-                select_rect.setAttributeNS(null, 'y', event.clientY - div_right.offsetTop);
-                set_text_in_rect(select_text, select_rect);
+                select_rect.setAttributeNS(null, 'x', startSVGPoint.x)
+                select_rect.setAttributeNS(null, 'y', startSVGPoint.y)
+                //select_rect.setAttributeNS(null, 'x', event.clientX - div_right.offsetLeft);
+                //select_rect.setAttributeNS(null, 'y', event.clientY - div_right.offsetTop);
+                set_text_in_rect(select_text.id, select_rect.id);
                 b = blockById[select_rect.id];
                 //select_rect.block = b;
                 if (!b) {
                     console.log("error");
                 }
                 updateBlockLine(b);
-                console.log("a");
+
             }
+            //console.log(select_rect);
         }
 
         function getMiddle(rect) {
@@ -143,23 +300,29 @@
 
         function updateBlockLine(block) {
             //console.log(block.linez);
-            block.rect = document.getElementById(block.rect.id);
-            p = getMiddle(block.rect);
-            for (let i = 0; i < block.linez.length; i++) {
-                var l = block.linez[i];
+            var be = document.getElementById(block.rectId);
+            p = getMiddle(be);
+            for (let i = 0; i < block.linezId.length; i++) {
+                l = document.getElementById(block.linezId[i]);
                 //l = document.getElementById(l.id);
-                //console.log(l);
                 var k = getAB(l);
-                if (k.a == block) {
-                    console.log("a");
+                console.log(k.a.id);
+                console.log(k.b.id);
+                console.log(block.id);
+                if (k.a.id == block.id) {
+                    //console.log("a");
                     l.setAttributeNS(null, 'x1', p.x);
                     l.setAttributeNS(null, 'y1', p.y);
 
-                } else if (k.b == block) {
-                    console.log("b");
+                } else if (k.b.id == block.id) {
+                    //console.log("b");
+                    //console.log("b");
                     l.setAttributeNS(null, 'x2', p.x);
                     l.setAttributeNS(null, 'y2', p.y);
+                } else {
+                    console.log("err");
                 }
+                //console.log(p.x);
             }
         }
 
@@ -187,16 +350,22 @@
                     p2 = getMiddle(connect2_rect);
                     //console.log(p1);
                     var l = addALine(p1.x, p1.y, p2.x, p2.y);
-                    ab[l.id].a = connect1_rect.block;
-                    ab[l.id].b = connect2_rect.block;
+                    ab[l.id].a = getBlock(connect1_rect);
+                    if (!ab[l.id].a) {
+                        console.log("err");
+                    }
+                    ab[l.id].b = getBlock(connect2_rect);
+                    if (!ab[l.id].b) {
+                        console.log("err");
+                    }
                     //l.a = connect1_rect.block;
                     //l.b = connect2_rect.block;
                     b1 = getBlock(connect1_rect);
                     b2 = getBlock(connect2_rect);
                     console.log(b1);
                     console.log(b2);
-                    b1.linez.push(l);
-                    b2.linez.push(l);
+                    b1.linezId.push(l.id);
+                    b2.linezId.push(l.id);
                     //connect1_rect.block.connectz.push(connect2_rect.block);
                     //connect2_rect.block.connectz.push(connect1_rect.block);
 
@@ -216,18 +385,22 @@
                 t1.oninput = function() {
                     et.innerHTML = t1.value;
                     //console.log(et.innerHTML);
-                    set_text_in_rect(et, s);
+                    set_text_in_rect(et.id, s.id);
+                    updateBlockLine(getBlock(s));
                     //t1.style.left = s.getBoundingClientRect().left + 'px';
                     //console.log(s.getBoundingClientRect());
                     //console.log(s.width.animVal.value);
                 };
                 on_mouse_move(event);
             } else {}
+            return false;
         }
 
-        function set_text_in_rect(text, r1) {
+        function set_text_in_rect(textId, rId) {
             //console.log(text.x);
             //console.log(text.y);
+            text = document.getElementById(textId);
+            r1 = document.getElementById(rId);
             size = textSize("20px", "微軟正黑體", escape(text.innerHTML));
             w = size.width + 30;
             if (w == 0) {
