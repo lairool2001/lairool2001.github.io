@@ -60,12 +60,19 @@
         connect2_text = null;
         flow_id_block = 0;
         flow_id_line = 0;
-        var blockz = [];
+        blockz = [];
+        blockById = {};
         connect = 0;
 
+        addABlock();
+        addABlock();
+        addABlock();
+        addABlock();
 
-        addABlock();
-        addABlock();
+        for (i = 0; i < blockz.length; i++) {
+            var a = document.getElementById(`rect` + i);
+            console.log(blockById[a.id]);
+        }
 
         function onMouseUp() {
             drag = false;
@@ -75,69 +82,134 @@
         }
 
         function addABlock() {
-            svg1.innerHTML += `<rect x="100" y="50" z="1" width="40" height="40" stroke="black" stroke-width="2" fill="red" onmousedown="c1_click(event,this);" id="rect` + flow_id_block + `"></rect>
-            <text x="100" y="50" z="1" id="rect` + flow_id_block + `_text" class="rect1_text" onmousedown="c1_click(event,rect` + flow_id_block + `);">123</text>`;
-            var r = document.getElementById(`rect` + flow_id_block);
-            var t = document.getElementById("rect" + flow_id_block + "_text");
+            svg1.innerHTML += `<rect x="100" y="50" z="1" width="40" height="40" stroke="black" stroke-width="2" fill="red" onmousedown="mouse_down(event,this);" id="rect` + flow_id_block + `"></rect>
+            <text x="100" y="50" z="1" id="rect` + flow_id_block + `_text" class="rect1_text" onmousedown="mouse_down(event,rect` + flow_id_block + `);">123</text>`;
+            r = document.getElementById(`rect` + flow_id_block);
+            t = document.getElementById("rect" + flow_id_block + "_text");
             //console.log(r);
             //console.log(t);
-            var b = {};
+            b = {};
             b.rect = r;
             b.text = t;
+            b.linez = [];
             b.connectz = [];
             blockz.push(b);
+            blockById[r.id] = b;
+            //r.setAttributeNS(null, 'block', JSON.stringify(b));
             r.block = b;
             t.block = b;
+            //console.log(r.block);
             set_text_in_rect(t, r);
             flow_id_block += 1;
         }
 
         function addALine(x1, y1, x2, y2) {
             svg1.innerHTML = `<line x1="` + x1 + `" y1="` + y1 + `" x2="` + x2 + `" y2="` + y2 + `" z="2" style="stroke: Tomato;stroke-width: 3px" id="line` + flow_id_line + `"/>` + svg1.innerHTML;
+            var l = document.getElementById("line" + flow_id_line);
             flow_id_line += 1;
+            ab[l.id] = {};
+            return l;
         }
+        var ab = {};
 
+        function getAB(l) {
+            return ab[l.id];
+        }
         //console.log(div_right.offsetLeft);
         svg1.onmousemove = on_mouse_move;
 
         function on_mouse_move(event) {
-
             if (select_rect != null && drag) {
+                select_rect = document.getElementById(select_rect.id);
                 select_rect.setAttributeNS(null, 'x', event.clientX - div_right.offsetLeft);
-                //select_text.x = event.clientX - div_right.offsetLeft;
                 select_rect.setAttributeNS(null, 'y', event.clientY - div_right.offsetTop);
                 set_text_in_rect(select_text, select_rect);
+                b = blockById[select_rect.id];
+                //select_rect.block = b;
+                if (!b) {
+                    console.log("error");
+                }
+                updateBlockLine(b);
+                console.log("a");
             }
         }
 
         function getMiddle(rect) {
             var p = {};
-            p.x = parseFloat(rect.getAttributeNS(null, 'x')) + parseFloat(rect.getAttributeNS(null, 'width') / 2);
-            p.y = parseFloat(rect.getAttributeNS(null, 'y')) + parseFloat(rect.getAttributeNS(null, 'height') / 2);
+            p.x = parseFloat(rect.getAttributeNS(null, 'x')) + (parseFloat(rect.getAttributeNS(null, 'width')) / 2);
+            p.y = parseFloat(rect.getAttributeNS(null, 'y')) + (parseFloat(rect.getAttributeNS(null, 'height')) / 2);
             return p;
         }
 
-        function c1_click(event, s) {
-            console.log("c1_click");
-            console.log(event);
+        function updateBlockLine(block) {
+            //console.log(block.linez);
+            block.rect = document.getElementById(block.rect.id);
+            p = getMiddle(block.rect);
+            for (let i = 0; i < block.linez.length; i++) {
+                var l = block.linez[i];
+                //l = document.getElementById(l.id);
+                //console.log(l);
+                var k = getAB(l);
+                if (k.a == block) {
+                    console.log("a");
+                    l.setAttributeNS(null, 'x1', p.x);
+                    l.setAttributeNS(null, 'y1', p.y);
+
+                } else if (k.b == block) {
+                    console.log("b");
+                    l.setAttributeNS(null, 'x2', p.x);
+                    l.setAttributeNS(null, 'y2', p.y);
+                }
+            }
+        }
+
+        function getBlock(r) {
+            return blockById[r.id];
+            //return JSON.parse(r.getAttributeNS(null, 'block'));
+        }
+
+        function mouse_down(event, s) {
+            //console.log("c1_click");
+            //console.log(event);
             drag = !drag;
             if (event.button == 2) {
                 if (connect == 0) {
                     connect = 1;
                     connect1_rect = s;
+                    //console.log(s.block);
                     connect1_text = et = document.getElementById(s.id + "_text");
                 } else if (connect == 1) {
                     connect = 0;
                     connect2_rect = s;
+                    //console.log(s.block);
                     connect2_text = et = document.getElementById(s.id + "_text");
                     p1 = getMiddle(connect1_rect);
                     p2 = getMiddle(connect2_rect);
-                    console.log(p1);
-                    addALine(p1.x, p1.y, p2.x, p2.y);
+                    //console.log(p1);
+                    var l = addALine(p1.x, p1.y, p2.x, p2.y);
+                    ab[l.id].a = connect1_rect.block;
+                    ab[l.id].b = connect2_rect.block;
+                    //l.a = connect1_rect.block;
+                    //l.b = connect2_rect.block;
+                    b1 = getBlock(connect1_rect);
+                    b2 = getBlock(connect2_rect);
+                    console.log(b1);
+                    console.log(b2);
+                    b1.linez.push(l);
+                    b2.linez.push(l);
+                    //connect1_rect.block.connectz.push(connect2_rect.block);
+                    //connect2_rect.block.connectz.push(connect1_rect.block);
+
                     console.log('connect');
                 }
             }
             if (drag && event.button == 0) {
+                if (s.tagName == "text") {
+                    s = s.block.rect;
+                    console.log("text");
+                } else if (s.tagName == "rect") {
+                    console.log("rect");
+                }
                 select_rect = s;
                 select_text = et = document.getElementById(s.id + "_text");
                 t1.value = et.innerHTML;
