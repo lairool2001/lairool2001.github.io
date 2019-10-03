@@ -59,7 +59,7 @@
         <button onclick="save_onclick(this,event);">save</button>
     </div>
     <div id="div_right">
-        <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="svg1" width="900" height="800" onContextMenu="return false" viewBox="0 0 900 800" onMouseUp="onMouseUp(event);"></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="svg1" width="900" height="800" onmousedown="svg_onMouseDown(event)" onContextMenu="return false" viewBox="0 0 900 800" onMouseUp="onMouseUp(event);"></svg>
     </div>
     <script>
         drag = false;
@@ -118,6 +118,22 @@
                     break;
                 case 46:
                     //del
+                    if (previous_select_rect != null) {
+                        let block = getBlock(previous_select_rect);
+                        for (let i = 0; i < block.linezId.length; i++) {
+                            let l = document.getElementById(block.linezId[i]);
+                            if (l == null) {
+                                block.linezId.splice(i, 1);
+                                i--;
+                                continue;
+                            }
+                            svg1.removeChild(l);
+                        }
+                        svg1.removeChild(document.getElementById(block.textId));
+                        svg1.removeChild(previous_select_rect);
+                        console.log("del");
+                        previous_select_rect = null;
+                    }
                     break;
             }
             viewBox = `${xMin} ${yMin} ${width} ${height}`;
@@ -198,6 +214,10 @@
 
         }
 
+        function svg_onMouseDown(event) {
+            drag = true;
+        }
+
         function create_onclick(button, event) {
             b = addABlock();
             console.log(svg1.width.animVal.value);
@@ -213,6 +233,7 @@
 
         function onMouseUp() {
             drag = false;
+            previous_select_rect = select_rect;
             select_rect = null;
             select_text = null;
             //console.log("onMouseUp()");
@@ -260,6 +281,7 @@
         function on_mouse_move(event) {
             mouse_event = event;
 
+            //拖拉方塊
             if (select_rect != null && drag) {
                 let startViewBox = svg1.getAttribute('viewBox').split(' ').map(n => parseFloat(n))
                 let startClient = {
@@ -275,8 +297,8 @@
                 x = svg1.viewBox.animVal.x;
                 y = svg1.viewBox.animVal.y;
                 select_rect = document.getElementById(select_rect.id);
-                select_rect.setAttributeNS(null, 'x', startSVGPoint.x)
-                select_rect.setAttributeNS(null, 'y', startSVGPoint.y)
+                select_rect.setAttributeNS(null, 'x', startSVGPoint.x + dx)
+                select_rect.setAttributeNS(null, 'y', startSVGPoint.y + dy)
                 //select_rect.setAttributeNS(null, 'x', event.clientX - div_right.offsetLeft);
                 //select_rect.setAttributeNS(null, 'y', event.clientY - div_right.offsetTop);
                 set_text_in_rect(select_text.id, select_rect.id);
@@ -286,7 +308,47 @@
                     console.log("error");
                 }
                 updateBlockLine(b);
+            }
+            //移動畫布
+            else if (select_rect == null && drag) {
+                let startViewBox = svg1.getAttribute('viewBox').split(' ').map(n => parseFloat(n))
 
+                //	2. 取得滑鼠當前 viewport 中 client 座標值
+                let startClient = {
+                    x: event.clientX,
+                    y: event.clientY
+                }
+
+                //	3. 計算對應回去的 SVG 座標值
+                let newSVGPoint = svg1.createSVGPoint()
+                let CTM = svg1.getScreenCTM()
+                newSVGPoint.x = startClient.x
+                newSVGPoint.y = startClient.y
+                let startSVGPoint = newSVGPoint.matrixTransform(CTM.inverse())
+
+                //	4. 計算拖曳後滑鼠所在的 viewport client 座標值
+                let moveToClient = {
+                    x: event.clientX + event.movementX, //	movement 可以取得滑鼠位移量
+                    y: event.clientY + event.movementY
+                }
+
+                //	5. 計算對應回去的 SVG 座標值
+                newSVGPoint = svg1.createSVGPoint()
+                CTM = svg1.getScreenCTM()
+                newSVGPoint.x = moveToClient.x
+                newSVGPoint.y = moveToClient.y
+                let moveToSVGPoint = newSVGPoint.matrixTransform(CTM.inverse())
+
+                //	6. 計算位移量
+                let delta = {
+                    dx: startSVGPoint.x - moveToSVGPoint.x,
+                    dy: startSVGPoint.y - moveToSVGPoint.y
+                }
+
+                //	7. 設定新的 viewBox 值
+                let moveToViewBox = `${startViewBox[0] + delta.dx} ${startViewBox[1] + delta.dy} ${startViewBox[2]} ${startViewBox[3]}`
+                svg1.setAttribute('viewBox', moveToViewBox)
+                console.log(moveToViewBox)
             }
             //console.log(select_rect);
         }
@@ -305,16 +367,21 @@
             for (let i = 0; i < block.linezId.length; i++) {
                 l = document.getElementById(block.linezId[i]);
                 //l = document.getElementById(l.id);
+                if (l == null) {
+                    block.linezId.splice(i, 1);
+                    i--;
+                    continue;
+                }
                 var k = getAB(l);
-                console.log(k.a.id);
-                console.log(k.b.id);
+                console.log(k.aBlock.id);
+                console.log(k.bBlock.id);
                 console.log(block.id);
-                if (k.a.id == block.id) {
+                if (k.aBlock.id == block.id) {
                     //console.log("a");
                     l.setAttributeNS(null, 'x1', p.x);
                     l.setAttributeNS(null, 'y1', p.y);
 
-                } else if (k.b.id == block.id) {
+                } else if (k.bBlock.id == block.id) {
                     //console.log("b");
                     //console.log("b");
                     l.setAttributeNS(null, 'x2', p.x);
@@ -335,6 +402,7 @@
             //console.log("c1_click");
             //console.log(event);
             drag = !drag;
+            //連線
             if (event.button == 2) {
                 if (connect == 0) {
                     connect = 1;
@@ -350,12 +418,12 @@
                     p2 = getMiddle(connect2_rect);
                     //console.log(p1);
                     var l = addALine(p1.x, p1.y, p2.x, p2.y);
-                    ab[l.id].a = getBlock(connect1_rect);
-                    if (!ab[l.id].a) {
+                    ab[l.id].aBlock = getBlock(connect1_rect);
+                    if (!ab[l.id].aBlock) {
                         console.log("err");
                     }
-                    ab[l.id].b = getBlock(connect2_rect);
-                    if (!ab[l.id].b) {
+                    ab[l.id].bBlock = getBlock(connect2_rect);
+                    if (!ab[l.id].bBlock) {
                         console.log("err");
                     }
                     //l.a = connect1_rect.block;
@@ -372,6 +440,7 @@
                     console.log('connect');
                 }
             }
+            //拖拉方塊開始
             if (drag && event.button == 0) {
                 if (s.tagName == "text") {
                     s = s.block.rect;
@@ -391,6 +460,18 @@
                     //console.log(s.getBoundingClientRect());
                     //console.log(s.width.animVal.value);
                 };
+                let startClient = {
+                    x: event.clientX,
+                    y: event.clientY
+                }
+                let newSVGPoint = svg1.createSVGPoint()
+                let CTM = svg1.getScreenCTM()
+                newSVGPoint.x = startClient.x
+                newSVGPoint.y = startClient.y
+                let startSVGPoint = newSVGPoint.matrixTransform(CTM.inverse())
+                console.log(select_rect.x);
+                dx = select_rect.x.animVal.value - startSVGPoint.x;
+                dy = select_rect.y.animVal.value - startSVGPoint.y;
                 on_mouse_move(event);
             } else {}
             return false;
