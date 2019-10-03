@@ -6,6 +6,8 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta http-equiv="content-language" content="zh-tw">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script srv="saveSvgAsPng.js"></script>
     <title>圖型編輯器</title>
     <style type="text/css">
         #div_left {
@@ -18,7 +20,6 @@
         #div_right {
             padding: 0px;
             margin: 0px;
-            background-color: aquamarine;
             float: left;
         }
 
@@ -32,6 +33,7 @@
         }
 
         #svg1 {
+            background-color: aquamarine;
             border: 1px double black;
         }
 
@@ -56,27 +58,32 @@
         <textarea id="t1"></textarea>
         <br />
         <br />
-        <button onclick="save_onclick(this,event);">save</button>
+        <button onclick="save_onclick(this,event);">save data text</button>
+        <button onclick="save2_onclick(this,event);">save viewport .svg</button>
     </div>
     <div id="div_right">
         <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="svg1" width="900" height="800" onmousedown="svg_onMouseDown(event)" onContextMenu="return false" viewBox="0 0 900 800" onMouseUp="onMouseUp(event);"></svg>
     </div>
     <script>
-        drag = false;
-        select_rect = null;
-        select_text = null;
-        connect1_rect = null;
-        connect1_text = null;
-        connect2_rect = null;
-        connect2_text = null;
-        flow_id_block = 0;
-        flow_id_line = 0;
-        blockz = [];
-        blockById = {};
-        connect = 0;
-        ab = {};
-        svg1.onmousemove = on_mouse_move;
+        ini();
 
+        function ini() {
+            drag = false;
+            select_rect = null;
+            select_text = null;
+            connect1_rect = null;
+            connect1_text = null;
+            connect2_rect = null;
+            connect2_text = null;
+            select_line = null;
+            flow_id_block = 0;
+            flow_id_line = 0;
+            blockz = [];
+            blockById = {};
+            connect = 0;
+            ab = {};
+            svg1.onmousemove = on_mouse_move;
+        }
         console.log(svg1.viewBox);
         addABlock();
         addABlock();
@@ -88,6 +95,13 @@
                 var a = document.getElementById(`rect` + i);
                 console.log(blockById[a.id]);
             }
+        }
+
+        function save2_onclick(button, event) {
+            //svgToPng(svg1, 900, 800);
+            console.log(svg1);
+            exportSVG(svg1);
+            //saveSvgAsPng(svg1, "diagram.png");
         }
 
         function body_onkeydown(event) {
@@ -124,6 +138,7 @@
                             let l = document.getElementById(block.linezId[i]);
                             if (l == null) {
                                 block.linezId.splice(i, 1);
+                                delete ab[l];
                                 i--;
                                 continue;
                             }
@@ -143,6 +158,7 @@
         function onChange(e) {
             file = e.target.files[0];
             file.text().then(a => {
+                ini();
                 text = a;
                 console.log(text);
                 //console.log(e.target.files[0]);
@@ -162,8 +178,8 @@
                     blockz[i] = blockById[e.id] = getBlock(e);
                     console.log(e);
                 }
-                check_blockById();
                 svg1.onmousemove = on_mouse_move;
+                check_blockById();
                 console.log("load completed");
             });
         }
@@ -266,11 +282,16 @@
         }
 
         function addALine(x1, y1, x2, y2) {
-            svg1.innerHTML = `<line x1="` + x1 + `" y1="` + y1 + `" x2="` + x2 + `" y2="` + y2 + `" z="2" style="stroke: Tomato;stroke-width: 3px" id="line` + flow_id_line + `"/>` + svg1.innerHTML;
+            svg1.innerHTML = `<line x1="` + x1 + `" y1="` + y1 + `" x2="` + x2 + `" y2="` + y2 + `" z="2" onclick="line_click(thos,event)" style="stroke: Tomato;stroke-width: 3px" id="line` + flow_id_line + `"/>` + svg1.innerHTML;
             var l = document.getElementById("line" + flow_id_line);
             flow_id_line += 1;
             ab[l.id] = {};
             return l;
+        }
+        select_line = null;
+
+        function line_click(thos, event) {
+
         }
 
         function getAB(l) {
@@ -308,6 +329,7 @@
                     console.log("error");
                 }
                 updateBlockLine(b);
+                console.log("move");
             }
             //移動畫布
             else if (select_rect == null && drag) {
@@ -348,7 +370,7 @@
                 //	7. 設定新的 viewBox 值
                 let moveToViewBox = `${startViewBox[0] + delta.dx} ${startViewBox[1] + delta.dy} ${startViewBox[2]} ${startViewBox[3]}`
                 svg1.setAttribute('viewBox', moveToViewBox)
-                console.log(moveToViewBox)
+                //console.log(moveToViewBox)
             }
             //console.log(select_rect);
         }
@@ -523,6 +545,117 @@
             document.body.removeChild(span);
             return result;
         }
+
+        function svgToPng(svg, pngWidth, pngHeight) {
+            var serializer = new XMLSerializer();
+            var source = '<?xml version="1.0" standalone="no"?>\r\n' + serializer.serializeToString(svg.node());
+            var image = new Image;
+            image.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
+            var canvas = document.createElement("canvas");
+            canvas.width = pngWidth;
+            canvas.height = pngHeight;
+            var context = canvas.getContext("2d");
+            context.fillStyle = '#fff'; //設定儲存後的PNG 是白色的
+            context.fillRect(0, 0, 10000, 10000);
+            context.drawImage(image, 0, 0);
+            return canvas.toDataURL("image/png");
+        }
+        var exportSVG = function(svg) {
+            // first create a clone of our svg node so we don't mess the original one
+            var clone = svg.cloneNode(true);
+            // parse the styles
+            parseStyles(clone);
+
+            // create a doctype
+            var svgDocType = document.implementation.createDocumentType('svg', "-//W3C//DTD SVG 1.1//EN", "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd");
+            // a fresh svg document
+            var svgDoc = document.implementation.createDocument('http://www.w3.org/2000/svg', 'svg', svgDocType);
+            // replace the documentElement with our clone 
+            svgDoc.replaceChild(clone, svgDoc.documentElement);
+            // get the data
+            var svgData = (new XMLSerializer()).serializeToString(svgDoc);
+
+            // now you've got your svg data, the following will depend on how you want to download it
+            // e.g yo could make a Blob of it for FileSaver.js
+            /*
+            var blob = new Blob([svgData.replace(/></g, '>\n\r<')]);
+            saveAs(blob, 'myAwesomeSVG.svg');
+            */
+            // here I'll just make a simple a with download attribute
+
+            var a = document.createElement('a');
+            a.style = "display:none;";
+            a.href = 'data:image/svg+xml; charset=utf8, ' + encodeURIComponent(svgData.replace(/></g, '>\n\r<'));
+            a.download = 'myAwesomeSVG.svg';
+            a.innerHTML = 'download the svg file';
+            a.click();
+            document.body.appendChild(a);
+
+        };
+
+        var parseStyles = function(svg) {
+            var styleSheets = [];
+            var i;
+            // get the stylesheets of the document (ownerDocument in case svg is in <iframe> or <object>)
+            var docStyles = svg.ownerDocument.styleSheets;
+
+            // transform the live StyleSheetList to an array to avoid endless loop
+            for (i = 0; i < docStyles.length; i++) {
+                styleSheets.push(docStyles[i]);
+            }
+
+            if (!styleSheets.length) {
+                return;
+            }
+
+            var defs = svg.querySelector('defs') || document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+            if (!defs.parentNode) {
+                svg.insertBefore(defs, svg.firstElementChild);
+            }
+            svg.matches = svg.matches || svg.webkitMatchesSelector || svg.mozMatchesSelector || svg.msMatchesSelector || svg.oMatchesSelector;
+
+
+            // iterate through all document's stylesheets
+            for (i = 0; i < styleSheets.length; i++) {
+                var currentStyle = styleSheets[i]
+
+                var rules;
+                try {
+                    rules = currentStyle.cssRules;
+                } catch (e) {
+                    continue;
+                }
+                // create a new style element
+                var style = document.createElement('style');
+                // some stylesheets can't be accessed and will throw a security error
+                var l = rules && rules.length;
+                // iterate through each cssRules of this stylesheet
+                for (var j = 0; j < l; j++) {
+                    // get the selector of this cssRules
+                    var selector = rules[j].selectorText;
+                    // probably an external stylesheet we can't access
+                    if (!selector) {
+                        continue;
+                    }
+
+                    // is it our svg node or one of its children ?
+                    if ((svg.matches && svg.matches(selector)) || svg.querySelector(selector)) {
+
+                        var cssText = rules[j].cssText;
+                        // append it to our <style> node
+                        style.innerHTML += cssText + '\n';
+                    }
+                }
+                // if we got some rules
+                if (style.innerHTML) {
+                    // append the style node to the clone's defs
+                    defs.appendChild(style);
+                }
+            }
+
+        };
+
+        exportSVG(document.getElementById('mySVG'));
 
         function escape(s) {
             return s.replace(/&/g, "&amp;")
