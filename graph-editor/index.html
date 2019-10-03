@@ -24,12 +24,17 @@
         }
 
         #t1 {
-            left: 100px;
-            top: 50px;
             margin: 0px;
             padding: 0px;
             min-width: 200px;
-            min-height: 400px;
+            min-height: 20px;
+        }
+
+        #t2 {
+            margin: 0px;
+            padding: 0px;
+            min-width: 200px;
+            min-height: 500px;
         }
 
         #svg1 {
@@ -53,9 +58,11 @@
 
 <body onkeydown="body_onkeydown(event);">
     <div id="div_left">
-        <button onclick="create_onclick(this,event);">create block</button>
+        <button onclick="create_onclick(this,event);">create block[C]</button>
         <p>Load:<input type="file" id="file1" onchange="onChange(event);"></p>
+        <p><span id="info"></span></p>
         <textarea id="t1"></textarea>
+        <textarea id="t2"></textarea>
         <br />
         <br />
         <button onclick="save_onclick(this,event);">save data text</button>
@@ -99,12 +106,16 @@
 
         function save2_onclick(button, event) {
             //svgToPng(svg1, 900, 800);
-            console.log(svg1);
+            //console.log(png);
+            //console.log(svg1);
             exportSVG(svg1);
             //saveSvgAsPng(svg1, "diagram.png");
         }
 
         function body_onkeydown(event) {
+            if (isFocueOnLeft()) {
+                return;
+            }
             var power = 10;
             console.log(svg1.viewBox);
             console.log(event.keyCode);
@@ -114,6 +125,20 @@
             width = svg1.viewBox.animVal.width;
             height = svg1.viewBox.animVal.height;
             switch (event.keyCode) {
+                case 67:
+                    //c
+                    b = addABlock();
+                    console.log(svg1.width.animVal.value);
+                    x = svg1.viewBox.animVal.x;
+                    y = svg1.viewBox.animVal.y;
+                    width = svg1.viewBox.animVal.width;
+                    height = svg1.viewBox.animVal.height;
+                    r = document.getElementById(b.rectId);
+                    p = getMouseOnSvg();
+                    r.setAttributeNS(null, 'x', p.x);
+                    r.setAttributeNS(null, 'y', p.y);
+                    updateBlock(b);
+                    break;
                 case 87:
                     //w
                     yMin -= power;
@@ -149,10 +174,38 @@
                         console.log("del");
                         previous_select_rect = null;
                     }
+                    if (select_line != null) {
+                        line = select_line;
+                        console.log(line);
+                        let k = getAB(line);
+                        b1 = k.aBlock
+                        for (let i = 0; i < b1.linezId.length; i++) {
+                            testLineId = b1.linezId[i];
+                            if (line.id == testLineId) {
+                                b1.linezId.splice(i, 1);
+                                console.log("delete line id");
+                                i--;
+                            }
+                        }
+                        for (let i = 0; i < b2.linezId.length; i++) {
+                            testLineId = b2.linezId[i];
+                            if (line.id == testLineId) {
+                                b2.linezId.splice(i, 1);
+                                console.log("delete line id");
+                                i--;
+                            }
+                        }
+                        svg1.removeChild(line);
+                        select_line = null;
+                    }
                     break;
             }
             viewBox = `${xMin} ${yMin} ${width} ${height}`;
             svg1.setAttribute('viewBox', viewBox)
+        }
+
+        function isFocueOnLeft() {
+            return document.activeElement == t1 || document.activeElement == t2;
         }
 
         function onChange(e) {
@@ -271,9 +324,11 @@
             b.textId = t.id;
             b.linezId = [];
             b.id = r.id;
+            b.detail = "";
             console.log(b.id);
             blockz.push(b);
             blockById[r.id] = b;
+
             //r.setAttributeNS(null, 'block', JSON.stringify(b));
             //console.log(r.block);
             set_text_in_rect(t.id, r.id);
@@ -282,7 +337,7 @@
         }
 
         function addALine(x1, y1, x2, y2) {
-            svg1.innerHTML = `<line x1="` + x1 + `" y1="` + y1 + `" x2="` + x2 + `" y2="` + y2 + `" z="2" onclick="line_click(thos,event)" style="stroke: Tomato;stroke-width: 3px" id="line` + flow_id_line + `"/>` + svg1.innerHTML;
+            svg1.innerHTML = `<line x1="` + x1 + `" y1="` + y1 + `" x2="` + x2 + `" y2="` + y2 + `" z="2" onclick="line_click(this,event)" style="stroke: Tomato;stroke-width: 3px" id="line` + flow_id_line + `"/>` + svg1.innerHTML;
             var l = document.getElementById("line" + flow_id_line);
             flow_id_line += 1;
             ab[l.id] = {};
@@ -290,31 +345,36 @@
         }
         select_line = null;
 
-        function line_click(thos, event) {
-
+        function line_click(line, event) {
+            info.innerHTML = "選取直線";
+            select_line = line;
         }
 
         function getAB(l) {
             return ab[l.id];
         }
         //console.log(div_right.offsetLeft);
+        function getMouseOnSvg() {
+            let startClient = {
+                x: mouse_event.clientX,
+                y: mouse_event.clientY
+            }
+            let newSVGPoint = svg1.createSVGPoint()
+            let CTM = svg1.getScreenCTM()
+            newSVGPoint.x = startClient.x
+            newSVGPoint.y = startClient.y
+            let startSVGPoint = newSVGPoint.matrixTransform(CTM.inverse())
+            return startSVGPoint;
+        }
 
         function on_mouse_move(event) {
             mouse_event = event;
 
             //拖拉方塊
             if (select_rect != null && drag) {
+                info.innerHTML = "拖拉方塊";
                 let startViewBox = svg1.getAttribute('viewBox').split(' ').map(n => parseFloat(n))
-                let startClient = {
-                    x: event.clientX,
-                    y: event.clientY
-                }
-                let newSVGPoint = svg1.createSVGPoint()
-                let CTM = svg1.getScreenCTM()
-                newSVGPoint.x = startClient.x
-                newSVGPoint.y = startClient.y
-                let startSVGPoint = newSVGPoint.matrixTransform(CTM.inverse())
-
+                let startSVGPoint = getMouseOnSvg();
                 x = svg1.viewBox.animVal.x;
                 y = svg1.viewBox.animVal.y;
                 select_rect = document.getElementById(select_rect.id);
@@ -329,10 +389,11 @@
                     console.log("error");
                 }
                 updateBlockLine(b);
-                console.log("move");
+                //console.log("move");
             }
             //移動畫布
             else if (select_rect == null && drag) {
+                info.innerHTML = "移動畫布";
                 let startViewBox = svg1.getAttribute('viewBox').split(' ').map(n => parseFloat(n))
 
                 //	2. 取得滑鼠當前 viewport 中 client 座標值
@@ -424,6 +485,7 @@
             //console.log("c1_click");
             //console.log(event);
             drag = !drag;
+            select_line = null;
             //連線
             if (event.button == 2) {
                 if (connect == 0) {
@@ -439,27 +501,44 @@
                     p1 = getMiddle(connect1_rect);
                     p2 = getMiddle(connect2_rect);
                     //console.log(p1);
-                    var l = addALine(p1.x, p1.y, p2.x, p2.y);
-                    ab[l.id].aBlock = getBlock(connect1_rect);
-                    if (!ab[l.id].aBlock) {
-                        console.log("err");
-                    }
-                    ab[l.id].bBlock = getBlock(connect2_rect);
-                    if (!ab[l.id].bBlock) {
-                        console.log("err");
-                    }
-                    //l.a = connect1_rect.block;
-                    //l.b = connect2_rect.block;
                     b1 = getBlock(connect1_rect);
                     b2 = getBlock(connect2_rect);
-                    console.log(b1);
-                    console.log(b2);
-                    b1.linezId.push(l.id);
-                    b2.linezId.push(l.id);
-                    //connect1_rect.block.connectz.push(connect2_rect.block);
-                    //connect2_rect.block.connectz.push(connect1_rect.block);
+                    isExist = false;
+                    for (let i = 0; i < b1.linezId.length; i++) {
+                        var k = ab[b1.linezId[i]];
+                        if (k.aBlock == b1 && k.bBlock == b2) {
+                            isExist = true;
+                            break;
+                        } else if (k.aBlock == b2 && k.bBlock == b1) {
+                            isExist = true;
+                            break;
+                        }
+                    }
+                    if (!isExist) {
+                        var l = addALine(p1.x, p1.y, p2.x, p2.y);
+                        ab[l.id].aBlock = b1;
+                        if (!ab[l.id].aBlock) {
+                            console.log("err");
+                        }
+                        ab[l.id].bBlock = b2;
+                        if (!ab[l.id].bBlock) {
+                            console.log("err");
+                        }
+                        //l.a = connect1_rect.block;
+                        //l.b = connect2_rect.block;
+                        b1 = getBlock(connect1_rect);
+                        b2 = getBlock(connect2_rect);
+                        console.log(b1);
+                        console.log(b2);
+                        b1.linezId.push(l.id);
+                        b2.linezId.push(l.id);
+                        //connect1_rect.block.connectz.push(connect2_rect.block);
+                        //connect2_rect.block.connectz.push(connect1_rect.block);
 
-                    console.log('connect');
+                        console.log('connect');
+                    } else {
+                        console.log('exist');
+                    }
                 }
             }
             //拖拉方塊開始
@@ -470,18 +549,26 @@
                 } else if (s.tagName == "rect") {
                     console.log("rect");
                 }
+                info.innerHTML = "選取方塊";
                 select_rect = s;
                 select_text = et = document.getElementById(s.id + "_text");
                 t1.value = et.innerHTML;
+                let block = getBlock(select_rect);
+                t2.value = block.detail;
+                console.log(block.detail);
+                //TextChange 
                 t1.oninput = function() {
                     et.innerHTML = t1.value;
                     //console.log(et.innerHTML);
                     set_text_in_rect(et.id, s.id);
-                    updateBlockLine(getBlock(s));
+                    updateBlockLine(block);
                     //t1.style.left = s.getBoundingClientRect().left + 'px';
                     //console.log(s.getBoundingClientRect());
                     //console.log(s.width.animVal.value);
                 };
+                t2.oninput = function() {
+                    block.detail = t2.value;
+                }
                 let startClient = {
                     x: event.clientX,
                     y: event.clientY
@@ -548,7 +635,7 @@
 
         function svgToPng(svg, pngWidth, pngHeight) {
             var serializer = new XMLSerializer();
-            var source = '<?xml version="1.0" standalone="no"?>\r\n' + serializer.serializeToString(svg.node());
+            var source = '<?xml version="1.0" standalone="no"?>\r\n' + serializer.serializeToString(svg.cloneNode(true));
             var image = new Image;
             image.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
             var canvas = document.createElement("canvas");
@@ -558,7 +645,14 @@
             context.fillStyle = '#fff'; //設定儲存後的PNG 是白色的
             context.fillRect(0, 0, 10000, 10000);
             context.drawImage(image, 0, 0);
-            return canvas.toDataURL("image/png");
+            var data = canvas.toDataURL("image/png");
+
+            var a = document.createElement('a');
+            a.style = "display:none;";
+            a.href = data;
+            a.download = 'myAwesomeSVG.png';
+            a.innerHTML = 'download the png file';
+            a.click();
         }
         var exportSVG = function(svg) {
             // first create a clone of our svg node so we don't mess the original one
@@ -589,7 +683,7 @@
             a.download = 'myAwesomeSVG.svg';
             a.innerHTML = 'download the svg file';
             a.click();
-            document.body.appendChild(a);
+            //document.body.appendChild(a);
 
         };
 
