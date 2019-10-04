@@ -6,7 +6,6 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta http-equiv="content-language" content="zh-tw">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="http://d3js.org/d3.v3.min.js"></script>
     <script srv="saveSvgAsPng.js"></script>
     <title>圖型編輯器</title>
     <style type="text/css">
@@ -21,6 +20,11 @@
             padding: 0px;
             margin: 0px;
             float: left;
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -o-user-select: none;
         }
 
         #t1 {
@@ -46,11 +50,14 @@
             text-anchor: middle;
             font-size: 20px;
             font-family: 微軟正黑體;
-            -moz-user-select: none;
-            -webkit-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-            -o-user-select: none;
+        }
+
+        .box {
+            border: 2px dotted gray;
+            width: auto;
+            max-width: 230px;
+            padding: 5px;
+            margin: 5px;
         }
 
     </style>
@@ -58,23 +65,40 @@
 
 <body onkeydown="body_onkeydown(event);">
     <div id="div_left">
-        <button onclick="create_onclick(this,event);">create block[C]</button>
-        <p>Load:<input type="file" id="file1" onchange="onChange(event);"></p>
+        <audio id="lineAudio" src="sound/18V_Cordless_Drill_Switch.mp3"></audio>
+        <audio id="deletaAudio" src="sound/Air_Woosh_Underwater.mp3"></audio>
+        <audio id="createAudio" src="sound/Beep_Short.mp3"></audio>
+        <div class="box">
+            <button onclick="create_onclick(this,event);">create block[C]</button>
+        </div>
+        <div class="box">
+            線段粗細(px):<input type="number" id="myNumber" defaultValue="2" value="2" min="1" max="20">
+        </div>
         <p><span id="info"></span></p>
-        <textarea id="t1"></textarea>
-        <textarea id="t2"></textarea>
-        <br />
-        <br />
-        <button onclick="save_onclick(this,event);">save data text</button>
-        <button onclick="save2_onclick(this,event);">save viewport .svg</button>
+        <div class="box">
+            <textarea id="t1"></textarea>
+            <textarea id="t2"></textarea>
+        </div>
+        <div class="box">
+            <p>Load:<input type="file" id="file1" onchange="onChange(event);"></p>
+        </div>
+        <div class="box">
+            Name:<textarea id="t3">圖形連線</textarea>
+            <button onclick="save_onclick(this,event);">save data text</button>
+            <button onclick="save2_onclick(this,event);">save viewport .svg</button>
+        </div>
+        <div class="box">
+            <input type="checkbox" checked id="soundCheckBox">音效</input>
+        </div>
     </div>
-    <div id="div_right">
-        <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="svg1" width="900" height="800" onmousedown="svg_onMouseDown(event)" onContextMenu="return false" viewBox="0 0 900 800" onMouseUp="onMouseUp(event);"></svg>
+    <div id="div_right" onContextMenu="return false">
+        <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="svg1" width="900" height="800" onmousedown="svg_onMouseDown(event)" viewBox="0 0 900 800" onMouseUp="onMouseUp(event);"></svg>
     </div>
     <script>
         ini();
 
         function ini() {
+            previous_select_rect = null;
             drag = false;
             select_rect = null;
             select_text = null;
@@ -85,6 +109,7 @@
             select_line = null;
             flow_id_block = 0;
             flow_id_line = 0;
+            dx = dy = 0;
             blockz = [];
             blockById = {};
             connect = 0;
@@ -100,7 +125,18 @@
         function check_blockById() {
             for (i = 0; i < blockz.length; i++) {
                 var a = document.getElementById(`rect` + i);
-                console.log(blockById[a.id]);
+                if (a == null) {
+                    console.log("null:deleted");
+                } else {
+                    console.log(blockById[a.id]);
+                }
+            }
+        }
+
+        function playSound(a) {
+            if (soundCheckBox.checked) {
+                a.currentTime = 0;
+                a.play();
             }
         }
 
@@ -127,17 +163,22 @@
             switch (event.keyCode) {
                 case 67:
                     //c
-                    b = addABlock();
-                    console.log(svg1.width.animVal.value);
-                    x = svg1.viewBox.animVal.x;
-                    y = svg1.viewBox.animVal.y;
-                    width = svg1.viewBox.animVal.width;
-                    height = svg1.viewBox.animVal.height;
-                    r = document.getElementById(b.rectId);
-                    p = getMouseOnSvg();
-                    r.setAttributeNS(null, 'x', p.x);
-                    r.setAttributeNS(null, 'y', p.y);
-                    updateBlock(b);
+                    function createABlockAndSetPosionByMouse() {
+                        b = addABlock();
+                        console.log(svg1.width.animVal.value);
+                        x = svg1.viewBox.animVal.x;
+                        y = svg1.viewBox.animVal.y;
+                        width = svg1.viewBox.animVal.width;
+                        height = svg1.viewBox.animVal.height;
+                        r = document.getElementById(b.rectId);
+                        p = getMouseOnSvg();
+                        r.setAttributeNS(null, 'x', p.x);
+                        r.setAttributeNS(null, 'y', p.y);
+                        seletctBlockAndSetTextAreaValueAndSync(b);
+                        updateBlock(b);
+                        playSound(createAudio);
+                    }
+                    createABlockAndSetPosionByMouse();
                     break;
                 case 87:
                     //w
@@ -157,51 +198,62 @@
                     break;
                 case 46:
                     //del
-                    if (previous_select_rect != null) {
-                        let block = getBlock(previous_select_rect);
-                        for (let i = 0; i < block.linezId.length; i++) {
-                            let l = document.getElementById(block.linezId[i]);
-                            if (l == null) {
-                                block.linezId.splice(i, 1);
-                                delete ab[l];
-                                i--;
-                                continue;
-                            }
-                            svg1.removeChild(l);
-                        }
-                        svg1.removeChild(document.getElementById(block.textId));
-                        svg1.removeChild(previous_select_rect);
-                        console.log("del");
-                        previous_select_rect = null;
-                    }
-                    if (select_line != null) {
-                        line = select_line;
-                        console.log(line);
-                        let k = getAB(line);
-                        b1 = k.aBlock
-                        for (let i = 0; i < b1.linezId.length; i++) {
-                            testLineId = b1.linezId[i];
-                            if (line.id == testLineId) {
-                                b1.linezId.splice(i, 1);
-                                console.log("delete line id");
-                                i--;
-                            }
-                        }
-                        for (let i = 0; i < b2.linezId.length; i++) {
-                            testLineId = b2.linezId[i];
-                            if (line.id == testLineId) {
-                                b2.linezId.splice(i, 1);
-                                console.log("delete line id");
-                                i--;
-                            }
-                        }
-                        svg1.removeChild(line);
-                        select_line = null;
-                    }
-                    break;
+                    DeleteBlockAndNeighborLinez();
             }
             viewBox = `${xMin} ${yMin} ${width} ${height}`;
             svg1.setAttribute('viewBox', viewBox)
+        }
+
+        function DeleteBlockAndNeighborLinez() {
+            if (previous_select_rect != null) {
+                select_line = null;
+                connect = 0;
+                let block = getBlock(previous_select_rect);
+                for (let i = 0; i < block.linezId.length; i++) {
+                    let l = document.getElementById(block.linezId[i]);
+                    if (l == null) {
+                        block.linezId.splice(i, 1);
+                        delete ab[l];
+                        i--;
+                        continue;
+                    }
+                    svg1.removeChild(l);
+                }
+                svg1.removeChild(document.getElementById(block.textId));
+                svg1.removeChild(previous_select_rect);
+                console.log("del");
+                playSound(deletaAudio);
+                blockz.splice(blockz.indexOf(block), 1);
+                showInfoAlphaDown("刪除方塊");
+                previous_select_rect = null;
+            }
+            if (select_line != null) {
+                line = select_line;
+                console.log(line);
+                let k = getAB(line);
+                b1 = k.aBlock
+                for (let i = 0; i < b1.linezId.length; i++) {
+                    testLineId = b1.linezId[i];
+                    if (line.id == testLineId) {
+                        b1.linezId.splice(i, 1);
+                        console.log("delete line id");
+                        i--;
+                    }
+                }
+                b2 = k.bBlock;
+                for (let i = 0; i < b2.linezId.length; i++) {
+                    testLineId = b2.linezId[i];
+                    if (line.id == testLineId) {
+                        b2.linezId.splice(i, 1);
+                        console.log("delete line id");
+                        i--;
+                    }
+                }
+                playSound(deletaAudio);
+                showInfoAlphaDown("刪除連線");
+                svg1.removeChild(line);
+                select_line = null;
+            }
         }
 
         function isFocueOnLeft() {
@@ -226,11 +278,6 @@
                 blockById = data.blockById;
                 blockz = data.blockz;
                 div_right.innerHTML = data.innerHTML;
-                for (let i = 0; i < flow_id_block; i++) {
-                    e = document.getElementById('rect' + i);
-                    blockz[i] = blockById[e.id] = getBlock(e);
-                    console.log(e);
-                }
                 svg1.onmousemove = on_mouse_move;
                 check_blockById();
                 console.log("load completed");
@@ -247,7 +294,7 @@
             data.innerHTML = div_right.innerHTML;
 
             str = JSON.stringify(data);
-            saveTextAsFile("123.txt", str);
+            saveTextAsFile(t3.value + ".txt", str);
             console.log('a')
         }
 
@@ -284,11 +331,21 @@
         }
 
         function svg_onMouseDown(event) {
-            drag = true;
+            if (event.button == 2) {
+                if (connect == 0) {
+                    showInfoAlphaDown("選取畫布");
+                    drag = true;
+                }
+            }
+
         }
 
         function create_onclick(button, event) {
             b = addABlock();
+
+            select_rect = document.getElementById(b.rectId);
+            seletctBlockAndSetTextAreaValueAndSync(getBlock(select_rect));
+
             console.log(svg1.width.animVal.value);
             x = svg1.viewBox.animVal.x;
             y = svg1.viewBox.animVal.y;
@@ -297,6 +354,7 @@
             r = document.getElementById(b.rectId);
             r.setAttributeNS(null, 'x', width / 2 + x);
             r.setAttributeNS(null, 'y', height / 2 + y);
+            playSound(createAudio);
             updateBlock(b);
         }
 
@@ -337,7 +395,7 @@
         }
 
         function addALine(x1, y1, x2, y2) {
-            svg1.innerHTML = `<line x1="` + x1 + `" y1="` + y1 + `" x2="` + x2 + `" y2="` + y2 + `" z="2" onclick="line_click(this,event)" style="stroke: Tomato;stroke-width: 3px" id="line` + flow_id_line + `"/>` + svg1.innerHTML;
+            svg1.innerHTML = `<line x1="` + x1 + `" y1="` + y1 + `" x2="` + x2 + `" y2="` + y2 + `" z="2" onmousedown="line_click(this,event)" style="stroke: Tomato;stroke-width: ` + myNumber.value + `px" id="line` + flow_id_line + `"/>` + svg1.innerHTML;
             var l = document.getElementById("line" + flow_id_line);
             flow_id_line += 1;
             ab[l.id] = {};
@@ -346,7 +404,8 @@
         select_line = null;
 
         function line_click(line, event) {
-            info.innerHTML = "選取直線";
+            playSound(lineAudio);
+            showInfoAlphaDown("選取直線");
             select_line = line;
         }
 
@@ -367,12 +426,18 @@
             return startSVGPoint;
         }
 
+        function showInfoAlphaDown(newInfo) {
+            $("#info").stop().html(newInfo).css('opacity', 1).animate({
+                opacity: '0.2'
+            }, "fast")
+        }
+
         function on_mouse_move(event) {
             mouse_event = event;
 
             //拖拉方塊
             if (select_rect != null && drag) {
-                info.innerHTML = "拖拉方塊";
+                showInfoAlphaDown("拖拉方塊");
                 let startViewBox = svg1.getAttribute('viewBox').split(' ').map(n => parseFloat(n))
                 let startSVGPoint = getMouseOnSvg();
                 x = svg1.viewBox.animVal.x;
@@ -393,7 +458,9 @@
             }
             //移動畫布
             else if (select_rect == null && drag) {
-                info.innerHTML = "移動畫布";
+                if (connect == 0) {
+                    showInfoAlphaDown("移動畫布");
+                }
                 let startViewBox = svg1.getAttribute('viewBox').split(' ').map(n => parseFloat(n))
 
                 //	2. 取得滑鼠當前 viewport 中 client 座標值
@@ -489,12 +556,19 @@
             //連線
             if (event.button == 2) {
                 if (connect == 0) {
+                    playSound(lineAudio);
+                    showInfoAlphaDown("設定連線起點");
                     connect = 1;
                     connect1_rect = s;
                     //console.log(s.block);
                     connect1_text = et = document.getElementById(s.id + "_text");
                 } else if (connect == 1) {
-                    connect = 0;
+                    playSound(lineAudio);
+                    showInfoAlphaDown("完成連線");
+                    connect = 2;
+                    window.setTimeout(() => {
+                        connect = 0
+                    }, 100);
                     connect2_rect = s;
                     //console.log(s.block);
                     connect2_text = et = document.getElementById(s.id + "_text");
@@ -504,6 +578,10 @@
                     b1 = getBlock(connect1_rect);
                     b2 = getBlock(connect2_rect);
                     isExist = false;
+                    isSame = false;
+                    if (connect1_rect == connect2_rect) {
+                        isSame = true;
+                    }
                     for (let i = 0; i < b1.linezId.length; i++) {
                         var k = ab[b1.linezId[i]];
                         if (k.aBlock == b1 && k.bBlock == b2) {
@@ -514,7 +592,11 @@
                             break;
                         }
                     }
-                    if (!isExist) {
+                    if (isExist) {
+                        console.log('exist');
+                    } else if (isSame) {
+                        console.log("no self");
+                    } else {
                         var l = addALine(p1.x, p1.y, p2.x, p2.y);
                         ab[l.id].aBlock = b1;
                         if (!ab[l.id].aBlock) {
@@ -536,8 +618,6 @@
                         //connect2_rect.block.connectz.push(connect1_rect.block);
 
                         console.log('connect');
-                    } else {
-                        console.log('exist');
                     }
                 }
             }
@@ -549,26 +629,13 @@
                 } else if (s.tagName == "rect") {
                     console.log("rect");
                 }
-                info.innerHTML = "選取方塊";
+                showInfoAlphaDown("選取方塊");
                 select_rect = s;
                 select_text = et = document.getElementById(s.id + "_text");
-                t1.value = et.innerHTML;
+
                 let block = getBlock(select_rect);
-                t2.value = block.detail;
-                console.log(block.detail);
-                //TextChange 
-                t1.oninput = function() {
-                    et.innerHTML = t1.value;
-                    //console.log(et.innerHTML);
-                    set_text_in_rect(et.id, s.id);
-                    updateBlockLine(block);
-                    //t1.style.left = s.getBoundingClientRect().left + 'px';
-                    //console.log(s.getBoundingClientRect());
-                    //console.log(s.width.animVal.value);
-                };
-                t2.oninput = function() {
-                    block.detail = t2.value;
-                }
+                seletctBlockAndSetTextAreaValueAndSync(block);
+
                 let startClient = {
                     x: event.clientX,
                     y: event.clientY
@@ -584,6 +651,23 @@
                 on_mouse_move(event);
             } else {}
             return false;
+        }
+
+        function seletctBlockAndSetTextAreaValueAndSync(block) {
+            previous_select_rect = select_rect = document.getElementById(block.rectId);
+            et = document.getElementById(block.textId);
+            t1.value = et.innerHTML;
+            t2.value = block.detail;
+            console.log(block.detail);
+            //TextChange 
+            t1.oninput = function() {
+                et.innerHTML = t1.value;
+                set_text_in_rect(et.id, block.rectId);
+                updateBlockLine(block);
+            };
+            t2.oninput = function() {
+                block.detail = t2.value;
+            }
         }
 
         function set_text_in_rect(textId, rId) {
@@ -654,7 +738,8 @@
             a.innerHTML = 'download the png file';
             a.click();
         }
-        var exportSVG = function(svg) {
+
+        function exportSVG(svg) {
             // first create a clone of our svg node so we don't mess the original one
             var clone = svg.cloneNode(true);
             // parse the styles
@@ -680,12 +765,12 @@
             var a = document.createElement('a');
             a.style = "display:none;";
             a.href = 'data:image/svg+xml; charset=utf8, ' + encodeURIComponent(svgData.replace(/></g, '>\n\r<'));
-            a.download = 'myAwesomeSVG.svg';
+            a.download = t3.value + '.svg';
             a.innerHTML = 'download the svg file';
             a.click();
             //document.body.appendChild(a);
 
-        };
+        }
 
         var parseStyles = function(svg) {
             var styleSheets = [];
@@ -748,8 +833,6 @@
             }
 
         };
-
-        exportSVG(document.getElementById('mySVG'));
 
         function escape(s) {
             return s.replace(/&/g, "&amp;")
