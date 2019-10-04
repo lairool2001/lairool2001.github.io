@@ -38,8 +38,10 @@
             margin: 0px;
             padding: 0px;
             min-width: 200px;
-            min-height: 500px;
+            min-height: 200px;
         }
+
+        #searchText {}
 
         #svg1 {
             background-color: aquamarine;
@@ -60,6 +62,14 @@
             margin: 5px;
         }
 
+        .infoBox {
+            max-width: 250px;
+            min-width: 250px;
+            border-left: 1px dashed black;
+            border-right: 1px dashed black;
+            text-align: center;
+        }
+
     </style>
 </head>
 
@@ -69,21 +79,39 @@
         <audio id="deletaAudio" src="sound/Air_Woosh_Underwater.mp3"></audio>
         <audio id="createAudio" src="sound/Beep_Short.mp3"></audio>
         <div class="box">
-            <button onclick="create_onclick(this,event);">create block[C]</button>
+            左鍵點擊方塊可以設定名稱與資料，右鍵分別點擊方塊連線，DEL刪除方塊或連線
+            <br />
+            <br />
+            <button onclick="create_onclick(this,event);">create block at center [C]</button>
         </div>
         <div class="box">
             線段粗細(px):<input type="number" id="myNumber" defaultValue="2" value="2" min="1" max="20">
         </div>
-        <p><span id="info"></span></p>
+        <div class="infoBox">
+            <span id="info"></span>
+        </div>
         <div class="box">
+            搜尋:
+            <br />
+            <textarea id="searchText" oninput="searchOnInput(this,event);"></textarea>
+        </div>
+        <div class="box">
+            方塊名稱:
+            <br />
             <textarea id="t1"></textarea>
+            <br />
+            方塊資料:
             <textarea id="t2"></textarea>
         </div>
         <div class="box">
-            <p>Load:<input type="file" id="file1" onchange="onChange(event);"></p>
+            Load File:
+            <br />
+            <input type="file" id="file1" onchange="onChange(event);">
         </div>
         <div class="box">
-            Name:<textarea id="t3">圖形連線</textarea>
+            Save Name:
+            <br />
+            <textarea id="t3">圖形連線</textarea>
             <button onclick="save_onclick(this,event);">save data text</button>
             <button onclick="save2_onclick(this,event);">save viewport .svg</button>
         </div>
@@ -118,7 +146,62 @@
         }
         console.log(svg1.viewBox);
         addABlock();
-        addABlock();
+        //addABlock();
+
+        function searchOnInput(search, event) {
+            console.log('a');
+            s = searchText.value;
+            find = false;
+            for (let i = 0; i < blockz.length; i++) {
+                block = blockz[i];
+                var name = document.getElementById(block.textId).innerHTML;
+                console.log(name);
+                if (name == s) {
+                    find = true;
+                    break;
+                }
+            }
+            if (find) {
+                console.log('find same');
+                showInfoAlphaDown("找到完全相同文字的方塊")
+                lookAtBlockAndSelctIt(block)
+                return;
+            }
+            for (let i = 0; i < blockz.length; i++) {
+                block = blockz[i];
+                var name = document.getElementById(block.textId).innerHTML;
+                console.log(name);
+                if (name.includes(s)) {
+                    find = true;
+                    break;
+                }
+            }
+            if (find) {
+                console.log('find contain');
+                showInfoAlphaDown("找到包含文字的方塊")
+                lookAtBlockAndSelctIt(block)
+                return;
+            }
+            if (!find) {
+                console.log('not find');
+                showInfoAlphaDown("在所有方塊中找不到文字")
+                return;
+            }
+        }
+
+        function lookAtBlockAndSelctIt(block) {
+            viewBox = svg1.viewBox;
+            console.log(viewBox);
+            rect = document.getElementById(block.rectId);
+            seletctBlockAndSetTextAreaValueAndSync(block);
+            console.log(rect.x);
+            x = rect.x.animVal.value - svg1.viewBox.animVal.width / 2 + rect.width.animVal.value / 2;
+            y = rect.y.animVal.value - svg1.viewBox.animVal.height / 2 + rect.height.animVal.value / 2;
+            viewBox = `${x} ${y} ${svg1.viewBox.animVal.width} ${svg1.viewBox.animVal.height}`;
+            //rect.setAttributeNS(null, 'x', svg1.viewBox.animVal.x - svg1.viewBox.animVal.width / 2);
+            //rect.setAttributeNS(null, 'y', svg1.viewBox.animVal.x - svg1.viewBox.animVal.height / 2);
+            svg1.setAttributeNS(null, "viewBox", viewBox);
+        }
 
         check_blockById();
 
@@ -164,6 +247,7 @@
                 case 67:
                     //c
                     function createABlockAndSetPosionByMouse() {
+                        showInfoAlphaDown("創造方塊並放在鼠標位置")
                         b = addABlock();
                         console.log(svg1.width.animVal.value);
                         x = svg1.viewBox.animVal.x;
@@ -174,6 +258,8 @@
                         p = getMouseOnSvg();
                         r.setAttributeNS(null, 'x', p.x);
                         r.setAttributeNS(null, 'y', p.y);
+                        connect = 0;
+                        select_line = null;
                         seletctBlockAndSetTextAreaValueAndSync(b);
                         updateBlock(b);
                         playSound(createAudio);
@@ -257,7 +343,7 @@
         }
 
         function isFocueOnLeft() {
-            return document.activeElement == t1 || document.activeElement == t2;
+            return document.activeElement == searchText || document.activeElement == t1 || document.activeElement == t2;
         }
 
         function onChange(e) {
@@ -341,7 +427,12 @@
         }
 
         function create_onclick(button, event) {
+            showInfoAlphaDown("創造方塊並放在視圖中間")
+
             b = addABlock();
+
+            connect = 0;
+            select_line = null;
 
             select_rect = document.getElementById(b.rectId);
             seletctBlockAndSetTextAreaValueAndSync(getBlock(select_rect));
@@ -429,12 +520,12 @@
         function showInfoAlphaDown(newInfo) {
             $("#info").stop().html(newInfo).css('opacity', 1).animate({
                 opacity: '0.2'
-            }, "fast")
+            }, "slow")
         }
 
         function on_mouse_move(event) {
             mouse_event = event;
-
+            //console.log(event);
             //拖拉方塊
             if (select_rect != null && drag) {
                 showInfoAlphaDown("拖拉方塊");
@@ -654,7 +745,8 @@
         }
 
         function seletctBlockAndSetTextAreaValueAndSync(block) {
-            previous_select_rect = select_rect = document.getElementById(block.rectId);
+            previous_select_rect = document.getElementById(block.rectId);
+            select_text = document.getElementById(block.textId);
             et = document.getElementById(block.textId);
             t1.value = et.innerHTML;
             t2.value = block.detail;
