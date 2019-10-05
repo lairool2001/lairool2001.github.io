@@ -53,7 +53,7 @@
         .rect1_text {
             text-anchor: middle;
             font-size: 20px;
-            font-family: 微軟正黑體;
+            font-family: "Microsoft JhengHei";
         }
 
         .box {
@@ -75,13 +75,13 @@
     </style>
 </head>
 
-<body onkeydown="body_onkeydown(event);">
+<body onkeydown="body_onkeydown(event);" onkeyup="body_onkeyup(event);">
     <div id="div_left">
         <audio id="lineAudio" src="sound/18V_Cordless_Drill_Switch.mp3"></audio>
         <audio id="deletaAudio" src="sound/Air_Woosh_Underwater.mp3"></audio>
         <audio id="createAudio" src="sound/Beep_Short.mp3"></audio>
         <div class="box">
-            <span id="text1">左鍵點擊方塊可以設定名稱與資料，右鍵分別點擊方塊連線，DEL刪除方塊或連線，C創造方塊。</span>
+            <span id="text1">左鍵點擊方塊可以設定名稱與資料，右鍵分別點擊方塊連線，DEL刪除方塊或連線，C創造方塊，WASD可移動畫布，右鍵也可拖拉畫布。</span>
             <br />
             <br />
             <button onclick="create_onclick(this,event);"><span id="text8">在中央創造方塊</span></button>
@@ -115,7 +115,7 @@
             <br />
             <textarea id="t3">圖形連線</textarea>
             <button onclick="save_onclick(this,event);" id="button1">儲存完整文字資料</button>
-            <button onclick="save2_onclick(this,event);" id="button2">儲存範圍視圖內.svg檔</button>
+            <button onclick="save2_onclick(this,event);" id="button2">儲存完整.svg檔</button>
         </div>
         <div class="box">
             <input type="checkbox" checked id="soundCheckBox"><span id="text7">音效</span></input>
@@ -148,6 +148,7 @@
             //lang = "en-us";
             console.log(lang);
             svg1.onmousemove = on_mouse_move;
+            okToBodyKeydown = true
         }
         console.log(svg1.viewBox);
         addABlock();
@@ -161,7 +162,7 @@
             if (lang.includes("zh")) {
                 //use default
             } else {
-                text1.innerHTML = "Letft click block to set name or detail. Right click 2 block to connect. Press del to delete block or line. Press C to create block.";
+                text1.innerHTML = "Letft click block to set name or detail. Right click 2 block to connect. Press del to delete block or line. Press C to create block. WASD can move canvas.Right mouse button hold can also move the canvas.";
                 text2.innerHTML = "Line stroke width(px):"
                 text3.innerHTML = "Search:"
                 text4.innerHTML = "Block name:"
@@ -173,7 +174,7 @@
                 text10.innerHTML = "Graph Editor";
                 t3.value = "Graph"
                 button1.innerHTML = "Save data text"
-                button2.innerHTML = "Save viewport .svg"
+                button2.innerHTML = "Save .svg"
                 translate = {};
                 translate["找到完全相同文字的方塊"] = "Found the exact same block of text."
                 translate["找到包含文字的方塊"] = "Found the block containing the text."
@@ -192,6 +193,10 @@
                 translate["讀取檔案成功"] = "The file was loaded successfully."
                 translate["讀取檔案錯誤！初始化畫布。"] = "Loading file error! Initialized the canvas."
             }
+        }
+
+        function body_onkeyup(event) {
+            okToBodyKeydown = true
         }
 
         function searchOnInput(search, event) {
@@ -278,12 +283,18 @@
         }
 
         function body_onkeydown(event) {
+            if (okToBodyKeydown) {
+                //可按一次
+            } else {
+                return;
+            }
             if (isFocueOnLeft()) {
                 return;
             }
             var power = 10;
-            console.log(svg1.viewBox);
+            //console.log(svg1.viewBox);
             console.log(event.keyCode);
+            console.log(event);
 
             xMin = svg1.viewBox.animVal.x;
             yMin = svg1.viewBox.animVal.y;
@@ -311,6 +322,7 @@
                         playSound(createAudio);
                     }
                     createABlockAndSetPosionByMouse();
+                    okToBodyKeydown = false;
                     break;
                 case 87:
                     //w
@@ -331,6 +343,7 @@
                 case 46:
                     //del
                     DeleteBlockAndNeighborLinez();
+                    okToBodyKeydown = false;
             }
             viewBox = `${xMin} ${yMin} ${width} ${height}`;
             svg1.setAttribute('viewBox', viewBox)
@@ -441,30 +454,6 @@
             str = JSON.stringify(data);
             saveTextAsFile(t3.value + ".txt", str);
             console.log('a')
-        }
-
-        function saveTextAsFile(_fileName, _text) {
-            var textFileAsBlob = new Blob([_text], {
-                type: 'text/plain'
-            });
-
-            var downloadLink = document.createElement("a");
-            downloadLink.download = _fileName;
-            downloadLink.innerHTML = "Download File";
-            if (window.webkitURL != null) {
-                // Chrome allows the link to be clicked
-                // without actually adding it to the DOM.
-                downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
-            } else {
-                // Firefox requires the link to be added to the DOM
-                // before it can be clicked.
-                downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
-                downloadLink.onclick = destroyClickedElement;
-                downloadLink.style.display = "none";
-                document.body.appendChild(downloadLink);
-            }
-
-            downloadLink.click();
         }
 
         function destroyClickedElement(event) {
@@ -893,6 +882,20 @@
             a.click();
         }
 
+
+        function saveTextAsFile(_fileName, _text) {
+
+            var downloadLink = document.createElement("a");
+            downloadLink.style.display = "none";
+            document.body.appendChild(downloadLink);
+            downloadLink.href = 'data:text/plain; charset=utf8, ' + encodeURIComponent(_text);
+            downloadLink.download = _fileName;
+            downloadLink.innerHTML = "Download File";
+            downloadLink.click();
+            window.URL.revokeObjectURL(downloadLink.href);
+            document.body.removeChild(downloadLink);
+        }
+
         function exportSVG(svg) {
             // first create a clone of our svg node so we don't mess the original one
             var clone = svg.cloneNode(true);
@@ -917,11 +920,16 @@
             // here I'll just make a simple a with download attribute
 
             var a = document.createElement('a');
-            a.style = "display:none;";
+            a.style.display = "none";
+            document.body.appendChild(a);
             a.href = 'data:image/svg+xml; charset=utf8, ' + encodeURIComponent(svgData.replace(/></g, '>\n\r<'));
+            //location.href = 'data:image/svg+xml; charset=utf8, ' + encodeURIComponent(svgData.replace(/></g, '>\n\r<'));
+            //download('data:image/svg+xml; charset=utf8, ' + encodeURIComponent(svgData.replace(/></g, '>\n\r<')), t3.value + '.svg')
             a.download = t3.value + '.svg';
             a.innerHTML = 'download the svg file';
             a.click();
+            window.URL.revokeObjectURL(a.href);
+            document.body.removeChild(a);
             //document.body.appendChild(a);
 
         }
