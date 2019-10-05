@@ -81,53 +81,53 @@
         <audio id="deletaAudio" src="sound/Air_Woosh_Underwater.mp3"></audio>
         <audio id="createAudio" src="sound/Beep_Short.mp3"></audio>
         <div class="box">
-            左鍵點擊方塊可以設定名稱與資料，右鍵分別點擊方塊連線，DEL刪除方塊或連線
+            <span id="text1">左鍵點擊方塊可以設定名稱與資料，右鍵分別點擊方塊連線，DEL刪除方塊或連線，C創造方塊。</span>
             <br />
             <br />
-            <button onclick="create_onclick(this,event);">create block at center [C]</button>
+            <button onclick="create_onclick(this,event);"><span id="text8">在中央創造方塊</span></button>
         </div>
         <div class="box">
-            線段粗細(px):<input type="number" id="myNumber" defaultValue="2" value="2" min="1" max="20">
+            <span id="text2">線段粗細(px):</span><input type="number" id="myNumber" defaultValue="2" value="2" min="1" max="20">
         </div>
         <div class="infoBox">
             <span id="info"></span>
         </div>
         <div class="box">
-            搜尋:
+            <span id="text3">搜尋:</span>
             <br />
             <textarea id="searchText" oninput="searchOnInput(this,event);"></textarea>
         </div>
         <div class="box">
-            方塊名稱:
+            <span id="text4">方塊名稱:</span>
             <br />
             <textarea id="t1"></textarea>
             <br />
-            方塊資料:
+            <span id="text5">方塊資料:</span>
             <textarea id="t2"></textarea>
         </div>
         <div class="box">
-            Load File:
+            <span id="text6">讀取檔案:</span>
             <br />
             <input type="file" id="file1" onchange="onChange(event);">
         </div>
         <div class="box">
-            Save Name:
+            <span id="text9">存檔名稱:</span>
             <br />
             <textarea id="t3">圖形連線</textarea>
-            <button onclick="save_onclick(this,event);">save data text</button>
-            <button onclick="save2_onclick(this,event);">save viewport .svg</button>
+            <button onclick="save_onclick(this,event);" id="button1">儲存完整文字資料</button>
+            <button onclick="save2_onclick(this,event);" id="button2">儲存範圍視圖內.svg檔</button>
         </div>
         <div class="box">
-            <input type="checkbox" checked id="soundCheckBox">音效</input>
+            <input type="checkbox" checked id="soundCheckBox"><span id="text7">音效</span></input>
         </div>
     </div>
     <div id="div_right" onContextMenu="return false">
-        <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="svg1" width="900" height="800" onmousedown="svg_onMouseDown(event)" viewBox="0 0 900 800" onMouseUp="onMouseUp(event);"></svg>
     </div>
     <script>
         ini();
 
         function ini() {
+            div_right.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="svg1" width="900" height="800" onmousedown="svg_onMouseDown(event)" viewBox="0 0 900 800" onMouseUp="onMouseUp(event);"></svg>`;
             previous_select_rect = null;
             drag = false;
             select_rect = null;
@@ -144,11 +144,54 @@
             blockById = {};
             connect = 0;
             ab = {};
+            lang = (navigator.language || navigator.browserLanguage).toLowerCase();
+            //lang = "en-us";
+            console.log(lang);
             svg1.onmousemove = on_mouse_move;
         }
         console.log(svg1.viewBox);
         addABlock();
         //addABlock();
+
+        setTextUponLanguae();
+
+        function setTextUponLanguae(name) {
+            database = {};
+            translate = null;
+            if (lang.includes("zh")) {
+                //use default
+            } else {
+                text1.innerHTML = "Letft click block to set name or detail. Right click 2 block to connect. Press del to delete block or line. Press C to create block.";
+                text2.innerHTML = "Line stroke width(px):"
+                text3.innerHTML = "Search:"
+                text4.innerHTML = "Block name:"
+                text5.innerHTML = "Block detail:"
+                text6.innerHTML = "Load file:"
+                text7.innerHTML = "Play Sound"
+                text8.innerHTML = "Create block at center"
+                text9.innerHTML = "Save file Name:"
+                t3.value = "Graph"
+                button1.innerHTML = "Save data text"
+                button2.innerHTML = "Save viewport .svg"
+                translate = {};
+                translate["找到完全相同文字的方塊"] = "Found the exact same block of text."
+                translate["找到包含文字的方塊"] = "Found the block containing the text."
+                translate["在所有方塊中找不到文字"] = "No found."
+                translate["創造方塊並放在鼠標位置"] = "Created the block and set at cursor position."
+                translate["刪除方塊"] = "Deleted the block."
+                translate["刪除連線"] = "Deleted the line"
+                translate["選取畫布"] = "Selected the canvas"
+                translate["創造方塊並放在視圖中間"] = "Created the block and set at middle of view box."
+                translate["選取直線"] = "Selected the line."
+                translate["拖拉方塊"] = "Dragging the block."
+                translate["移動畫布"] = "Moving the view box."
+                translate["設定連線起點"] = "Set the start of line."
+                translate["完成連線"] = "Completed the connection."
+                translate["選取方塊"] = "Selected the block."
+                translate["讀取檔案成功"] = "The file was loaded successfully."
+                translate["讀取檔案錯誤！初始化畫布。"] = "Loading file error! Initialized the canvas."
+            }
+        }
 
         function searchOnInput(search, event) {
             console.log('a');
@@ -351,24 +394,37 @@
         function onChange(e) {
             file = e.target.files[0];
             file.text().then(a => {
-                ini();
-                text = a;
-                console.log(text);
-                //console.log(e.target.files[0]);
-                var data = JSON.parse(text);
-                console.log(data);
-                flow_id_block = data.flow_id_block;
-                flow_id_line = data.flow_id_line;
-                blockz = data.blockz;
-                ab = data.ab;
-                //data.blockById = blockById;
-                //rebuild blockById
-                blockById = data.blockById;
-                blockz = data.blockz;
-                div_right.innerHTML = data.innerHTML;
-                svg1.onmousemove = on_mouse_move;
-                check_blockById();
-                console.log("load completed");
+                try {
+
+                    ini();
+                    text = a;
+                    console.log(text);
+                    //console.log(e.target.files[0]);
+                    var data = JSON.parse(text);
+                    console.log(data);
+                    flow_id_block = data.flow_id_block;
+                    flow_id_line = data.flow_id_line;
+                    blockz = data.blockz;
+                    ab = data.ab;
+                    //data.blockById = blockById;
+                    //rebuild blockById
+                    blockById = data.blockById;
+                    blockz = data.blockz;
+                    div_right.innerHTML = data.innerHTML;
+                    svg1.onmousemove = on_mouse_move;
+                    check_blockById();
+                    console.log("load completed");
+                    if (blockz != null) {
+
+                        showInfoAlphaDown("讀取檔案成功");
+                    } else {
+                        ini();
+                        showInfoAlphaDown("讀取檔案錯誤！初始化畫布。");
+                    }
+                } catch {
+                    ini();
+                    showInfoAlphaDown("讀取檔案錯誤！初始化畫布。");
+                }
             });
         }
 
@@ -520,6 +576,9 @@
         }
 
         function showInfoAlphaDown(newInfo) {
+            if (translate != null) {
+                newInfo = translate[newInfo];
+            }
             $("#info").stop().html(newInfo).css('opacity', 1).animate({
                 opacity: '0.2'
             }, "slow")
