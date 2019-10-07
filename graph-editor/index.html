@@ -6,7 +6,10 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta http-equiv="content-language" content="zh-tw">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script srv="saveSvgAsPng.js"></script>
+    <link rel="Stylesheet" type="text/css" href="css/jpicker-1.1.6.min.css" />
+    <link rel="Stylesheet" type="text/css" href="jPicker.css" />
+    <script src="jquery-1.4.4.min.js" type="text/javascript"></script>
+    <script src="jpicker-1.1.6.min.js" type="text/javascript"></script>
     <title id="text10">圖型編輯器</title>
     <style type="text/css">
         #div_left {
@@ -72,6 +75,14 @@
             text-align: center;
         }
 
+        .ColorPick {
+            width: 50px;
+        }
+
+        #myNumber {
+            width: 50px;
+        }
+
     </style>
 </head>
 
@@ -87,7 +98,13 @@
             <button onclick="create_onclick(this,event);"><span id="text8">在中央創造方塊</span></button>
         </div>
         <div class="box">
-            <span id="text2">線段粗細(px):</span><input type="number" id="myNumber" defaultValue="2" value="2" min="1" max="20">
+            <span id="text2">線段粗細(px):</span>
+            <input type="number" id="myNumber" oninput="number_onInput(this,event);" defaultValue="2" value="2" min="1" max="20">
+            <br />
+            <span id="text11">線條顏色:</span><input class="ColorPick" type="text" id="color4" value="000000" /><br />
+            <span id="text12">外框顏色:</span><input class="ColorPick" type="text" id="color1" value="000000" /><br />
+            <span id="text13">方塊顏色:</span><input class="ColorPick" type="text" id="color2" value="FF0000" /><br />
+            <span id="text14">文字顏色:</span><input class="ColorPick" type="text" id="color3" value="000000" />
         </div>
         <div class="infoBox">
             <span id="info"></span>
@@ -108,7 +125,7 @@
         <div class="box">
             <span id="text6">讀取檔案:</span>
             <br />
-            <input type="file" id="file1" onchange="onChange(event);">
+            <input type="file" id="file1" onchange="onChange(event);"></input>
         </div>
         <div class="box">
             <span id="text9">存檔名稱:</span>
@@ -124,11 +141,79 @@
     <div id="div_right" onContextMenu="return false">
     </div>
     <script>
+        $.fn.jPicker.defaults.images.clientPath = 'images/';
+        let setting = {
+            window: {
+                expandable: true,
+                position: {
+                    x: 'screenCenter', // acceptable values "left", "center", "right",
+                    // "screenCenter", or relative px value
+                    y: '250px', // acceptable values "top", "bottom", "center", or relative px
+                    // value
+                }
+            },
+        };
+        let change = function(color, context) {
+            //決定顏色
+            //stroke="black" stroke-width="2" fill="red"
+            console.log(context);
+            var all = color.val('all');
+            if (previous_select_rect != null) {
+                previous_select_rect.setAttributeNS(null, 'stroke', all && '#' + all.hex || 'transparent');
+            }
+
+        };
+        c1 = $('#color1').jPicker(setting,
+            change, change, change
+        )
+        console.log(c1[0].value);
+
+        change = function(color, context) {
+            //決定顏色
+            //stroke="black" stroke-width="2" fill="red"
+            console.log(context);
+            var all = color.val('all');
+            if (previous_select_rect != null) {
+                previous_select_rect.setAttributeNS(null, 'fill', all && '#' + all.hex || 'transparent');
+            }
+
+        };
+        c2 = $('#color2').jPicker(setting,
+            change, change, change
+        )
+        //console.log(c2[0].value);
+
+        change = function(color, context) {
+            console.log(context);
+            var all = color.val('all');
+            if (previous_select_text != null) {
+                previous_select_text.setAttributeNS(null, 'fill', all && '#' + all.hex || 'transparent');
+            }
+
+        };
+        c3 = $('#color3').jPicker(setting,
+            change, change, change
+        )
+
+        change = function(color, context) {
+            console.log(context);
+            var all = color.val('all');
+            if (select_line != null) {
+                console.log("s");
+                select_line.setAttributeNS(null, 'stroke', all && '#' + all.hex || 'transparent');
+            }
+
+        };
+        c4 = $('#color4').jPicker(setting,
+            change, change, change
+        )
+
         ini();
 
         function ini() {
             div_right.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="svg1" width="900" height="800" onmousedown="svg_onMouseDown(event)" viewBox="0 0 900 800" onMouseUp="onMouseUp(event);"></svg>`;
             previous_select_rect = null;
+            previous_select_text = null;
             drag = false;
             select_rect = null;
             select_text = null;
@@ -145,7 +230,7 @@
             connect = 0;
             ab = {};
             lang = (navigator.language || navigator.browserLanguage).toLowerCase();
-            //lang = "en-us";
+            lang = "en-us";
             console.log(lang);
             svg1.onmousemove = on_mouse_move;
             okToBodyKeydown = true
@@ -156,6 +241,13 @@
 
         setTextUponLanguae();
 
+        function number_onInput(number, event) {
+            //console.log("number_onInput");
+            if (select_line != null) {
+                select_line.setAttributeNS(null, 'stroke-width', number.value)
+            }
+        }
+        /*翻譯*/
         function setTextUponLanguae(name) {
             database = {};
             translate = null;
@@ -171,7 +263,11 @@
                 text7.innerHTML = "Play Sound"
                 text8.innerHTML = "Create block at center"
                 text9.innerHTML = "Save file Name:"
-                text10.innerHTML = "Graph Editor";
+                text10.innerHTML = "Graph Editor"
+                text11.innerHTML = "Connect line:"
+                text12.innerHTML = "Block outer frame:"
+                text13.innerHTML = "Block background:"
+                text14.innerHTML = "Word color:"
                 t3.value = "Graph"
                 button1.innerHTML = "Save data text"
                 button2.innerHTML = "Save .svg"
@@ -192,6 +288,7 @@
                 translate["選取方塊"] = "Selected the block."
                 translate["讀取檔案成功"] = "The file was loaded successfully."
                 translate["讀取檔案錯誤！初始化畫布。"] = "Loading file error! Initialized the canvas."
+                translate["取消選取方塊"] = "Deselected block";
             }
         }
 
@@ -495,13 +592,25 @@
             r.setAttributeNS(null, 'y', height / 2 + y);
             playSound(createAudio);
             updateBlock(b);
+
+            previous_select_rect = select_rect;
+            select_rect = null;
         }
 
         function onMouseUp() {
             drag = false;
-            previous_select_rect = select_rect;
-            select_rect = null;
-            select_text = null;
+            if (select_rect != null) {
+                console.log("block click");
+                previous_select_rect = select_rect;
+                previous_select_text = select_text;
+                select_rect = null;
+                select_text = null;
+            } else if (select_line == null) {
+                console.log("canvas click");
+                previous_select_rect = null;
+                showInfoAlphaDown("取消選取方塊");
+            }
+            console.log(select_line);
             //console.log("onMouseUp()");
         }
 
@@ -510,8 +619,9 @@
         }
 
         function addABlock() {
-            svg1.innerHTML += `<rect x="100" y="50" z="1" width="40" height="40" stroke="black" stroke-width="2" fill="red" onmousedown="mouse_down(event,this);" id="rect` + flow_id_block + `"></rect>
-            <text x="100" y="50" z="1" onselectstart="return false;" unselectable id="rect` + flow_id_block + `_text" class="rect1_text" onmousedown="mouse_down(event,rect` + flow_id_block + `);">123</text>`;
+            console.log($("#color1").color);
+            svg1.innerHTML += `<rect x="100" y="50" z="1" width="40" height="40" stroke="#` + c1[0].value + `" stroke-width="2" fill="#` + c2[0].value + `" onmousedown="mouse_down(event,this);" id="rect` + flow_id_block + `"></rect>
+            <text x="100" y="50" z="1" onselectstart="return false;" unselectable id="rect` + flow_id_block + `_text" fill="#` + c3[0].value + `" class="rect1_text" onmousedown="mouse_down(event,rect` + flow_id_block + `);">123</text>`;
             r = document.getElementById(`rect` + flow_id_block);
             t = document.getElementById("rect" + flow_id_block + "_text");
             //console.log(r);
@@ -534,7 +644,7 @@
         }
 
         function addALine(x1, y1, x2, y2) {
-            svg1.innerHTML = `<line x1="` + x1 + `" y1="` + y1 + `" x2="` + x2 + `" y2="` + y2 + `" z="2" onmousedown="line_click(this,event)" style="stroke: Tomato;stroke-width: ` + myNumber.value + `px" id="line` + flow_id_line + `"/>` + svg1.innerHTML;
+            svg1.innerHTML = `<line x1="` + x1 + `" y1="` + y1 + `" x2="` + x2 + `" y2="` + y2 + `" z="2" onmousedown="line_click(this,event)" stroke="#` + c4[0].value + `" stroke-width="` + myNumber.value + `px" id="line` + flow_id_line + `"/>` + svg1.innerHTML;
             var l = document.getElementById("line" + flow_id_line);
             flow_id_line += 1;
             ab[l.id] = {};
@@ -740,6 +850,7 @@
                         console.log("no self");
                     } else {
                         var l = addALine(p1.x, p1.y, p2.x, p2.y);
+                        select_line = l;
                         ab[l.id].aBlock = b1;
                         if (!ab[l.id].aBlock) {
                             console.log("err");
@@ -797,6 +908,7 @@
 
         function seletctBlockAndSetTextAreaValueAndSync(block) {
             previous_select_rect = document.getElementById(block.rectId);
+            previous_select_text = document.getElementById(block.textId);
             select_text = document.getElementById(block.textId);
             et = document.getElementById(block.textId);
             t1.value = et.innerHTML;
@@ -818,7 +930,8 @@
             //console.log(text.y);
             text = document.getElementById(textId);
             r1 = document.getElementById(rId);
-            size = textSize("20px", "微軟正黑體", escape(text.innerHTML));
+            //console.log(text);
+            size = textSize("20px", "Microsoft JhengHei", escape(text.innerHTML));
             w = size.width + 30;
             if (w == 0) {
                 w = 10;
