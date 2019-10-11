@@ -111,12 +111,12 @@
         <div class="box">
             <span id="text3">搜尋:</span>
             <br />
-            <textarea id="searchText" oninput="searchOnInput(this,event);"></textarea>
+            <textarea id="searchText" onfocus="searchOnInput(this,event);" oninput=" searchOnInput(this,event);"></textarea>
         </div>
         <div class="box">
-            <span id="text4">方塊名稱:</span>
+            <span id="text4">方塊名稱:</span><span id="text15">[x1] 獨立</span>
             <br />
-            <textarea id="t1"></textarea>
+            <textarea id="t1" oninput="t1_OnInput();"></textarea>
             <br />
             <span id="text5">方塊資料:</span>
             <textarea id="t2"></textarea>
@@ -238,6 +238,36 @@
         addABlock();
         //addABlock();
 
+        function t1_UpdateAndSearchAlone() {
+            console.log("t1_OnInput");
+            s = t1.value;
+            console.log(s);
+            findCount = 0;
+            console.log(blockz);
+            for (let i = 0; i < blockz.length; i++) {
+                block = blockz[i];
+                var name = document.getElementById(block.textId).innerHTML;
+                console.log(i + ":" + name);
+                if (name == s) {
+                    findCount += 1;
+                }
+            }
+            console.log(findCount);
+            if (findCount == 1) {
+                text15.style.color = "blue"
+                text15.innerHTML = "[x1] 獨立";
+            } else if (findCount == 0) {
+                text15.style.color = "gray"
+                text15.innerHTML = "[x0] 無";
+            } else {
+                text15.style.color = "red"
+                text15.innerHTML = "[xN] 複數";
+            }
+            if (translate != null) {
+                text15.innerHTML = translate[text15.innerHTML];
+            }
+        }
+
         setTextUponLanguae();
 
         function number_onInput(number, event) {
@@ -288,6 +318,9 @@
                 translate["讀取檔案成功"] = "The file was loaded successfully."
                 translate["讀取檔案錯誤！初始化畫布。"] = "Loading file error! Initialized the canvas."
                 translate["取消選取方塊"] = "Deselected block";
+                translate["[x1] 獨立"] = "[x1] alone";
+                translate["[x0] 無"] = "[x2] void";
+                translate["[xN] 複數"] = "[xN] multiple";
             }
         }
 
@@ -299,8 +332,11 @@
             console.log('a');
             s = searchText.value;
             find = false;
+            console.log(blockz);
             for (let i = 0; i < blockz.length; i++) {
                 block = blockz[i];
+                console.log(block.textId);
+                console.log(document.getElementById(block.textId))
                 var name = document.getElementById(block.textId).innerHTML;
                 console.log(name);
                 if (name == s) {
@@ -416,6 +452,7 @@
                         seletctBlockAndSetTextAreaValueAndSync(b);
                         updateBlock(b);
                         playSound(createAudio);
+                        t1_UpdateAndSearchAlone();
                     }
                     createABlockAndSetPosionByMouse();
                     okToBodyKeydown = false;
@@ -460,13 +497,14 @@
                     }
                     svg1.removeChild(l);
                 }
+                deleteABlock(block);
                 svg1.removeChild(document.getElementById(block.textId));
                 svg1.removeChild(previous_select_rect);
                 console.log("del");
                 playSound(deletaAudio);
-                blockz.splice(blockz.indexOf(block), 1);
                 showInfoAlphaDown("刪除方塊");
                 previous_select_rect = null;
+                t1_UpdateAndSearchAlone();
             }
             if (select_line != null) {
                 line = select_line;
@@ -514,13 +552,28 @@
                     console.log(data);
                     flow_id_block = data.flow_id_block;
                     flow_id_line = data.flow_id_line;
+                    div_right.innerHTML = data.innerHTML;
                     blockz = data.blockz;
                     ab = data.ab;
                     //data.blockById = blockById;
                     //rebuild blockById
                     blockById = data.blockById;
-                    blockz = data.blockz;
-                    div_right.innerHTML = data.innerHTML;
+                    //blockz = data.blockz;
+                    blockz = [];
+                    i = 0;
+                    $.each(blockById, function(index, value) {
+                        console.log(value);
+                        var e = document.getElementById(value.rectId);
+                        if (e != null) {
+                            blockz[i] = value;
+                            i++;
+                        } else {
+                            delete blockById[index];
+                            console.log("delete null " + value);
+                        }
+                    });
+
+                    console.log(blockz);
                     svg1.onmousemove = on_mouse_move;
                     check_blockById();
                     console.log("load completed");
@@ -544,7 +597,8 @@
             data.flow_id_line = flow_id_line;
             data.ab = ab;
             data.blockById = blockById;
-            data.blockz = blockz;
+            //data.blockz = blockz;
+            data.version = 1;
             data.innerHTML = div_right.innerHTML;
 
             str = JSON.stringify(data);
@@ -594,6 +648,7 @@
 
             previous_select_rect = select_rect;
             select_rect = null;
+            t1_UpdateAndSearchAlone();
         }
 
         function onMouseUp() {
@@ -615,6 +670,11 @@
 
         function updateBlock(b) {
             set_text_in_rect(b.textId, b.rectId);
+        }
+
+        function deleteABlock(block) {
+            delete blockById[block.rectId];
+            blockz.splice(blockz.indexOf(block), 1);
         }
 
         function addABlock() {
@@ -906,6 +966,7 @@
         }
 
         function seletctBlockAndSetTextAreaValueAndSync(block) {
+            t1_UpdateAndSearchAlone();
             previous_select_rect = document.getElementById(block.rectId);
             previous_select_text = document.getElementById(block.textId);
             select_text = document.getElementById(block.textId);
@@ -919,6 +980,7 @@
                 set_text_in_rect(et.id, block.rectId);
                 updateBlockLine(block);
             };
+            t1.addEventListener('input', t1_UpdateAndSearchAlone);
             t2.oninput = function() {
                 block.detail = t2.value;
             }
