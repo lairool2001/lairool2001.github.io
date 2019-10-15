@@ -238,6 +238,8 @@
             //lang = "en-us";
             console.log(lang);
             svg1.onmousemove = on_mouse_move;
+            //svg1.onmousedown = on_mouse_down;
+            svg1.addEventListener('mousedown', on_mouse_down, true);
             okToBodyKeydown = true
         }
         console.log(svg1.viewBox);
@@ -621,32 +623,38 @@
                     t1_UpdateAndSearchAlone();
                 }
             } else if (select_line != null) {
-                line = select_line;
-                console.log(line);
-                let k = getAB(line);
-                b1 = k.aBlock
-                for (let i = 0; i < b1.linezId.length; i++) {
-                    testLineId = b1.linezId[i];
-                    if (line.id == testLineId) {
-                        b1.linezId.splice(i, 1);
-                        console.log("delete line id");
-                        i--;
-                    }
-                }
-                b2 = k.bBlock;
-                for (let i = 0; i < b2.linezId.length; i++) {
-                    testLineId = b2.linezId[i];
-                    if (line.id == testLineId) {
-                        b2.linezId.splice(i, 1);
-                        console.log("delete line id");
-                        i--;
-                    }
-                }
+                lineId = select_line;
+                deleteALineById(lineId.id);
                 playSound(deletaAudio);
-                showInfoAlphaDown("刪除連線");
-                svg1.removeChild(line);
-                select_line = null;
             }
+        }
+
+        function deleteALineById(lineId) {
+            console.log(lineId);
+            let l = document.getElementById(lineId);
+            let k = getAB(l);
+            b1 = k.aBlock
+            for (let i = 0; i < b1.linezId.length; i++) {
+                testLineId = b1.linezId[i];
+                if (lineId == testLineId) {
+                    b1.linezId.splice(i, 1);
+                    console.log("delete line id");
+                    i--;
+                }
+            }
+            b2 = k.bBlock;
+            for (let i = 0; i < b2.linezId.length; i++) {
+                testLineId = b2.linezId[i];
+                if (lineId == testLineId) {
+                    b2.linezId.splice(i, 1);
+                    console.log("delete line id");
+                    i--;
+                }
+            }
+            delete ab[lineId]
+            showInfoAlphaDown("刪除連線");
+            svg1.removeChild(l);
+            select_line = null;
         }
 
         function isFocueOnLeft() {
@@ -762,6 +770,14 @@
             t1_UpdateAndSearchAlone();
         }
 
+        function on_mouse_down() {
+            select_line = null;
+            previous_select_rect = select_rect = select_text = null;
+
+            t2.oninput = t1.oninput = null;
+            //work
+        }
+
         function onMouseUp() {
             drag = false;
             if (select_rect != null) {
@@ -829,6 +845,9 @@
             previous_select_text = previous_select_rect = select_rect = null;
         }
 
+        /*
+        l is line element
+        */
         function getAB(l) {
             return ab[l.id];
         }
@@ -980,7 +999,7 @@
         function mouse_down(event, s) {
             //console.log("c1_click");
             //console.log(event);
-            drag = !drag;
+            drag = true;
             select_line = null;
             //連線
             if (event.button == 2) {
@@ -993,7 +1012,6 @@
                     connect1_text = et = document.getElementById(s.id + "_text");
                 } else if (connect == 1) {
                     playSound(lineAudio);
-                    showInfoAlphaDown("完成連線");
                     connect = 2;
                     window.setTimeout(() => {
                         connect = 0
@@ -1010,22 +1028,32 @@
                     isSame = false;
                     if (connect1_rect == connect2_rect) {
                         isSame = true;
-                    }
-                    for (let i = 0; i < b1.linezId.length; i++) {
-                        var k = ab[b1.linezId[i]];
-                        if (k.aBlock == b1 && k.bBlock == b2) {
-                            isExist = true;
-                            break;
-                        } else if (k.aBlock == b2 && k.bBlock == b1) {
-                            isExist = true;
-                            break;
+                    } else {
+                        for (let i = 0; i < b1.linezId.length; i++) {
+                            lineId = b1.linezId[i];
+                            k = ab[lineId];
+                            if (k.aBlock == b1 && k.bBlock == b2) {
+                                isExist = true;
+                                break;
+                            } else if (k.aBlock == b2 && k.bBlock == b1) {
+                                isExist = true;
+                                break;
+                            }
                         }
                     }
-                    if (isExist) {
-                        console.log('exist');
-                    } else if (isSame) {
+                    if (isSame) {
                         console.log("no self");
                     } else {
+                        if (isExist) {
+                            console.log('exist so delete old');
+                            //console.log(lineId);
+                            deleteALineById(lineId);
+                            showInfoAlphaDown("更新連線");
+
+                        } else {
+                            showInfoAlphaDown("完成連線");
+                        }
+
                         var l = addALine(p1.x, p1.y, p2.x, p2.y);
                         select_line = l;
                         ab[l.id].aBlock = b1;
@@ -1048,7 +1076,7 @@
                 }
             }
             //拖拉方塊開始
-            if (drag && event.button == 0) {
+            if (event.button == 0) {
                 if (s.tagName == "text") {
                     s = s.block.rect;
                     console.log("text");
