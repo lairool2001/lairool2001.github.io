@@ -391,7 +391,7 @@
             if (lang.includes("zh")) {
                 //use default
             } else {
-                text1.innerHTML = "Letft click block to set name or detail. Right click 2 block to connect. Press del to delete block or line. Press C to create block. WASD can move canvas.Right mouse button hold can also move the canvas.";
+                text1.innerHTML = "Letft click block to set name or detail. Right click 2 block to connect. Press del to delete block or line. Press C to create block. WASD can move the canvas.Right mouse button hold can also move the canvas.";
                 text2.innerHTML = "Line stroke width(px):"
                 text3.innerHTML = "Search:"
                 text4.innerHTML = "Block name:"
@@ -599,27 +599,28 @@
                 select_line = null;
                 connect = 0;
                 let block = getBlock(previous_select_rect);
-                for (let i = 0; i < block.linezId.length; i++) {
-                    let l = document.getElementById(block.linezId[i]);
-                    if (l == null) {
-                        block.linezId.splice(i, 1);
-                        delete ab[l];
-                        i--;
-                        continue;
+                if (block != null) {
+                    for (let i = 0; i < block.linezId.length; i++) {
+                        let l = document.getElementById(block.linezId[i]);
+                        if (l == null) {
+                            block.linezId.splice(i, 1);
+                            delete ab[l];
+                            i--;
+                            continue;
+                        }
+                        svg1.removeChild(l);
                     }
-                    svg1.removeChild(l);
+                    console.log(previous_select_rect);
+                    svg1.removeChild(document.getElementById(block.textId));
+                    svg1.removeChild(document.getElementById(block.rectId));
+                    deleteABlock(block);
+                    console.log("del");
+                    playSound(deletaAudio);
+                    showInfoAlphaDown("刪除方塊");
+                    previous_select_rect = null;
+                    t1_UpdateAndSearchAlone();
                 }
-                console.log(previous_select_rect);
-                svg1.removeChild(document.getElementById(block.textId));
-                svg1.removeChild(previous_select_rect);
-                deleteABlock(block);
-                console.log("del");
-                playSound(deletaAudio);
-                showInfoAlphaDown("刪除方塊");
-                previous_select_rect = null;
-                t1_UpdateAndSearchAlone();
-            }
-            if (select_line != null) {
+            } else if (select_line != null) {
                 line = select_line;
                 console.log(line);
                 let k = getAB(line);
@@ -769,10 +770,10 @@
                 previous_select_text = select_text;
                 select_rect = null;
                 select_text = null;
-            } else if (select_line == null) {
+            } else if (select_line == null && select_rect != null && connect == 0) {
                 console.log("canvas click");
-                previous_select_rect = null;
-                showInfoAlphaDown("取消選取方塊");
+                //previous_select_rect = null;
+                //showInfoAlphaDown("取消選取方塊");
             }
             console.log(select_line);
             //console.log("onMouseUp()");
@@ -825,6 +826,7 @@
             playSound(lineAudio);
             showInfoAlphaDown("選取直線");
             select_line = line;
+            previous_select_text = previous_select_rect = select_rect = null;
         }
 
         function getAB(l) {
@@ -1034,16 +1036,12 @@
                         if (!ab[l.id].bBlock) {
                             console.log("err");
                         }
-                        //l.a = connect1_rect.block;
-                        //l.b = connect2_rect.block;
                         b1 = getBlock(connect1_rect);
                         b2 = getBlock(connect2_rect);
                         console.log(b1);
                         console.log(b2);
                         b1.linezId.push(l.id);
                         b2.linezId.push(l.id);
-                        //connect1_rect.block.connectz.push(connect2_rect.block);
-                        //connect2_rect.block.connectz.push(connect1_rect.block);
 
                         console.log('connect');
                     }
@@ -1060,6 +1058,9 @@
                 showInfoAlphaDown("選取方塊");
                 select_rect = s;
                 select_text = et = document.getElementById(s.id + "_text");
+                previous_select_rect = previous_select_text = null;
+                select_line = null;
+                connect = 0;
 
                 let block = getBlock(select_rect);
                 seletctBlockAndSetTextAreaValueAndSync(block);
