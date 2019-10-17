@@ -879,10 +879,8 @@
                 //console.log("move");
             }
             //移動畫布
-            else if (select_rect == null && mouse_event.buttons == 2) {
-                if (connect == 0) {
-                    showInfoAlphaDown("移動畫布");
-                }
+            else if (mouse_event.buttons == 2) {
+                showInfoAlphaDown("移動畫布");
                 let startViewBox = svg1.getAttribute('viewBox').split(' ').map(n => parseFloat(n))
 
                 //	2. 取得滑鼠當前 viewport 中 client 座標值
