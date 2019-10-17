@@ -37,11 +37,19 @@
             height: 30px;
         }
 
+        #t1:read-only {
+            background: #505050;
+        }
+
         #t2 {
             margin: 0px;
             padding: 0px;
             min-width: 200px;
             height: 80px;
+        }
+
+        #t2:read-only {
+            background: #505050;
         }
 
         #searchText {
@@ -108,7 +116,7 @@
             <span id="text14">文字顏色:</span><input class="ColorPick" type="text" id="color3" value="000000" />
         </div>
         <div class="infoBox">
-            <span id="info"></span>
+            <span id="info">這裡是資訊欄</span>
         </div>
         <div class="box">
             <span id="text3">[F]搜尋:</span>
@@ -242,6 +250,7 @@
             //svg1.onmousedown = on_mouse_down;
             svg1.addEventListener('mousedown', on_mouse_down, true);
             okToBodyKeydown = true
+            setActiveNameAndDetailBox(false)
         }
         console.log(svg1.viewBox);
         addABlock();
@@ -362,6 +371,7 @@
                 button2.innerHTML = "Save .svg"
                 button_LoadCookieElement.innerHTML = "Load local storage"
                 button_SaveCookieElement.innerHTML = "[Q]Save local storage"
+                info.innerHTML = "This is infomation box."
 
                 translate = {};
                 translate["找到完全相同文字的方塊"] = "Found the exact same block of text."
@@ -594,6 +604,7 @@
                     console.log("del");
                     playSound(deletaAudio);
                     showInfoAlphaDown("刪除方塊");
+                    setActiveNameAndDetailBox(false);
                     previous_select_rect = null;
                     t1_UpdateAndSearchAlone();
                 }
@@ -745,7 +756,8 @@
             previous_select_rect = select_rect = select_text = null;
 
             t2.oninput = t1.oninput = null;
-            console.log("a");
+            //console.log("a");
+            setActiveNameAndDetailBox(false);
 
             if (event.buttons == 2) {
                 if (connect == 0) {
@@ -860,6 +872,7 @@
             //拖拉方塊
             if (select_rect != null && drag && event.buttons == 1) {
                 showInfoAlphaDown("拖拉方塊");
+                setActiveNameAndDetailBox(true);
                 let startViewBox = svg1.getAttribute('viewBox').split(' ').map(n => parseFloat(n))
                 let startSVGPoint = getMouseOnSvg();
                 x = svg1.viewBox.animVal.x;
@@ -881,6 +894,7 @@
             //移動畫布
             else if (mouse_event.buttons == 2) {
                 showInfoAlphaDown("移動畫布");
+                setActiveNameAndDetailBox(false);
                 let startViewBox = svg1.getAttribute('viewBox').split(' ').map(n => parseFloat(n))
 
                 //	2. 取得滑鼠當前 viewport 中 client 座標值
@@ -983,6 +997,7 @@
             if (event.buttons == 2) {
                 if (connect == 0) {
                     playSound(lineAudio);
+                    setActiveNameAndDetailBox(false);
                     showInfoAlphaDown("設定連線起點");
                     connect = 1;
                     connect1_rect = s;
@@ -1049,6 +1064,7 @@
                         b1.linezId.push(l.id);
                         b2.linezId.push(l.id);
 
+                        previous_select_rect = select_line = select_text = null;
                         console.log('connect');
                     }
                 }
@@ -1062,6 +1078,7 @@
                     console.log("rect");
                 }
                 showInfoAlphaDown("選取方塊");
+                setActiveNameAndDetailBox(true);
                 select_rect = s;
                 select_text = et = document.getElementById(s.id + "_text");
                 previous_select_rect = previous_select_text = null;
@@ -1107,6 +1124,15 @@
             t2.oninput = function() {
                 b.detail = t2.value;
             }
+            setActiveNameAndDetailBox(true);
+        }
+
+        function setActiveNameAndDetailBox(open) {
+            t2.readOnly = t1.readOnly = !open;
+            if (t1.readOnly) {
+                t1.value = t2.value = ""
+            }
+            console.log(t1.readOnly);
         }
 
         function set_text_in_rect(textId, rId) {
