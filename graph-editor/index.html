@@ -221,6 +221,7 @@
         )
 
         ini();
+        setEventFuction();
 
         function ini() {
             div_right.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="svg1" width="900" height="800" onmousedown="svg_onMouseDown(event)" viewBox="0 0 900 800" onMouseUp="onMouseUp(event);"></svg>`;
@@ -246,10 +247,15 @@
             lang = (navigator.language || navigator.browserLanguage).toLowerCase();
             //lang = "en-us";
             console.log(lang);
-            svg1.onmousemove = on_mouse_move;
-            //svg1.onmousedown = on_mouse_down;
-            svg1.addEventListener('mousedown', on_mouse_down, true);
             okToBodyKeydown = true
+        }
+
+        function setEventFuction() {
+
+            svg1.onmousemove = on_mouse_move;
+            svg1.onmousedown = null;
+            svg1.onmousemove = on_mouse_move;
+            svg1.addEventListener('mousedown', on_mouse_down, true);
             setActiveNameAndDetailBox(false)
         }
         console.log(svg1.viewBox);
@@ -271,7 +277,7 @@
 
                 ini();
                 setDataByData(save);
-                svg1.onmousemove = on_mouse_move;
+                setEventFuction();
                 check_blockById();
                 console.log("load completed");
                 if (blockz != null) {
@@ -680,14 +686,14 @@
             file = e.target.files[0];
             file.text().then(a => {
                 try {
-
                     ini();
                     text = a;
                     console.log(text);
                     //console.log(e.target.files[0]);
                     setDataByData(JSON.parse(text));
-                    svg1.onmousemove = on_mouse_move;
+                    setEventFuction();
                     check_blockById();
+
                     console.log("load completed");
                     if (blockz != null) {
 
@@ -756,7 +762,7 @@
             previous_select_rect = select_rect = select_text = null;
 
             t2.oninput = t1.oninput = null;
-            //console.log("a");
+            console.log("on_mouse_down");
             setActiveNameAndDetailBox(false);
 
             if (event.buttons == 2) {
