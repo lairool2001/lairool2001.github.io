@@ -60,6 +60,13 @@
         #svg1 {
             background-color: aquamarine;
             border: 1px double black;
+            margin: 0 auto;
+            width: 100vw;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            z-index: -1;
+            position: fixed;
         }
 
         .rect1_text {
@@ -90,6 +97,13 @@
 
         #myNumber {
             width: 50px;
+        }
+
+        #div_center_bottom {
+            background: #A2A2A250;
+            position: fixed;
+            left: 25vw;
+            top: 80vh;
         }
 
     </style>
@@ -152,6 +166,7 @@
     </div>
     <div id="div_right" onContextMenu="return false">
     </div>
+    <div id="div_center_bottom"><span id="around_text">123</span></div>
     <script>
         $.fn.jPicker.defaults.images.clientPath = 'images/';
         let setting = {
@@ -759,7 +774,7 @@
         function on_mouse_down() {
             select_line = null;
             previous_select_rect = select_rect = select_text = null;
-
+            around_text.innerHTML = "";
             t2.oninput = t1.oninput = null;
             console.log("on_mouse_down");
             setActiveNameAndDetailBox(false);
@@ -836,9 +851,7 @@
             previous_select_text = previous_select_rect = select_rect = null;
         }
 
-        /*
-        l is line element
-        */
+        ///l is line element
         function getAB(l) {
             return ab[l.id];
         }
@@ -1112,13 +1125,13 @@
         }
 
         function seletctBlockAndSetTextAreaValueAndSync(b) {
-            t1_UpdateAndSearchAlone();
             previous_select_rect = document.getElementById(b.rectId);
             previous_select_text = document.getElementById(b.textId);
             select_text = document.getElementById(b.textId);
             et = document.getElementById(b.textId);
             t1.value = et.innerHTML;
             t2.value = b.detail;
+            t1_UpdateAndSearchAlone();
             console.log(b.detail);
             //TextChange 
             t1.oninput = function() {
@@ -1130,6 +1143,19 @@
             t2.oninput = function() {
                 b.detail = t2.value;
             }
+            around_text.innerHTML = ""
+            for (let i = 0; i < b.linezId.length; i++) {
+                var lineId = b.linezId[i];
+                var k = ab[lineId];
+                if (k.aBlock != b) {
+                    around_text.innerHTML += document.getElementById(k.aBlock.textId).innerHTML + "　";
+                }
+                if (k.bBlock != b) {
+                    around_text.innerHTML += document.getElementById(k.bBlock.textId).innerHTML + "　";
+                }
+            }
+            around_text.s
+            around_text.innerHTML = around_text.innerHTML.substring(0, around_text.innerHTML.length - 1);
             setActiveNameAndDetailBox(true);
         }
 
