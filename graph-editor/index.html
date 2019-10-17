@@ -111,16 +111,16 @@
             <span id="info"></span>
         </div>
         <div class="box">
-            <span id="text3">搜尋:</span>
+            <span id="text3">[F]搜尋:</span>
             <br />
             <textarea id="searchText" onfocus="searchOnInput(this,event);" oninput=" searchOnInput(this,event);"></textarea>
         </div>
         <div class="box">
-            <span id="text4">方塊名稱:</span><span id="text15">[x1] 獨立</span>
+            <span id="text4">[F2]方塊名稱:</span><span id="text15">[x1] 獨立</span>
             <br />
             <textarea id="t1" oninput="t1_OnInput();"></textarea>
             <br />
-            <span id="text5">方塊資料:</span>
+            <span id="text5">[F3]方塊資料:</span>
             <textarea id="t2"></textarea>
         </div>
         <div class="box">
@@ -134,7 +134,7 @@
             <span id="text9">存檔名稱:</span>
             <br />
             <textarea id="t3">圖形連線</textarea>
-            <button onclick="save_onclick(this,event);" id="button1">儲存完整文字資料</button>
+            <button onclick="save_onclick(this,event);" id="button1">[Q]儲存完整文字資料</button>
             <button onclick="save2_onclick(this,event);" id="button2">儲存完整.svg檔</button>
             <button onclick="button_SaveCookie(this,event)" id="button_SaveCookieElement">儲存進度到本地</button>
         </div>
@@ -234,8 +234,9 @@
             connect = 0;
             ab = {};
             saveLoadIndex = 0;
+            //start lang
             lang = (navigator.language || navigator.browserLanguage).toLowerCase();
-            //lang = "en-us";
+            lang = "en-us";
             console.log(lang);
             svg1.onmousemove = on_mouse_move;
             //svg1.onmousedown = on_mouse_down;
@@ -282,59 +283,8 @@
             console.log(data);
             var dataz = [];
             dataz[saveLoadIndex] = data;
-            //console.log(JSON.stringify(dataz));
-            //var text = JSON.stringify(dataz);
-            //document.cookie = "username=John Smith; expires=Thu, 18 Dec 2013 12:00:00 UTC; path=/";
-            //setCookie("data", "qq", 2);
-            //setCookie("all-data", text, Infinity);
-            //$.cookie.json = true;
-            //$.removeCookie('all-data');
-            /*ok = $.removeCookie('all-data', {
-                expires: Infinity,
-                path: '/'
-            })
-            console.log("remove:" + ok)
-            $.cookie("all-data", dataz, {
-                expires: Infinity,
-                path: '/'
-            });*/
-            //$.removeCookie('all-data');
-            //$.cookie("all-data", dataz);
-            /*Cookies.remove()
-            Cookies.set('all-data', dataz, {
-                expires: 1
-            })*/
             localStorage.setItem("all-data", JSON.stringify(dataz))
             showInfoAlphaDown("儲存檔案成功");
-            //document.cookie = JSON.stringify(dataz);
-            //console.log(document.cookie);
-        }
-
-        function setCookie(name, value, days) {
-            var expires = "";
-            if (days) {
-                var date = new Date();
-                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-                expires = "; expires=" + date.toUTCString();
-            }
-            newCookie = name + "=" + (value || "") + expires + "; path=/";;
-            console.log(newCookie);
-            document.cookie = newCookie;
-        }
-
-        function getCookie(name) {
-            var nameEQ = name + "=";
-            var ca = document.cookie.split(';');
-            for (var i = 0; i < ca.length; i++) {
-                var c = ca[i];
-                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
-                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
-            }
-            return null;
-        }
-
-        function eraseCookie(name) {
-            document.cookie = name + '=; Max-Age=-99999999;';
         }
 
         function getWholeData() {
@@ -386,7 +336,7 @@
                 select_line.setAttributeNS(null, 'stroke-width', number.value)
             }
         }
-        /*翻譯*/
+        /*翻譯 lang set*/
         function setTextUponLanguae(name) {
             database = {};
             translate = null;
@@ -395,9 +345,9 @@
             } else {
                 text1.innerHTML = "Letft click block to set name or detail. Right click 2 block to connect. Press del to delete block or line. Press C to create block. WASD can move the canvas.Right mouse button hold can also move the canvas.";
                 text2.innerHTML = "Line stroke width(px):"
-                text3.innerHTML = "Search:"
-                text4.innerHTML = "Block name:"
-                text5.innerHTML = "Block detail:"
+                text3.innerHTML = "[F]Search:"
+                text4.innerHTML = "[F2]Block name:"
+                text5.innerHTML = "[F3]Block detail:"
                 text6.innerHTML = "Load file:"
                 text7.innerHTML = "Play Sound"
                 text8.innerHTML = "Create block at center"
@@ -411,7 +361,7 @@
                 button1.innerHTML = "Save data text"
                 button2.innerHTML = "Save .svg"
                 button_LoadCookieElement.innerHTML = "Load local storage"
-                button_SaveCookieElement.innerHTML = "Save local storage"
+                button_SaveCookieElement.innerHTML = "[Q]Save local storage"
 
                 translate = {};
                 translate["找到完全相同文字的方塊"] = "Found the exact same block of text."
@@ -419,6 +369,7 @@
                 translate["在所有方塊中找不到文字"] = "No found."
                 translate["創造方塊並放在鼠標位置"] = "Created the block and set at cursor position."
                 translate["刪除方塊"] = "Deleted the block."
+                translate["更新連線"] = "Updated the line"
                 translate["刪除連線"] = "Deleted the line"
                 translate["選取畫布"] = "Selected the canvas"
                 translate["創造方塊並放在視圖中間"] = "Created the block and set at middle of view box."
@@ -431,6 +382,7 @@
                 translate["儲存檔案成功"] = "The file was saved successfully."
                 translate["讀取檔案成功"] = "The file was loaded successfully."
                 translate["讀取檔案錯誤！初始化畫布。"] = "Loading file error! Initialized the canvas."
+                translate["取消連線"] = "Cancel connect."
                 translate["取消選取方塊"] = "Deselected block";
                 translate["[x1] 獨立"] = "[x1] alone";
                 translate["[x0] 無"] = "[x2] void";
@@ -539,14 +491,37 @@
             }
             var power = 10;
             //console.log(svg1.viewBox);
-            //console.log(event.keyCode);
+            console.log(event.keyCode);
             //console.log(event);
 
             xMin = svg1.viewBox.animVal.x;
             yMin = svg1.viewBox.animVal.y;
             width = svg1.viewBox.animVal.width;
             height = svg1.viewBox.animVal.height;
+
+            event.cancelBubble = true;
+            event.preventDefault();
+            //keyboard fast
             switch (event.keyCode) {
+                case 70:
+                    //f
+                    searchText.focus();
+                    searchText.select();
+                    break;
+                case 81:
+                    //Q
+                    button_SaveCookie(null, event);
+                    break;
+                case 114:
+                    //F3
+                    t2.focus();
+                    t2.select();
+                    break;
+                case 113:
+                    //F2
+                    t1.focus();
+                    t1.select();
+                    break;
                 case 67:
                     //c
                     function createABlockAndSetPosionByMouse() {
@@ -737,6 +712,13 @@
                 if (connect == 0) {
                     showInfoAlphaDown("選取畫布");
                     drag = true;
+                }
+            }
+            if (event.button == 0) {
+                if (connect == 1) {
+                    connect = 0;
+                    select_line = null;
+                    showInfoAlphaDown("取消連線");
                 }
             }
 
