@@ -708,13 +708,13 @@
         }
 
         function svg_onMouseDown(event) {
-            if (event.button == 2) {
+            if (event.buttons == 2) {
                 if (connect == 0) {
                     showInfoAlphaDown("選取畫布");
                     drag = true;
                 }
             }
-            if (event.button == 0) {
+            if (event.buttons == 1) {
                 if (connect == 1) {
                     connect = 0;
                     select_line = null;
@@ -854,7 +854,7 @@
             mouse_event = event;
             //console.log(event);
             //拖拉方塊
-            if (select_rect != null && drag && event.button == 0) {
+            if (select_rect != null && drag && event.buttons == 1) {
                 showInfoAlphaDown("拖拉方塊");
                 let startViewBox = svg1.getAttribute('viewBox').split(' ').map(n => parseFloat(n))
                 let startSVGPoint = getMouseOnSvg();
@@ -978,7 +978,7 @@
             drag = true;
             select_line = null;
             //連線
-            if (event.button == 2) {
+            if (event.buttons == 2) {
                 if (connect == 0) {
                     playSound(lineAudio);
                     showInfoAlphaDown("設定連線起點");
@@ -1052,7 +1052,7 @@
                 }
             }
             //拖拉方塊開始
-            if (event.button == 0) {
+            if (event.buttons == 1) {
                 if (s.tagName == "text") {
                     s = s.block.rect;
                     console.log("text");
