@@ -248,15 +248,14 @@
             //lang = "en-us";
             console.log(lang);
             okToBodyKeydown = true
+            setActiveNameAndDetailBox(false)
         }
 
         function setEventFuction() {
 
             svg1.onmousemove = on_mouse_move;
             svg1.onmousedown = null;
-            svg1.onmousemove = on_mouse_move;
             svg1.addEventListener('mousedown', on_mouse_down, true);
-            setActiveNameAndDetailBox(false)
         }
         console.log(svg1.viewBox);
         addABlock();
@@ -411,7 +410,7 @@
         }
 
         function searchOnInput(search, event) {
-            console.log('a');
+            console.log('searchOnInput');
             s = searchText.value;
             find = false;
             console.log(blockz);
@@ -1093,6 +1092,7 @@
 
                 let block = getBlock(select_rect);
                 seletctBlockAndSetTextAreaValueAndSync(block);
+                t1_UpdateAndSearchAlone();
 
                 let startClient = {
                     x: event.clientX,
@@ -1126,7 +1126,7 @@
                 set_text_in_rect(et.id, b.rectId);
                 updateBlockLine(b);
             };
-            t1.addEventListener('input', t1_UpdateAndSearchAlone);
+            t1.addEventListener('keyup', t1_UpdateAndSearchAlone);
             t2.oninput = function() {
                 b.detail = t2.value;
             }
