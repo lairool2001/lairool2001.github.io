@@ -136,7 +136,7 @@
             <textarea id="t3">圖形連線</textarea>
             <button onclick="save_onclick(this,event);" id="button1">儲存完整文字資料</button>
             <button onclick="save2_onclick(this,event);" id="button2">儲存完整.svg檔</button>
-            <button onclick="button_SaveCookie(this,event)" id="button_SaveCookieElement">存取進度到本地</button>
+            <button onclick="button_SaveCookie(this,event)" id="button_SaveCookieElement">儲存進度到本地</button>
         </div>
         <div class="box">
             <input type="checkbox" checked id="soundCheckBox"><span id="text7">音效</span></input>
@@ -539,8 +539,8 @@
             }
             var power = 10;
             //console.log(svg1.viewBox);
-            console.log(event.keyCode);
-            console.log(event);
+            //console.log(event.keyCode);
+            //console.log(event);
 
             xMin = svg1.viewBox.animVal.x;
             yMin = svg1.viewBox.animVal.y;
@@ -775,24 +775,12 @@
             previous_select_rect = select_rect = select_text = null;
 
             t2.oninput = t1.oninput = null;
+            console.log("a");
             //work
         }
 
         function onMouseUp() {
             drag = false;
-            if (select_rect != null) {
-                console.log("block click");
-                previous_select_rect = select_rect;
-                previous_select_text = select_text;
-                select_rect = null;
-                select_text = null;
-            } else if (select_line == null && select_rect != null && connect == 0) {
-                console.log("canvas click");
-                //previous_select_rect = null;
-                //showInfoAlphaDown("取消選取方塊");
-            }
-            console.log(select_line);
-            //console.log("onMouseUp()");
         }
 
         function updateBlock(b) {
@@ -971,19 +959,25 @@
                     continue;
                 }
                 var k = getAB(l);
-                console.log(k.aBlock.id);
-                console.log(k.bBlock.id);
-                console.log(block.id);
+                //console.log(k.aBlock.id);
+                //console.log(k.bBlock.id);
+                //console.log(block.id);
                 if (k.aBlock.id == block.id) {
                     //console.log("a");
                     l.setAttributeNS(null, 'x1', p.x);
                     l.setAttributeNS(null, 'y1', p.y);
+                    p2 = getMiddle(document.getElementById(k.bBlock.rectId));
+                    l.setAttributeNS(null, 'x2', p2.x);
+                    l.setAttributeNS(null, 'y2', p2.y);
 
                 } else if (k.bBlock.id == block.id) {
                     //console.log("b");
                     //console.log("b");
                     l.setAttributeNS(null, 'x2', p.x);
                     l.setAttributeNS(null, 'y2', p.y);
+                    p2 = getMiddle(document.getElementById(k.aBlock.rectId));
+                    l.setAttributeNS(null, 'x1', p2.x);
+                    l.setAttributeNS(null, 'y1', p2.y);
                 } else {
                     console.log("err");
                 }
@@ -1057,10 +1051,10 @@
                         var l = addALine(p1.x, p1.y, p2.x, p2.y);
                         select_line = l;
                         ab[l.id].aBlock = b1;
+                        ab[l.id].bBlock = b2;
                         if (!ab[l.id].aBlock) {
                             console.log("err");
                         }
-                        ab[l.id].bBlock = b2;
                         if (!ab[l.id].bBlock) {
                             console.log("err");
                         }
@@ -1110,24 +1104,24 @@
             return false;
         }
 
-        function seletctBlockAndSetTextAreaValueAndSync(block) {
+        function seletctBlockAndSetTextAreaValueAndSync(b) {
             t1_UpdateAndSearchAlone();
-            previous_select_rect = document.getElementById(block.rectId);
-            previous_select_text = document.getElementById(block.textId);
-            select_text = document.getElementById(block.textId);
-            et = document.getElementById(block.textId);
+            previous_select_rect = document.getElementById(b.rectId);
+            previous_select_text = document.getElementById(b.textId);
+            select_text = document.getElementById(b.textId);
+            et = document.getElementById(b.textId);
             t1.value = et.innerHTML;
-            t2.value = block.detail;
-            console.log(block.detail);
+            t2.value = b.detail;
+            console.log(b.detail);
             //TextChange 
             t1.oninput = function() {
                 et.innerHTML = t1.value;
-                set_text_in_rect(et.id, block.rectId);
-                updateBlockLine(block);
+                set_text_in_rect(et.id, b.rectId);
+                updateBlockLine(b);
             };
             t1.addEventListener('input', t1_UpdateAndSearchAlone);
             t2.oninput = function() {
-                block.detail = t2.value;
+                b.detail = t2.value;
             }
         }
 
