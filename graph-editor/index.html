@@ -600,6 +600,7 @@
             } else if (select_line != null) {
                 lineId = select_line;
                 deleteALineById(lineId.id);
+                showInfoAlphaDown("刪除連線");
                 playSound(deletaAudio);
             }
         }
@@ -708,21 +709,6 @@
         }
 
         function svg_onMouseDown(event) {
-            if (event.buttons == 2) {
-                if (connect == 0) {
-                    showInfoAlphaDown("選取畫布");
-                    drag = true;
-                }
-            }
-            if (event.buttons == 1) {
-                select_line = null;
-                if (connect == 1) {
-                    connect = 0;
-                    showInfoAlphaDown("取消連線");
-                } else {
-
-                }
-            }
 
         }
 
@@ -760,6 +746,22 @@
 
             t2.oninput = t1.oninput = null;
             console.log("a");
+
+            if (event.buttons == 2) {
+                if (connect == 0) {
+                    showInfoAlphaDown("選取畫布");
+                    drag = true;
+                }
+            }
+            if (event.buttons == 1) {
+                select_line = null;
+                if (connect == 1) {
+                    connect = 0;
+                    showInfoAlphaDown("取消連線");
+                } else {
+
+                }
+            }
             //work
         }
 
@@ -877,7 +879,7 @@
                 //console.log("move");
             }
             //移動畫布
-            else if (select_rect == null && drag || (connect == 1 && mouse_event.buttons == 2)) {
+            else if (select_rect == null && mouse_event.buttons == 2) {
                 if (connect == 0) {
                     showInfoAlphaDown("移動畫布");
                 }
