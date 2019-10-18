@@ -1150,23 +1150,29 @@
             for (let i = 0; i < b.linezId.length; i++) {
                 var lineId = b.linezId[i];
                 var k = ab[lineId];
-                if (k.aBlock.id != b.id) {
-                    text = document.getElementById(k.aBlock.textId);
-                    if (text) {
-                        around_text.innerHTML += "[" + text.innerHTML + "]　";
-                    } else {
-                        console.log(k.aBlock.textId + "is wrong!")
+                try {
+                    if (k.aBlock.id != b.id) {
+                        text = document.getElementById(k.aBlock.textId);
+                        if (text) {
+                            around_text.innerHTML += "[" + text.innerHTML + "]　";
+                        } else {
+                            console.log(k.aBlock.textId + "is wrong!")
+                        }
                     }
-                }
-                if (k.bBlock.id != b.id) {
+                    if (k.bBlock.id != b.id) {
 
-                    text = document.getElementById(k.bBlock.textId);
-                    if (text) {
-                        around_text.innerHTML += "[" + text.innerHTML + "]　";
-                    } else {
-                        console.log(k.bBlock.textId + "is wrong!")
+                        text = document.getElementById(k.bBlock.textId);
+                        if (text) {
+                            around_text.innerHTML += "[" + text.innerHTML + "]　";
+                        } else {
+                            console.log(k.bBlock.textId + "is wrong!")
+                        }
                     }
+                } catch {
+                    console.log(k);
+                    console.log("k && k.aBlock && k.bBlock is undefine")
                 }
+
             }
             around_text.innerHTML = around_text.innerHTML.substring(0, around_text.innerHTML.length - 1);
             setActiveNameAndDetailBox(true);
