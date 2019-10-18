@@ -101,9 +101,13 @@
 
         #div_center_bottom {
             background: #A2A2A250;
-            position: fixed;
+            position: static;
             left: 25vw;
             top: 80vh;
+            color: white;
+            font-size: 40px;
+            text-shadow: black 0em 0em 0.5em, black 0em 0em 0.1em;
+            max-width: 60vw;
         }
 
     </style>
@@ -794,7 +798,6 @@
 
                 }
             }
-            //work
         }
 
         function onMouseUp() {
@@ -1143,18 +1146,28 @@
             t2.oninput = function() {
                 b.detail = t2.value;
             }
-            around_text.innerHTML = ""
+            around_text.innerHTML = t1.value + ":<br />"
             for (let i = 0; i < b.linezId.length; i++) {
                 var lineId = b.linezId[i];
                 var k = ab[lineId];
-                if (k.aBlock != b) {
-                    around_text.innerHTML += document.getElementById(k.aBlock.textId).innerHTML + "　";
+                if (k.aBlock.id != b.id) {
+                    text = document.getElementById(k.aBlock.textId);
+                    if (text) {
+                        around_text.innerHTML += "[" + text.innerHTML + "]　";
+                    } else {
+                        console.log(k.aBlock.textId + "is wrong!")
+                    }
                 }
-                if (k.bBlock != b) {
-                    around_text.innerHTML += document.getElementById(k.bBlock.textId).innerHTML + "　";
+                if (k.bBlock.id != b.id) {
+
+                    text = document.getElementById(k.bBlock.textId);
+                    if (text) {
+                        around_text.innerHTML += "[" + text.innerHTML + "]　";
+                    } else {
+                        console.log(k.bBlock.textId + "is wrong!")
+                    }
                 }
             }
-            around_text.s
             around_text.innerHTML = around_text.innerHTML.substring(0, around_text.innerHTML.length - 1);
             setActiveNameAndDetailBox(true);
         }
