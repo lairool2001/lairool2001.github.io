@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="content-language" content="zh-tw">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <title>SlaveHack補助工具</title>
+    <style type="text/css">
+        body {
+            font-size: 20px;
+        }
+
+    </style>
+</head>
+
+<body>
+    錢→比特幣<br>
+    填入需轉換的金額：<input type="text" id="t1" oninput="oninput1()"></input><br>
+    兌換到的比特幣：<span id="t1Out"></span><br>
+    <br>
+    比特幣→錢<br>
+    想要多少錢：<input type="text" id="t2" oninput="oninput2()"></input><br>
+    需要轉換的比特幣：<span id="t2Out"></span><br>
+    <script>
+        // Closure
+        (function() {
+            /**
+             * Decimal adjustment of a number.
+             *
+             * @param {String}  type  The type of adjustment.
+             * @param {Number}  value The number.
+             * @param {Integer} exp   The exponent (the 10 logarithm of the adjustment base).
+             * @returns {Number} The adjusted value.
+             */
+            function decimalAdjust(type, value, exp) {
+                // If the exp is undefined or zero...
+                if (typeof exp === 'undefined' || +exp === 0) {
+                    return Math[type](value);
+                }
+                value = +value;
+                exp = +exp;
+                // If the value is not a number or the exp is not an integer...
+                if (isNaN(value) || !(typeof exp === 'number' && exp % 1 === 0)) {
+                    return NaN;
+                }
+                // Shift
+                value = value.toString().split('e');
+                value = Math[type](+(value[0] + 'e' + (value[1] ? (+value[1] - exp) : -exp)));
+                // Shift back
+                value = value.toString().split('e');
+                return +(value[0] + 'e' + (value[1] ? (+value[1] + exp) : exp));
+            }
+
+            // Decimal round
+            if (!Math.round10) {
+                Math.round10 = function(value, exp) {
+                    return decimalAdjust('round', value, exp);
+                };
+            }
+            // Decimal floor
+            if (!Math.floor10) {
+                Math.floor10 = function(value, exp) {
+                    return decimalAdjust('floor', value, exp);
+                };
+            }
+            // Decimal ceil
+            if (!Math.ceil10) {
+                Math.ceil10 = function(value, exp) {
+                    return decimalAdjust('ceil', value, exp);
+                };
+            }
+        })();
+
+        function oninput1() {
+            t1Out.innerHTML = Math.floor10(parseFloat(t1.value.replace(/,/g, "") / 1.05 / 8642), -4);
+        }
+
+        function oninput2() {
+            t2Out.innerHTML = Math.ceil10(parseFloat(t2.value.replace(/,/g, "") / 8642), -4);
+        }
+
+    </script>
+</body>
+
+</html>
