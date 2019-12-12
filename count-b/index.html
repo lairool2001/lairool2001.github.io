@@ -8,21 +8,34 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <title>SlaveHack補助工具</title>
     <style type="text/css">
-        body {
-            font-size: 20px;
+        body,
+        input {
+            font-size: 30px;
+            line-height: 45px;
+        }
+
+        .title {
+            font-size: 45px;
+            line-height: 45px;
+        }
+
+        rt {
+            font-size: 26px;
         }
 
     </style>
 </head>
 
 <body>
-    錢→比特幣<br>
-    填入需轉換的金額：<input type="text" id="t1" oninput="oninput1()"></input><br>
-    兌換到的比特幣：<span id="t1Out"></span><br>
-    <br>
-    比特幣→錢<br>
-    想要多少錢：<input type="text" id="t2" oninput="oninput2()"></input><br>
-    需要轉換的比特幣：<span id="t2Out"></span><br>
+    <ruby class="title">錢→比特幣<rt>money→bitcoin</rt></ruby><br><br>
+    <ruby>填入需轉換的金額<rt>fill wanna be exchanged money</rt></ruby>：
+    <input type="text" id="t1" oninput="oninput1()"></input><br>
+    <ruby>兌換到的比特幣<rt>get bitcoin</rt></ruby>：<span id="t1Out"></span><br>
+    <hr>
+    <ruby class="title">比特幣→錢<rt>bitcoin→money</rt></ruby><br><br>
+    <ruby>想要多少錢<rt>fill wanna get money</rt></ruby>：
+    <input type="text" id="t2" oninput="oninput2()"></input><br>
+    <ruby>需要轉換的比特幣<rt>wanna be exchanged bitcoin</rt></ruby>：<span id="t2Out"></span><br>
     <script>
         // Closure
         (function() {

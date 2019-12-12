@@ -110,6 +110,19 @@
             max-width: 60vw;
         }
 
+        #loadDiv {
+            border: 1px single black;
+            background-color: aliceblue;
+            float: left;
+            position: relative;
+            width: 30vw;
+            display: none;
+        }
+
+        #loadSelect {
+            width: 20vw;
+        }
+
     </style>
 </head>
 
@@ -154,7 +167,7 @@
             <br />
             <input type="file" id="file1" onchange="onChange(event);"></input>
             <br />
-            <button onclick="button_LoadCookie(this,event)" id="button_LoadCookieElement">讀取本地上一次進度</button>
+            <button onclick="button_LoadStorage(this,event)" id="button_LoadStorageElement">讀取本地上一次進度</button>
         </div>
         <div class="box">
             <span id="text9">存檔名稱:</span>
@@ -162,7 +175,7 @@
             <textarea id="t3">圖形連線</textarea>
             <button onclick="save_onclick(this,event);" id="button1">儲存完整文字資料</button>
             <button onclick="save2_onclick(this,event);" id="button2">儲存完整.svg檔</button>
-            <button onclick="button_SaveCookie(this,event)" id="button_SaveCookieElement">[Q]儲存進度到本地</button>
+            <button onclick="button_SaveStorage(this,event)" id="button_SaveStorageElement">[Q]儲存進度到本地</button>
         </div>
         <div class="box">
             <input type="checkbox" checked id="soundCheckBox"><span id="text7">音效</span></input>
@@ -171,77 +184,92 @@
     <div id="div_right" onContextMenu="return false">
     </div>
     <div id="div_center_bottom"><span id="around_text">123</span></div>
+    <div id="loadDiv" onshow="">
+        <select size="30" id="loadSelect">
+            <option value="volvo">Volvo</option>
+            <option value="saab">Saab</option>
+            <option value="opel">Opel</option>
+            <option value="audi">Audi</option>
+        </select>
+        <button>讀取</button>
+        <button>取消</button>
+    </div>
     <script>
-        $.fn.jPicker.defaults.images.clientPath = 'images/';
-        let setting = {
-            window: {
-                expandable: true,
-                position: {
-                    x: 'screenCenter', // acceptable values "left", "center", "right",
-                    // "screenCenter", or relative px value
-                    y: '250px', // acceptable values "top", "bottom", "center", or relative px
-                    // value
+        onlyOneIni();
+        /**只在一開始進行一次的初始化函數，用來建構選色工具*/
+        function onlyOneIni() {
+
+            $.fn.jPicker.defaults.images.clientPath = 'images/';
+            let setting = {
+                window: {
+                    expandable: true,
+                    position: {
+                        x: 'screenCenter', // acceptable values "left", "center", "right",
+                        // "screenCenter", or relative px value
+                        y: '250px', // acceptable values "top", "bottom", "center", or relative px
+                        // value
+                    }
+                },
+            };
+            let change = function(color, context) {
+                //決定顏色
+                //stroke="black" stroke-width="2" fill="red"
+                console.log(context);
+                var all = color.val('all');
+                if (previous_select_rect != null) {
+                    previous_select_rect.setAttributeNS(null, 'stroke', all && '#' + all.hex || 'transparent');
                 }
-            },
-        };
-        let change = function(color, context) {
-            //決定顏色
-            //stroke="black" stroke-width="2" fill="red"
-            console.log(context);
-            var all = color.val('all');
-            if (previous_select_rect != null) {
-                previous_select_rect.setAttributeNS(null, 'stroke', all && '#' + all.hex || 'transparent');
-            }
 
-        };
-        c1 = $('#color1').jPicker(setting,
-            change, change, change
-        )
-        console.log(c1[0].value);
+            };
+            c1 = $('#color1').jPicker(setting,
+                change, change, change
+            )
+            console.log(c1[0].value);
 
-        change = function(color, context) {
-            //決定顏色
-            //stroke="black" stroke-width="2" fill="red"
-            console.log(context);
-            var all = color.val('all');
-            if (previous_select_rect != null) {
-                previous_select_rect.setAttributeNS(null, 'fill', all && '#' + all.hex || 'transparent');
-            }
+            change = function(color, context) {
+                //決定顏色
+                //stroke="black" stroke-width="2" fill="red"
+                console.log(context);
+                var all = color.val('all');
+                if (previous_select_rect != null) {
+                    previous_select_rect.setAttributeNS(null, 'fill', all && '#' + all.hex || 'transparent');
+                }
 
-        };
-        c2 = $('#color2').jPicker(setting,
-            change, change, change
-        )
-        //console.log(c2[0].value);
+            };
+            c2 = $('#color2').jPicker(setting,
+                change, change, change
+            )
+            //console.log(c2[0].value);
 
-        change = function(color, context) {
-            console.log(context);
-            var all = color.val('all');
-            if (previous_select_text != null) {
-                previous_select_text.setAttributeNS(null, 'fill', all && '#' + all.hex || 'transparent');
-            }
+            change = function(color, context) {
+                console.log(context);
+                var all = color.val('all');
+                if (previous_select_text != null) {
+                    previous_select_text.setAttributeNS(null, 'fill', all && '#' + all.hex || 'transparent');
+                }
 
-        };
-        c3 = $('#color3').jPicker(setting,
-            change, change, change
-        )
+            };
+            c3 = $('#color3').jPicker(setting,
+                change, change, change
+            )
 
-        change = function(color, context) {
-            console.log(context);
-            var all = color.val('all');
-            if (select_line != null) {
-                console.log("s");
-                select_line.setAttributeNS(null, 'stroke', all && '#' + all.hex || 'transparent');
-            }
+            change = function(color, context) {
+                console.log(context);
+                var all = color.val('all');
+                if (select_line != null) {
+                    console.log("s");
+                    select_line.setAttributeNS(null, 'stroke', all && '#' + all.hex || 'transparent');
+                }
 
-        };
-        c4 = $('#color4').jPicker(setting,
-            change, change, change
-        )
+            };
+            c4 = $('#color4').jPicker(setting,
+                change, change, change
+            )
+        }
 
         ini();
         setEventFuction();
-
+        /**初始化函數*/
         function ini() {
             div_right.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="svg1" width="900" height="800" onmousedown="svg_onMouseDown(event)" viewBox="0 0 900 800" onMouseUp="onMouseUp(event);"></svg>`;
             previous_select_rect = null;
@@ -269,28 +297,27 @@
             okToBodyKeydown = true
             setActiveNameAndDetailBox(false)
         }
-
+        /**設定事件*/
         function setEventFuction() {
 
             svg1.onmousemove = on_mouse_move;
             svg1.onmousedown = null;
             svg1.addEventListener('mousedown', on_mouse_down, true);
         }
+
         console.log(svg1.viewBox);
         addABlock();
+
+        var savez = [];
         //addABlock();
-        function button_LoadCookie(button, event) {
-            console.log(document.cookie);
-            //$.cookie.json = true;
-            //text = $.cookie("all-data");
-            //text = Cookies.get('all-data');
+        /**讀取本地儲存器到頁面上並初始化事件*/
+        function button_LoadStorage(button, event) {
             text = localStorage.getItem("all-data")
             console.log(text)
-            //text = getCookie("data");
-            //text = getCookie("all-data");
             try {
-                var savez = JSON.parse(text);
-                var save = savez[saveLoadIndex];
+                savez = JSON.parse(text);
+                //last is previous
+                var save = savez[0];
                 console.log(save);
 
                 ini();
@@ -309,17 +336,23 @@
                 ini();
                 showInfoAlphaDown("讀取檔案錯誤！初始化畫布。");
             }
-        }
 
-        function button_SaveCookie(button, event) {
+        }
+        /**存檔在本地儲存器*/
+        function button_SaveStorage(button, event) {
             var data = getWholeData();
             console.log(data);
-            var dataz = [];
-            dataz[saveLoadIndex] = data;
-            localStorage.setItem("all-data", JSON.stringify(dataz))
+            savez.splice(0, 0, data)
+            if (savez.length > 100) {
+                savez.length = 100
+                console.log("過長，去掉100長度以外的存檔資料")
+            }
+            console.log(savez)
+            //savez[data.length] = data;
+            localStorage.setItem("all-data", JSON.stringify(savez))
             showInfoAlphaDown("儲存檔案成功");
         }
-
+        /**返回整個網頁上的需包裝對象*/
         function getWholeData() {
             var data = {};
             data.flow_id_block = flow_id_block;
@@ -328,9 +361,10 @@
             data.blockById = blockById;
             data.version = 2;
             data.innerHTML = div_right.innerHTML;
+            data.name = t3.value
             return data;
         }
-
+        /**t1更新時搜尋是不是獨立或複數或零*/
         function t1_UpdateAndSearchAlone() {
             console.log("t1_OnInput");
             s = t1.value;
@@ -360,16 +394,17 @@
                 text15.innerHTML = translate[text15.innerHTML];
             }
         }
-
-        setTextUponLanguae();
-
+        /**設定線的粗細，沒選取的話不做事*/
         function number_onInput(number, event) {
             //console.log("number_onInput");
             if (select_line != null) {
                 select_line.setAttributeNS(null, 'stroke-width', number.value)
             }
         }
-        /*翻譯 lang set*/
+
+        setTextUponLanguae();
+
+        /**設定文字根據本地的語系做翻譯*/
         function setTextUponLanguae(name) {
             database = {};
             translate = null;
@@ -393,8 +428,8 @@
                 t3.value = "Graph"
                 button1.innerHTML = "Save data text"
                 button2.innerHTML = "Save .svg"
-                button_LoadCookieElement.innerHTML = "Load local storage"
-                button_SaveCookieElement.innerHTML = "[Q]Save local storage"
+                button_LoadStorageElement.innerHTML = "Load local storage"
+                button_SaveStorageElement.innerHTML = "[Q]Save local storage"
                 info.innerHTML = "This is infomation box."
 
                 translate = {};
@@ -423,11 +458,11 @@
                 translate["[xN] 複數"] = "[xN] multiple";
             }
         }
-
+        /**放開按鍵做的事情*/
         function body_onkeyup(event) {
             okToBodyKeydown = true
         }
-
+        /**搜尋欄邏輯，找到並把他畫面置中*/
         function searchOnInput(search, event) {
             console.log('searchOnInput');
             s = searchText.value;
@@ -471,7 +506,7 @@
                 return;
             }
         }
-
+        /**畫布置中方塊並且選取它*/
         function lookAtBlockAndSelctIt(block) {
             viewBox = svg1.viewBox;
             console.log(viewBox);
@@ -487,7 +522,7 @@
         }
 
         check_blockById();
-
+        /**[除錯用]檢查資料是否無效*/
         function check_blockById() {
             for (i = 0; i < blockz.length; i++) {
                 var a = document.getElementById(`rect` + i);
@@ -498,14 +533,14 @@
                 }
             }
         }
-
+        /**根據設定撥放聲音*/
         function playSound(a) {
             if (soundCheckBox.checked) {
                 a.currentTime = 0;
                 a.play();
             }
         }
-
+        /**輸出向量圖*/
         function save2_onclick(button, event) {
             //svgToPng(svg1, 900, 800);
             //console.log(png);
@@ -513,7 +548,7 @@
             exportSVG(svg1);
             //saveSvgAsPng(svg1, "diagram.png");
         }
-
+        /**按下按鍵時發生事情與管理*/
         function body_onkeydown(event) {
             if (okToBodyKeydown) {
                 //可按一次
@@ -544,7 +579,7 @@
                     break;
                 case 81:
                     //Q
-                    button_SaveCookie(null, event);
+                    button_SaveStorage(null, event);
                     break;
                 case 114:
                     //F3
@@ -604,7 +639,7 @@
             viewBox = `${xMin} ${yMin} ${width} ${height}`;
             svg1.setAttribute('viewBox', viewBox)
         }
-
+        /**刪除方塊和連接的方塊*/
         function DeleteBlockAndNeighborLinez() {
             if (previous_select_rect != null) {
                 select_line = null;
@@ -635,11 +670,10 @@
             } else if (select_line != null) {
                 lineId = select_line;
                 deleteALineById(lineId.id);
-                showInfoAlphaDown("刪除連線");
                 playSound(deletaAudio);
             }
         }
-
+        /**根據線的ID刪除線*/
         function deleteALineById(lineId) {
             console.log(lineId);
             let l = document.getElementById(lineId);
@@ -667,11 +701,11 @@
             svg1.removeChild(l);
             select_line = null;
         }
-
+        /**返回是否選取左邊3個文字框*/
         function isFocueOnLeft() {
             return document.activeElement == searchText || document.activeElement == t1 || document.activeElement == t2;
         }
-
+        /**設定資料到整個頁面上*/
         function setDataByData(data) {
             //var data = JSON.parse(text);
             console.log(data);
@@ -680,6 +714,7 @@
             div_right.innerHTML = data.innerHTML;
             blockz = data.blockz;
             ab = data.ab;
+            t3.value = data.name
             //data.blockById = blockById;
             //rebuild blockById
             blockById = data.blockById;
@@ -699,7 +734,7 @@
             });
             console.log(blockz);
         }
-
+        /**讀取文字檔要發生的事與管理*/
         function onChange(e) {
             file = e.target.files[0];
             file.text().then(a => {
@@ -726,27 +761,26 @@
                 }
             });
         }
-
+        /**輸出文字檔*/
         function save_onclick(button, event) {
             var data = getWholeData();
-
             str = JSON.stringify(data);
             saveTextAsFile(t3.value + ".txt", str);
-            console.log('a')
+            console.log('export txt file')
         }
-
+        /**[準備刪除]不知道要刪除什麼*/
         function destroyClickedElement(event) {
             document.body.removeChild(event.target);
         }
-
+        /**[準備刪除]空函數*/
         function load_onclick(button, event) {
 
         }
-
+        /**[向下兼容，不能刪除]畫布點擊空函數*/
         function svg_onMouseDown(event) {
 
         }
-
+        /**中央創造按鍵點擊發生的事，就是在中央創造新方塊*/
         function create_onclick(button, event) {
             showInfoAlphaDown("創造方塊並放在視圖中間")
 
@@ -774,7 +808,7 @@
             select_rect = null;
             t1_UpdateAndSearchAlone();
         }
-
+        /**滑鼠按下畫布，主要用來清掉選取與取消各種咚咚*/
         function on_mouse_down() {
             select_line = null;
             previous_select_rect = select_rect = select_text = null;
@@ -799,20 +833,20 @@
                 }
             }
         }
-
+        /**畫布滑鼠放開，取消拖拉*/
         function onMouseUp() {
             drag = false;
         }
-
+        /**更新方塊，輸入請用實體物件*/
         function updateBlock(b) {
             set_text_in_rect(b.textId, b.rectId);
         }
-
+        /**[可能有問題，需要檢查]刪除方塊並移除ID地圖，以及在方塊列表去除*/
         function deleteABlock(block) {
             delete blockById[block.rectId];
             blockz.splice(blockz.indexOf(block), 1);
         }
-
+        /**新增一個方塊*/
         function addABlock() {
             console.log($("#color1").color);
             svg1.innerHTML += `<rect x="100" y="50" z="1" width="40" height="40" stroke="#` + c1[0].value + `" stroke-width="2" fill="#` + c2[0].value + `" onmousedown="mouse_down(event,this);" id="rect` + flow_id_block + `"></rect>
@@ -837,7 +871,7 @@
             flow_id_block += 1;
             return b;
         }
-
+        /**新增一條線*/
         function addALine(x1, y1, x2, y2) {
             svg1.innerHTML = `<line x1="` + x1 + `" y1="` + y1 + `" x2="` + x2 + `" y2="` + y2 + `" z="2" onmousedown="line_click(this,event)" stroke="#` + c4[0].value + `" stroke-width="` + myNumber.value + `px" id="line` + flow_id_line + `"/>` + svg1.innerHTML;
             var l = document.getElementById("line" + flow_id_line);
@@ -846,19 +880,18 @@
             return l;
         }
         select_line = null;
-
+        /**線條被點擊，考慮改成按下*/
         function line_click(line, event) {
             playSound(lineAudio);
             showInfoAlphaDown("選取直線");
             select_line = line;
             previous_select_text = previous_select_rect = select_rect = null;
         }
-
-        ///l is line element
+        /**得到AB組，輸入請使用線實體*/
         function getAB(l) {
             return ab[l.id];
         }
-        //console.log(div_right.offsetLeft);
+        /**根據mouse_event(未設定的話自動視為0,0)獲得SVG式滑鼠座標*/
         function getMouseOnSvg() {
             if (mouse_event == undefined) {
                 return {
@@ -877,7 +910,7 @@
             let startSVGPoint = newSVGPoint.matrixTransform(CTM.inverse())
             return startSVGPoint;
         }
-
+        /**明暗訊息輸出，輸入請用文字，會自動翻譯*/
         function showInfoAlphaDown(newInfo) {
             if (translate != null) {
                 newInfo = translate[newInfo];
@@ -886,7 +919,7 @@
                 opacity: '0.2'
             }, "slow")
         }
-
+        /**畫布上的滑鼠移動，拖拉方塊或移動畫布*/
         function on_mouse_move(event) {
             mouse_event = event;
             //console.log(event);
@@ -957,14 +990,14 @@
             }
             //console.log(select_rect);
         }
-
+        /**返回方塊中心，輸入請用實體*/
         function getMiddle(rect) {
             var p = {};
             p.x = parseFloat(rect.getAttributeNS(null, 'x')) + (parseFloat(rect.getAttributeNS(null, 'width')) / 2);
             p.y = parseFloat(rect.getAttributeNS(null, 'y')) + (parseFloat(rect.getAttributeNS(null, 'height')) / 2);
             return p;
         }
-
+        /**更新連接方塊的所有線的座標*/
         function updateBlockLine(block) {
             //console.log(block.linez);
             var be = document.getElementById(block.rectId);
@@ -1003,12 +1036,12 @@
                 //console.log(p.x);
             }
         }
-
+        /**使用方形實體，返回方塊*/
         function getBlock(r) {
             return blockById[r.id];
             //return JSON.parse(r.getAttributeNS(null, 'block'));
         }
-
+        /**畫布被滑鼠按下*/
         function mouse_down(event, s) {
             //console.log("c1_click");
             //console.log(event);
@@ -1046,10 +1079,10 @@
                         for (let i = 0; i < b1.linezId.length; i++) {
                             lineId = b1.linezId[i];
                             k = ab[lineId];
-                            if (k.aBlock == b1 && k.bBlock == b2) {
+                            if (k.aBlock.id == b1.id && k.bBlock.id == b2.id) {
                                 isExist = true;
                                 break;
-                            } else if (k.aBlock == b2 && k.bBlock == b1) {
+                            } else if (k.aBlock.id == b2.id && k.bBlock.id == b1.id) {
                                 isExist = true;
                                 break;
                             }
@@ -1126,7 +1159,7 @@
             } else {}
             return false;
         }
-
+        /**選取方塊並且設定文字以及同步文字到方塊各種事件*/
         function seletctBlockAndSetTextAreaValueAndSync(b) {
             previous_select_rect = document.getElementById(b.rectId);
             previous_select_text = document.getElementById(b.textId);
@@ -1169,7 +1202,8 @@
                         }
                     }
                 } catch {
-                    console.log(k);
+                    console.log(lineId)
+                    console.log(k)
                     console.log("k && k.aBlock && k.bBlock is undefine")
                 }
 
@@ -1177,7 +1211,7 @@
             around_text.innerHTML = around_text.innerHTML.substring(0, around_text.innerHTML.length - 1);
             setActiveNameAndDetailBox(true);
         }
-
+        /**設定名稱與資料是否可不可以被輸入使用*/
         function setActiveNameAndDetailBox(open) {
             t2.readOnly = t1.readOnly = !open;
             if (t1.readOnly) {
@@ -1185,7 +1219,7 @@
             }
             console.log(t1.readOnly);
         }
-
+        /**更新設定在方形內的文字寬度，輸入請用ID*/
         function set_text_in_rect(textId, rId) {
             //console.log(text.x);
             //console.log(text.y);
@@ -1208,12 +1242,12 @@
             //console.log(text.innerHTML.length);
             //console.log(text.y);
         }
-        /*
-版权声明：本文为CSDN博主「zy1281539626」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。
-原文链接：https://blog.csdn.net/zy1281539626/article/details/78489279
-        */
-
+        /**以文字大小與自型，取得文字實際px寬高*/
         function textSize(fontSize, fontFamily, text) {
+            /*
+        版权声明：本文为CSDN博主「zy1281539626」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。
+        原文链接：https://blog.csdn.net/zy1281539626/article/details/78489279
+        */
             var span = document.createElement("span");
             var result = {};
             result.width = span.offsetWidth;
@@ -1233,7 +1267,7 @@
             document.body.removeChild(span);
             return result;
         }
-
+        /**[待確認]SVG轉png圖片，但我使用失敗(空白)*/
         function svgToPng(svg, pngWidth, pngHeight) {
             var serializer = new XMLSerializer();
             var source = '<?xml version="1.0" standalone="no"?>\r\n' + serializer.serializeToString(svg.cloneNode(true));
@@ -1255,8 +1289,7 @@
             a.innerHTML = 'download the png file';
             a.click();
         }
-
-
+        /**下載文字檔案*/
         function saveTextAsFile(_fileName, _text) {
 
             var downloadLink = document.createElement("a");
@@ -1269,7 +1302,7 @@
             window.URL.revokeObjectURL(downloadLink.href);
             document.body.removeChild(downloadLink);
         }
-
+        /**下載SVG檔案，並且可以保存CSS樣式*/
         function exportSVG(svg) {
             // first create a clone of our svg node so we don't mess the original one
             var clone = svg.cloneNode(true);
@@ -1307,7 +1340,7 @@
             //document.body.appendChild(a);
 
         }
-
+        /**大概是轉譯CSS吧，我也不知道*/
         var parseStyles = function(svg) {
             var styleSheets = [];
             var i;
@@ -1369,7 +1402,7 @@
             }
 
         };
-
+        /**把特殊字元轉成可接受代號，輸入為字串*/
         function escape(s) {
             return s.replace(/&/g, "&amp;")
                 .replace(/</g, "&lt;")
