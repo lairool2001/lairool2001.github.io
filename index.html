@@ -20,6 +20,8 @@
 
         div.top_menu_content {
             float: left;
+            height: 65px;
+            white-space: nowrap;
         }
 
         div.top-menu {
@@ -30,7 +32,8 @@
             z-index: 1;
             -webkit-user-select: none;
             -moz-user-select: none;
-            height: 60px;
+            height: 65px;
+            line-height: 50px;
         }
 
         div.content {
@@ -78,6 +81,10 @@
             padding: 5px;
         }
 
+        #a00 {
+            float: left;
+        }
+
         @media screen and (max-device-width: 480px) {
             div.top-menu {
                 font-size: 2em;
@@ -99,7 +106,9 @@
 <body>
     <div class="top-menu">
         <div id="diplay_icon" class="diplay_icon" onmousedown="diplay_icon_mouse_down()">[[[[</div>
-        <div id="top_menu_content" class="top_menu_content"></div>
+        <div id="a00">
+            <div id="top_menu_content" class="top_menu_content"></div><br />
+        </div>
     </div>
     <script>
         var isMobile = false; //initiate as false
@@ -113,11 +122,23 @@
         } else {
             diplay_icon.innerHTML = "[[";
         }
-        var one_menu = [0, 1];
-        var two_menu = [];
+        var one_menu = [0, 1, 4, 5];
         $(function() {
             //$("#abc").html("123"); 
         });
+        var menu_deep = 10;
+        for (var i = 0; i < menu_deep; i++) {
+            var newDiv = document.createElement("div");
+            newDiv.setAttributeNS(null, "id", "menu" + i);
+            newDiv.style.display = "none";
+            newDiv.className = "top_menu_content";
+            var rgb = (i + 1 * 3).toString(16);
+            newDiv.style.backgroundColor = "#" + rgb + "" + rgb + "" + rgb;
+            console.log(newDiv.style.backgroundColor);
+            a00.appendChild(newDiv);
+            newDiv = document.createElement("br");
+            a00.appendChild(newDiv);
+        }
         var pages = [];
         pages[0] = {
             name: "home_page",
@@ -148,12 +169,79 @@
             html: `<h1>Lain OP</h1><iframe width="560" height="315" src="https://www.youtube.com/embed/4-PkAQcuZOw" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
   `
         };
+        pages[4] = {
+            type: "menu",
+            name: "wawa",
+            show_name: "娃娃家族",
+            childz: [6, 7, 8, 9]
+        };
+        pages[5] = {
+            type: "menu",
+            name: "works",
+            show_name: "作品集",
+            childz: [10, 11, 12]
+        };
+        pages[6] = {
+            name: "fish",
+            show_name: "魚丁",
+            html: `魚丁好吃`
+        };
+        pages[7] = {
+            name: "big-blue",
+            show_name: "大藍",
+            html: `大藍是隻兔咪`
+        };
+        pages[8] = {
+            name: "small-blue",
+            show_name: "小藍",
+            html: `小藍是大藍的弟弟，是隻兔咪`
+        };
+        pages[9] = {
+            name: "small-yellow",
+            show_name: "小黃",
+            html: `小黃是大藍的妹妹，是隻兔咪`
+        };
+        pages[10] = {
+            type: "menu",
+            name: "unity",
+            show_name: "Unity",
+            childz: []
+        };
+        pages[11] = {
+            type: "menu",
+            name: "web",
+            show_name: "網頁",
+            childz: [13, 14]
+        };
+        pages[12] = {
+            type: "menu",
+            name: "window",
+            show_name: "視窗程式",
+            childz: []
+        };
+        pages[13] = {
+            name: "shulin.church",
+            show_name: "樹林靈糧堂",
+            html: `<a href="https://shulin.church">樹林靈糧堂</a> by wordpress`
+        };
+        pages[14] = {
+            name: "amazingcosmetics",
+            show_name: "玫寧",
+            html: `<a href="http://www.amazingcosmetics.com.tw/">玫寧</a> by wordpress`
+        };
+        m_index = 0;
         top_menu_content.innerHTML = "";
+        for (var i = 0; i < pages.length; i++) {
+            var page = pages[i];
+            page.index = i;
+        }
         for (var i = 0; i < one_menu.length; i++) {
             var index = one_menu[i];
             var page = pages[index];
+            page.layer = 0;
             //<a onclick="home_page()">首頁</a>／<a onclick="tip()">資源</a>
-            top_menu_content.innerHTML += `<a id="menu_item_` + index + `" class="no_select_menu" onmousedown="set_page(` + i + `)"><ruby>` + page.show_name + `<rt>` + page.name + `</rt>` + `</ruby></a>`;
+            top_menu_content.innerHTML += `<a id="menu_item_` + index + `" class="no_select_menu" onmousedown="set_page(` + index + `)"><ruby>` + page.show_name + `<rt>` + page.name + `</rt>` + `</ruby></a>`;
+            m_index++;
             if (i < one_menu.length - 1) {
                 top_menu_content.innerHTML += "／";
             }
@@ -178,9 +266,24 @@
                 set_page(0);
                 found = true;
             } else {
+                var strUrl = location.search;
+                var getPara, ParaVal;
+                var aryPara = [];
+                if (strUrl.indexOf("?") != -1) {
+                    var getSearch = strUrl.split("?");
+                    getPara = getSearch[1].split("&");
+                    for (i = 0; i < getPara.length; i++) {
+                        ParaVal = getPara[i].split("=");
+                        aryPara.push(ParaVal[0]);
+                        aryPara[ParaVal[0]] = ParaVal[1];
+                        console.log(aryPara[0]);
+                    }
+                    //alert(aryPara);
+                }
+                url = aryPara['url'];
                 for (i = 0; i < pages.length; i++) {
                     var page = pages[i];
-                    if ("?url=" + page.name == location.search) {
+                    if (page.name == url) {
                         set_page(i);
                         found = true;
                         break;
@@ -207,28 +310,76 @@
         }
 
         var old_p_number = -1;
+        previous_menu = null
 
         function set_page(p) {
             window.scrollTo(0, 0);
             if (typeof p == "number") {
                 console.log('set_page(' + p + ')');
                 var page = pages[p];
-                if (p != old_p_number) {
-                    div1.display = "none";
-                    div1.innerHTML = page.html;
-                    div1.display = "block";
-                    if (old_select_item != undefined) {
-                        old_select_item.className = "no_select_menu";
+                div1.style.display = "none";
+                if (page.type == undefined) {
+                    menu_item = document.getElementById("menu_item_" + p);
+                    for (var i = page.layer; i < 10; i++) {
+                        var menu = this["menu" + i];
+                        menu.style.display = "none";
                     }
-                    var menu_item = document.getElementById("menu_item_" + p);
-                    menu_item.className = "select_menu";
-
+                    a00.style.height = (page.layer + 1) * 65 + "px";
+                    div1.innerHTML = page.html;
                     change_url(page.name);
-                    //console.log(menu_item);
-                    old_select_item = menu_item;
-                    //console.log(old_select_item);
-                    old_p_number = p;
+                    previous_menu = null;
+                } else {
+                    switch (page.type) {
+                        case "menu":
+                            var menu = this["menu" + page.layer];
+                            if (p == old_p_number) {
+                                if (menu.style.display != "none") {
+                                    menu.style.display = "none"
+                                } else {
+                                    menu.style.display = "block"
+                                }
+                            } else {
+                                for (var i = page.layer + 1; i < menu_deep; i++) {
+                                    var menu2 = this["menu" + i]
+                                    menu2.style.display = "none"
+                                    a00.style.height = (page.layer + 1) * 65 + "px";
+                                }
+                                menu_item = document.getElementById("menu_item_" + p);
+                                menu.style.display = "block"
+                                menu.innerHTML = ""
+                                //div1.innerHTML = "1123<br/><br/><br/>123";
+                                for (var i = 0; i < page.childz.length; i++) {
+                                    var page2 = pages[page.childz[i]];
+                                    page2.layer = page.layer + 1;
+                                    menu.innerHTML += `<a id="menu_item_` + page2.index + `" class="no_select_menu" onmousedown="set_page('` + page2.name + `')"><ruby>` + page2.show_name + `<rt>` + page2.name + `</rt>` + `</ruby></a>`;
+                                    m_index++;
+                                    //menu.innerHTML += page2.show_name + " ";
+                                    if (i < page.childz.length - 1) {
+                                        menu.innerHTML += "／";
+                                    }
+                                    //console.log(menu.innerHTML);
+                                }
+                                a00.style.height = (page.layer + 2) * 65 + "px";
+                            }
+                            previous_menu = menu;
+                            break;
+                    }
                 }
+                div1.style.top = a00.style.height;
+                div1.style.display = "block";
+                if (old_select_item != undefined) {
+                    old_select_item.className = "no_select_menu";
+                }
+
+                if (menu_item != null) {
+                    menu_item.className = "select_menu";
+                }
+
+                //console.log(menu_item);
+                old_select_item = menu_item;
+                //console.log(old_select_item);
+                old_p_number = p;
+
             } else if (typeof p == "string") {
                 for (i = 0; i < pages.length; i++) {
                     var page = pages[i];
@@ -246,10 +397,10 @@
         }
 
         function diplay_icon_mouse_down() {
-            if (top_menu_content.style.display == 'block') {
-                top_menu_content.style.display = "none";
+            if (a00.style.display == 'block') {
+                a00.style.display = "none";
             } else {
-                top_menu_content.style.display = "block";
+                a00.style.display = "block";
             }
         }
 
