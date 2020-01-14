@@ -131,7 +131,7 @@
             diplay_icon.innerHTML = "[[[[";
             menuX1 = 130;
             menuX2 = 50
-            top_menu_content.style.marginBottom = "30px"
+            //top_menu_content.style.marginBottom = "30px"
         } else {
             diplay_icon.innerHTML = "[[";
             menuX1 = 65;
@@ -340,10 +340,15 @@
             page.layer = 0;
             //<a onclick="home_page()">首頁</a>／<a onclick="tip()">資源</a>
             top_menu_content.innerHTML += `<a id="menu_item_` + index + `" class="no_select_menu" onmousedown="set_page(` + index + `)"><ruby>` + page.show_name + `<rt>` + page.name + `</rt>` + `</ruby></a>`;
+            sameDown(top_menu_content)
             m_index++;
             if (i < one_menu.length - 1) {
                 top_menu_content.innerHTML += "／";
             }
+        }
+
+        function sameDown(obj) {
+            obj.ontouchstart = obj.onmousedown;
         }
 
     </script>
@@ -414,6 +419,10 @@
         div1.style.top = (page.layer + 1) * menuX1 + "px";
 
         function set_page(p) {
+
+            event.stopPropagation();
+            event.preventDefault();
+
             if (typeof p == "number") {
                 console.log('set_page(' + p + ')');
                 var page = pages[p];
@@ -454,6 +463,7 @@
                                     var page2 = pages[page.childz[i]];
                                     page2.layer = page.layer + 1;
                                     menu.innerHTML += `<a id="menu_item_` + page2.index + `" class="no_select_menu" onmousedown="set_page('` + page2.name + `')"><ruby>` + page2.show_name + `<rt>` + page2.name + `</rt>` + `</ruby></a>`;
+                                    sameDown(menu)
                                     m_index++;
                                     //menu.innerHTML += page2.show_name + " ";
                                     if (i < page.childz.length - 1) {
@@ -504,6 +514,8 @@
             } else {
                 a00.style.display = "block";
             }
+            event.stopPropagation();
+            event.preventDefault();
         }
 
     </script>
