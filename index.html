@@ -15,6 +15,7 @@
     <style type="text/css">
         img {
             border: 1px solid black;
+            width: 512px;
         }
 
         #div1 {}
@@ -122,6 +123,11 @@
                 top: 35px;
                 font-size: 50px;
             }
+
+            img {
+                border: 1px solid black;
+                width: 80vw;
+            }
         }
 
     </style>
@@ -139,6 +145,7 @@
     <script>
         var menuX1;
         sizeSetIni();
+        menu_symbol = "..."
 
         function sizeSetIni() {
             var isMobile = false; //initiate as false
@@ -244,23 +251,23 @@
         pages[6] = {
             name: "fish",
             show_name: "魚丁",
-            html: `<img width="512px" src="img/IMG_20200111_161117.jpg"><br>魚丁好吃`
+            html: `<img  src="img/IMG_20200111_161117.jpg"><br>魚丁好吃`
         };
         //<img src=""/><br/>
         pages[7] = {
             name: "big-blue",
             show_name: "大藍",
-            html: `<img width="512px" src="img/IMG_20200111_161204.jpg"/><br/>大藍是隻兔咪`
+            html: `<img  src="img/IMG_20200111_161204.jpg"/><br/>大藍是隻兔咪`
         };
         pages[8] = {
             name: "small-blue",
             show_name: "小藍",
-            html: `<img width="512px" src="img/IMG_20200111_161137.jpg"/><br/>小藍是大藍的弟弟，是隻兔咪`
+            html: `<img  src="img/IMG_20200111_161137.jpg"/><br/>小藍是大藍的弟弟，是隻兔咪`
         };
         pages[9] = {
             name: "small-yellow",
             show_name: "小黃",
-            html: `<img width="512px" src="img/IMG_20200111_161155.jpg"/><br/>小黃是大藍的妹妹，是隻兔咪`
+            html: `<img src="img/IMG_20200111_161155.jpg"/><br/>小黃是大藍的妹妹，是隻兔咪`
         };
         pages[10] = {
             type: "menu",
@@ -293,43 +300,43 @@
         pages[15] = {
             name: "naughty-rabbit-a",
             show_name: "小兔崽子A",
-            html: `<img width="512px" src="img/IMG_20200111_160939.jpg"/><br/>兔子寶寶，或稱兔子保鑣，小兔崽子複製體群，是隻手偶，特徵：沒掛環`
+            html: `<img src="img/IMG_20200111_160939.jpg"/><br/>兔子寶寶，或稱兔子保鑣，小兔崽子複製體群，是隻手偶，特徵：沒掛環`
         };
         pages[16] = {
             name: "naughty-rabbit-b",
             show_name: "小兔崽子B",
-            html: `<img  width="512px" src="img/IMG_20200111_160901.jpg" /><br/>兔子寶寶，或稱兔子保鑣，小兔崽子複製體群，是隻手偶，特徵：有掛環，長得像是狐狸`
+            html: `<img src="img/IMG_20200111_160901.jpg" /><br/>兔子寶寶，或稱兔子保鑣，小兔崽子複製體群，是隻手偶，特徵：有掛環，長得像是狐狸`
         };
         //
         pages[17] = {
             name: "octopuses",
             show_name: "章魚",
-            html: `<img  width="512px" src="img/IMG_20200111_161018.jpg" /><br/>手偶章魚，快樂章魚`
+            html: `<img src="img/IMG_20200111_161018.jpg" /><br/>手偶章魚，快樂章魚`
         };
         pages[18] = {
             name: "pig",
             show_name: "豬豬",
-            html: `<img  width="512px" src="img/IMG_20200111_161053.jpg" /><br/>方塊豬，毛絨毛絨的，有豬鼻子`
+            html: `<img src="img/IMG_20200111_161053.jpg" /><br/>方塊豬，毛絨毛絨的，有豬鼻子`
         };
         pages[19] = {
             name: "dog",
             show_name: "狗狗",
-            html: `<img  width="512px" src="img/IMG_20200111_161218.jpg" /><img  width="512px" src="img/IMG_20200111_161248.jpg" /><br/>狗狗，很軟，又稱火箭狗，每天都在睡覺`
+            html: `<img src="img/IMG_20200111_161218.jpg" /><img src="img/IMG_20200111_161248.jpg" /><br/>狗狗，很軟，又稱火箭狗，每天都在睡覺`
         };
         pages[20] = {
             name: "big-red",
             show_name: "大紅",
-            html: `<img  width="512px" src="img/IMG_20200111_161259.jpg" /><br/>大紅兔咪，是大藍，小藍、小黃、小橘的媽媽，配偶是超大藍`
+            html: `<img src="img/IMG_20200111_161259.jpg" /><br/>大紅兔咪，是大藍，小藍、小黃、小橘的媽媽，配偶是超大藍`
         };
         pages[21] = {
             name: "small-orange",
             show_name: "小橘",
-            html: `<img  width="512px" src="img/IMG_20200111_161009.jpg" /><br/>小橘，嘴巴粗，眼睛有點斜，奶奶給我的，質地飽滿，棉花充實，跟一般兔咪不太一樣`
+            html: `<img src="img/IMG_20200111_161009.jpg" /><br/>小橘，嘴巴粗，眼睛有點斜，奶奶給我的，質地飽滿，棉花充實，跟一般兔咪不太一樣`
         };
         pages[22] = {
             name: "melody",
             show_name: "美樂蒂",
-            html: `<img  width="512px" src="img/IMG_20200111_161311.jpg" /><br/>美樂蒂是一隻兔子玩偶，但不是兔咪，頭戴紅帽，蠻好抱的`
+            html: `<img src="img/IMG_20200111_161311.jpg" /><br/>美樂蒂是一隻兔子玩偶，但不是兔咪，頭戴紅帽，蠻好抱的`
         };
         pages[23] = {
             type: "a1",
@@ -370,7 +377,7 @@
         pages[29] = {
             name: "rainbow-bear",
             show_name: "彩虹熊熊",
-            html: `<img width="512px" src="img/IMG_20200111_160959.jpg"/><br/>彩虹熊熊，又稱RGB雄，有熊鼻，微笑狀態`
+            html: `<img  src="img/IMG_20200111_160959.jpg"/><br/>彩虹熊熊，又稱RGB雄，有熊鼻，微笑狀態`
         };
         m_index = 0;
         top_menu_content.innerHTML = "";
@@ -378,6 +385,15 @@
             var page = pages[i];
             //console.log(i)
             page.index = i;
+        }
+        for (var i = 0; i < pages.length; i++) {
+            var page = pages[i]
+            if (page.type == undefined) {
+
+            } else if (page.type == "menu") {
+
+                page.show_name += menu_symbol
+            }
         }
         for (var i = 0; i < one_menu.length; i++) {
             var index = one_menu[i];
@@ -482,18 +498,28 @@
 
             if (typeof p == "number") {
                 console.log('set_page(' + p + ')');
+                menu_item = document.getElementById("menu_item_" + p);
                 var page = pages[p];
                 div1.style.display = "none";
+
+
+
+
                 if (page.type == undefined) {
                     window.scrollTo(0, 0);
-                    menu_item = document.getElementById("menu_item_" + p);
-                    for (var i = page.layer; i < 10; i++) {
-                        var menu = this["menu" + i];
-                        menu.style.display = "none";
-                    }
+
                     div1.innerHTML = page.html;
                     change_url(page.name);
                     previous_menu = null;
+
+                    for (var i = 0; i < page.layer; i++) {
+                        var menu2 = this["menu" + i]
+                        menu2.style.display = "inline"
+                    }
+                    for (var i = page.layer; i < menu_deep; i++) {
+                        var menu2 = this["menu" + i]
+                        menu2.style.display = "none"
+                    }
                 } else {
                     switch (page.type) {
                         case "menu":
@@ -509,31 +535,6 @@
                                     menu.style.display = "inline"
                                 }
                             } else {
-                                for (var i = 0; i < page.layer + 1; i++) {
-                                    var menu2 = this["menu" + i]
-                                    menu2.style.display = "inline"
-                                }
-                                var parent = page
-                                for (var i = page.layer - 1; i >= 0; i--) {
-                                    var page2 = parent
-                                    var childz = parent.parent.childz
-                                    var menu2 = this["menu" + i]
-                                    menu2.innerHTML = ""
-                                    for (var j = 0; j < childz.length; j++) {
-                                        var page3 = pages[childz[j]]
-                                        menu2.innerHTML += `<a id="menu_item_` + page3.index + `" class="no_select_menu" onmousedown="set_page('` + page3.name + `')"><ruby>` + page3.show_name + `<rt>` + page3.name + `</rt>` + `</ruby></a>`;
-                                        if (j < childz.length - 1) {
-                                            menu2.innerHTML += "／";
-                                        }
-                                        sameDown(menu2)
-                                    }
-                                    parent = page2.parent
-                                }
-                                for (var i = page.layer + 1; i < menu_deep; i++) {
-                                    var menu2 = this["menu" + i]
-                                    menu2.style.display = "none"
-                                }
-                                menu_item = document.getElementById("menu_item_" + p);
                                 console.log(menu)
                                 //menu.style.display = "inline"
                                 menu.innerHTML = ""
@@ -551,10 +552,35 @@
                                     //console.log(menu.innerHTML);
                                 }
                             }
+
+                            for (var i = 0; i < page.layer + 1; i++) {
+                                var menu2 = this["menu" + i]
+                                menu2.style.display = "inline"
+                            }
+                            for (var i = page.layer + 1; i < menu_deep; i++) {
+                                var menu2 = this["menu" + i]
+                                menu2.style.display = "none"
+                            }
                             change_url(page.name)
                             previous_menu = menu;
                             break;
                     }
+                }
+                var parent = page
+                for (var i = page.layer - 1; i >= 0; i--) {
+                    var page2 = parent
+                    var childz = parent.parent.childz
+                    var menu2 = this["menu" + i]
+                    menu2.innerHTML = ""
+                    for (var j = 0; j < childz.length; j++) {
+                        var page3 = pages[childz[j]]
+                        menu2.innerHTML += `<a id="menu_item_` + page3.index + `" class="no_select_menu" onmousedown="set_page('` + page3.name + `')"><ruby>` + page3.show_name + `<rt>` + page3.name + `</rt>` + `</ruby></a>`;
+                        if (j < childz.length - 1) {
+                            menu2.innerHTML += "／";
+                        }
+                        sameDown(menu2)
+                    }
+                    parent = page2.parent
                 }
                 //console.log(top_menu_content.offsetTop)
                 var top = top_menu_content.offsetTop + top_menu_content.offsetHeight + 10
@@ -574,6 +600,7 @@
                     old_select_item.className = "no_select_menu";
                 }
 
+                menu_item = document.getElementById("menu_item_" + p);
                 if (menu_item != null) {
                     menu_item.className = "select_menu";
                 }
