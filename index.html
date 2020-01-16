@@ -21,9 +21,11 @@
         #div1 {}
 
         div.diplay_icon {
-            float: left;
+            width: 1em;
+            float: right;
             background-color: black;
         }
+
 
         div.top_menu_content {
             float: left;
@@ -44,7 +46,7 @@
             -webkit-user-select: none;
             -moz-user-select: none;
             height: 65px;
-            width: auto;
+            width: 100vw;
         }
 
         div.content {
@@ -95,13 +97,10 @@
             padding: 5px;
         }
 
-        #a00 {
-            float: left;
-            height: auto;
-        }
+        #a00 {}
 
-        #diplay_icon {
-            display: inline;
+        .link {
+            border-bottom: 1px solid black;
         }
 
         @media screen and (max-device-width: 480px) {
@@ -135,10 +134,10 @@
 
 <body>
     <div class="top-menu">
-        <div id="diplay_icon" class="diplay_icon" ontouchstart="diplay_icon_mouse_down()" onmousedown="diplay_icon_mouse_down()">[[[[</div><br>
         <div id="a00">
             <div id="top_menu_content" class="top_menu_content"></div>
         </div>
+        <div id="diplay_icon" class="diplay_icon" ontouchstart="diplay_icon_mouse_down()" onmousedown="diplay_icon_mouse_down()">[[[[</div>
     </div>
 
     <div id="div1" class="content"></div>
@@ -205,6 +204,13 @@
                 a00.appendChild(newDiv);
             }
         }
+
+        function createLink(show, insideUrl) {
+            var f = "set_page('" + insideUrl + "')";
+            var r = "<a class='link' ontouchstart=\"" + f + "\" onmousedown=\"" + f + "\">" + show + "</a>"
+            console.log(r);
+            return r;
+        }
         menuIni()
         var pages = [];
         pages[0] = {
@@ -262,12 +268,12 @@
         pages[8] = {
             name: "small-blue",
             show_name: "小藍",
-            html: `<img  src="img/IMG_20200111_161137.jpg"/><br/>小藍是大藍的弟弟，是隻兔咪`
+            html: `<img  src="img/IMG_20200111_161137.jpg"/><br/>小藍是` + createLink("大藍", "big-blue") + `的弟弟，是隻兔咪`
         };
         pages[9] = {
             name: "small-yellow",
             show_name: "小黃",
-            html: `<img src="img/IMG_20200111_161155.jpg"/><br/>小黃是大藍的妹妹，是隻兔咪`
+            html: `<img src="img/IMG_20200111_161155.jpg"/><br/>小黃是` + createLink("大藍", "big-blue") + `的妹妹，是隻兔咪`
         };
         pages[10] = {
             type: "menu",
@@ -326,7 +332,7 @@
         pages[20] = {
             name: "big-red",
             show_name: "大紅",
-            html: `<img src="img/IMG_20200111_161259.jpg" /><br/>大紅兔咪，是大藍，小藍、小黃、小橘的媽媽，配偶是超大藍`
+            html: `<img src="img/IMG_20200111_161259.jpg" /><br/>大紅兔咪，是` + createLink("大藍", "big-blue") + `，` + createLink("小藍", "small-blue") + `、` + createLink("小黃", "small-yellow") + `、` + createLink("小橘", "small-orange") + `的媽媽，配偶是超大藍`
         };
         pages[21] = {
             name: "small-orange",
@@ -336,7 +342,7 @@
         pages[22] = {
             name: "melody",
             show_name: "美樂蒂",
-            html: `<img src="img/IMG_20200111_161311.jpg" /><br/>美樂蒂是一隻兔子玩偶，但不是兔咪，頭戴紅帽，蠻好抱的`
+            html: `<img src="img/IMG_20200111_161311.jpg" /><br/>美樂蒂是一隻兔子玩偶，但不是` + createLink("兔咪", "too-mi") + `，頭戴紅帽，蠻好抱的`
         };
         pages[23] = {
             type: "a1",
@@ -502,9 +508,6 @@
                 var page = pages[p];
                 div1.style.display = "none";
 
-
-
-
                 if (page.type == undefined) {
                     window.scrollTo(0, 0);
 
@@ -593,6 +596,7 @@
                     }
                 }
                 div1.style.top = top + "px"
+                a00.style.height = (top - 10) + "px"
                 //console.log(div1.style.top)
                 //div1.style.top = a00.style.height;
                 div1.style.display = "block";
@@ -627,13 +631,16 @@
         }
 
         function diplay_icon_mouse_down() {
-            if (a00.style.display == 'block') {
+            if (a00.style.display != 'none') {
                 a00.style.display = "none";
+                //a00_old_top = a00.style.top
                 div1.oldTop = div1.style.top
-                div1.style.top = diplay_icon.offsetHeight + "px"
+                //div1.style.top = diplay_icon.offsetHeight + "px"
+                div1.style.top = 0 + "px"
             } else {
-                a00.style.display = "block";
                 div1.style.top = div1.oldTop
+                a00.style.display = "block";
+                //a00.style.top = a00_old_top
             }
             event.stopPropagation();
             event.preventDefault();
