@@ -131,4 +131,11 @@
           border: 1px solid black;
           max-width: 80vw;
       }
+
+
+      div.top_menu_content {
+          line-height: 90px;
+          font-size: 55px;
+      }
+
   }
