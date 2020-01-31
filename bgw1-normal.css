@@ -1,6 +1,7 @@
   img {
       border: 1px solid black;
       max-width: 512px;
+      max-height: 412px;
   }
 
   #div1 {}
@@ -23,7 +24,8 @@
       display: block;
       white-space: pre-line;
       padding-bottom: 10px;
-      line-height: 60px;
+      line-height: 30px;
+      font-size: 23px;
   }
 
   div.top-menu {
