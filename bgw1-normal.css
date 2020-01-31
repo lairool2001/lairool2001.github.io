@@ -1,0 +1,132 @@
+  img {
+      border: 1px solid black;
+      max-width: 512px;
+  }
+
+  #div1 {}
+
+  div.diplay_icon {
+      width: 1em;
+      float: right;
+      padding-right: 20px;
+      background-color: black;
+      background-color: #00000050;
+  }
+
+
+  div.top_menu_content {
+      float: left;
+      white-space: nowrap;
+      width: 100%;
+      height: auto;
+      background-color: black;
+      display: block;
+      white-space: pre-line;
+      padding-bottom: 10px;
+      line-height: 60px;
+  }
+
+  div.top-menu {
+      top: 0px;
+      position: fixed;
+      color: white;
+      z-index: 1;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      height: 65px;
+      width: 100%;
+  }
+
+  div.content {
+      position: relative;
+      top: 35px;
+      font-size: 26px;
+      width: 100%;
+      word-break: break-all;
+  }
+
+  div.article {
+      box-shadow: 0px 0px 12px 3px black;
+      width: 100%;
+      line-height: auto;
+      text-align: left;
+      font-size: 0.7em;
+      word-break: break-all;
+  }
+
+  div.article a {
+      color: blue;
+      text-decoration: none;
+  }
+
+  body {
+      font-size: 2em;
+      height: auto;
+  }
+
+  body rt {
+      font-size: 25px;
+  }
+
+  h1 {
+      letter-spacing: 0px;
+  }
+
+  a rt {
+      font-size: 0.4em;
+  }
+
+  .no_select_menu {}
+
+  .select_menu {
+      border-width: 2px;
+      border-bottom-style: dashed;
+      border-color: gainsboro;
+      padding: 5px;
+  }
+
+  #a00 {}
+
+  .link {
+      border-bottom: 1px solid black;
+  }
+
+  .codeblock {
+      padding-left: 1em !important;
+      display: block;
+      /* fixes a strange ie margin bug */
+      font-family: Courier New;
+      font-size: 10pt;
+      overflow: auto;
+      background: #f0f0f0 url(img/code.gif) left top repeat-y;
+      border: 1px solid #ccc;
+      padding: 10px 10px 10px 21px;
+      //max-height: 1000px;
+      line-height: 1.2em;
+  }
+
+  @media screen and (max-device-width: 480px) {
+      div.top-menu {
+          font-size: 2em;
+          height: 2.7em;
+      }
+
+      div.content {
+          top: 100px;
+      }
+
+      rt {
+          font-size: 0.2em;
+      }
+
+      div.content {
+          position: relative;
+          top: 35px;
+          font-size: 50px;
+      }
+
+      img {
+          border: 1px solid black;
+          max-width: 80vw;
+      }
+  }
