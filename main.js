@@ -60,10 +60,6 @@ function menuIni() {
         a00.appendChild(newDiv);
     }
 }
-
-var top = top_menu_content.offsetTop + top_menu_content.offsetHeight + 10
-div1.style.top = top + "px"
-
 menuIni()
 m_index = 0;
 top_menu_content.innerHTML = "";
@@ -154,6 +150,8 @@ function load_page() {
     if (!found) {
         no_found();
     }
+    var top = top_menu_content.offsetTop + top_menu_content.offsetHeight + 10
+    div1.style.top = top + "px"
     loading = false;
 }
 var now_url = "";
