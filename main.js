@@ -61,6 +61,9 @@ function menuIni() {
     }
 }
 
+var top = top_menu_content.offsetTop + top_menu_content.offsetHeight + 10
+div1.style.top = top + "px"
+
 menuIni()
 m_index = 0;
 top_menu_content.innerHTML = "";
