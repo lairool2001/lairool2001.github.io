@@ -109,8 +109,8 @@
 
   @media screen and (max-device-width: 480px) {
       div.top-menu {
-          font-size: 2em;
-          height: 2.7em;
+          font-size: 74px;
+          position: relative;
       }
 
       div.content {
@@ -118,13 +118,13 @@
       }
 
       rt {
-          font-size: 0.2em;
+          //font-size: 52px;
       }
 
       div.content {
           position: relative;
           top: 35px;
-          font-size: 50px;
+          font-size: 40px;
       }
 
       img {

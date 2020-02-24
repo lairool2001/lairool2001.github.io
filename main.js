@@ -3,7 +3,7 @@ sizeSetIni();
 menu_symbol = "..."
 
 function sizeSetIni() {
-    var isMobile = false; //initiate as false
+    isMobile = false; //initiate as false
     // device detection
     if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|ipad|iris|kindle|Android|Silk|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(navigator.userAgent)
 
@@ -277,7 +277,11 @@ function set_page(p, event) {
                 break
             }
         }
-        div1.style.top = top + "px"
+        if (!isMobile) {
+            div1.style.top = top + "px"
+        } else {
+            div1.style.top = 20 + "px"
+        }
         a00.style.height = (top - 10) + "px"
         //console.log(div1.style.top)
         //div1.style.top = a00.style.height;
@@ -310,7 +314,11 @@ function set_page(p, event) {
 function no_found() {
     div1.innerHTML = `<p>沒有這個頁面喔!</p>`;
     var top = top_menu_content.offsetTop + top_menu_content.offsetHeight + 10
-    div1.style.top = top + "px"
+    if (!isMobile) {
+        div1.style.top = top + "px"
+    } else {
+        div1.style.top = 20 + "px"
+    }
     change_url("no_found");
 }
 
