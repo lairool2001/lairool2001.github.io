@@ -319,21 +319,21 @@
                 //last is previous
                 var save = savez[0];
                 console.log(save);
-
                 ini();
                 setDataByData(save);
                 setEventFuction();
                 check_blockById();
                 console.log("load completed");
                 if (blockz != null) {
-
                     showInfoAlphaDown("讀取檔案成功");
                 } else {
                     ini();
+					setEventFuction();
                     showInfoAlphaDown("讀取檔案錯誤！初始化畫布。");
                 }
             } catch {
                 ini();
+                setEventFuction();
                 showInfoAlphaDown("讀取檔案錯誤！初始化畫布。");
             }
 
