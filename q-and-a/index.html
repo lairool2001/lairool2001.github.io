@@ -7,6 +7,9 @@
     <meta http-equiv="content-language" content="zh-tw">
     <title>Q and A 2</title>
     <style type="text/css">
+		h1{
+			display:inline;
+		}
         div.div2,
         div.div4,
         div.div5 {
@@ -50,6 +53,20 @@
             height: auto;
             font-size: 3em;
         }
+		#splitDiv{
+			font-size:20px;
+			float:right;
+		}
+		#splitSign{
+			font-size:20px;
+			height:30px;
+			width:60px;
+			text-align:center;
+			line-height:30px;
+		}
+		#end_result{
+		font-size:15px;
+		}
 
         @media screen and (max-device-width: 480px) {
             div.divContent {
@@ -76,9 +93,9 @@
     <div class="divContent" id="divContent">
         <div class="div1" id="div1">
             <h1>
-                <ruby>出題表<rt>Topic</rt>
-                </ruby>
+                <ruby>出題表<rt>Topic</rt></ruby>
             </h1>
+			<div id="splitDiv"><ruby>分割符號<rt>Split sign</rt></ruby>:<textarea id="splitSign">/</textarea></div>
             <textarea oninput="change_text()" id="textarea1" class="textarea">apple/蘋果
 banana/香蕉</textarea></br></br>
             <div class="div" id="div_test">
@@ -107,6 +124,7 @@ banana/香蕉</textarea></br></br>
         <div class="div5" id="div5">
             <h1 id="end_result">
             </h1>
+			<br/>
             <h1><ruby>總錯誤表<rt>wrongs</rt></ruby>
             </h1>
             <textarea id="textareaWrongs" class="textarea"></textarea></br>
@@ -155,7 +173,7 @@ banana/香蕉</textarea></br></br>
             return;
         }
         var rIndex = getRandomInt(arr.length);
-        var qa = arr[rIndex].split('/');
+        var qa = arr[rIndex].split(splitSign.value);
         arr.splice(rIndex, 1);
 
         console.log("qa.length:" + qa.length);
@@ -195,7 +213,7 @@ banana/香蕉</textarea></br></br>
     var wroug_data;
 
     function wrong() {
-        wroug_data.push(q + "/" + a);
+        wroug_data.push(q + splitSign.value + a);
         wrong_count += 1;
         next();
     }
