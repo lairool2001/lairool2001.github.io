@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="content-language" content="zh-tw">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <title>bgw的前端網頁實驗室</title>
+    <style type="text/css">
+	#main{
+		float:left;
+		width:60vw;
+		height:95vh;
+	}
+	#code_html{
+		height:75vh;
+		width:35vw;
+	}
+    </style>
+</head>
+
+<body onKeyDown="body_onkeydown(event)">
+	<iframe id="main"></iframe><br>
+	<div id="editor">
+		HTML<br>
+		<textarea id="code_html" onKeyDown="textArea_onKeyDown(event)" onInput="textArea_onInput(event)"></textarea><br>
+		<input type="radio" id="c1" name="userid" value="1" checked>每一變更更新</input>
+		<input type="radio" id="c2" name="userid" value="2">每一換行更新</input>
+		<input type="radio" id="c3" name="userid" value="3">Ctrl+R更新</input>
+	</div>
+	<script>
+		map = {}
+		onkeydown = onkeyup = function(e){
+			e = e || event; // to deal with IE
+			map[e.keyCode] = e.type == 'keydown';
+			/* insert conditional here */
+			//防止特定按鍵
+			if(map[17] && map[82] &&　c3.checked){
+				console.log("save oh...")
+				event.cancelBubble = false;
+				event.preventDefault()
+				update()
+			}
+		}
+		String.prototype.insert = function(index, string) {
+		  if (index > 0)
+		  {
+			return this.substring(0, index) + string + this.substring(index, this.length);
+		  }
+
+		  return string + this;
+		};
+		function body_onkeydown(event) {
+			if(map[17] && map[82]){
+			}
+		}
+		function update(){
+			var text=code_html.value;
+			var s=main;
+			s.contentDocument.open();
+			s.contentDocument.write(text);
+			s.contentDocument.close()
+		}
+		function textArea_onKeyDown(e){
+			
+		}
+		function textArea_onInput(event){
+			if(c1.checked){
+				update()
+			}else if(c2.checked){
+				if(map[13]){
+					update()
+				}
+			}
+			/*
+			removeElement("iframeResult")
+			var iframe=document.createElement("iframe")
+			document.body.appendChild(iframe)
+			iframe.setAttribute("frameborder", "0");
+			iframe.setAttribute("id", "iframeResult");
+			iframe.setAttribute("name", "iframeResult");  
+			iframe.setAttribute("allowfullscreen", "true");  
+			iframe.document.open()
+			iframe.document.write(code_html.value)
+			iframe.document.close()*/
+			
+			/*
+			removeElement("main")
+			var e1=document.createElement("div")
+			e1.setAttribute("id","main")
+			e1.innerHTML=code_html.value;
+			document.body.appendChild(e1)*/
+			
+			/*main1.innerHTML=code_html.value;
+			eval(code_js.value)*/
+		}
+		function removeElement(elementId) {
+			// Removes an element from the document
+			var element = document.getElementById(elementId);
+			if(element != undefined){
+				document.body.removeChild(element);
+			}
+		}
+	</script>
+	<script>
+
+		function a(){
+		console.log("a")
+		}
+		
+	</script>
+</body>
+
+</html>
