@@ -14,20 +14,24 @@
 		height:95vh;
 	}
 	#code_html{
-		height:75vh;
+		height:45vh;
+		width:35vw;
+	}
+	#code_js{
+		height:40vh;
 		width:35vw;
 	}
     </style>
 </head>
 
 <body onKeyDown="body_onkeydown(event)">
-	<iframe id="main"></iframe><br>
+	<div id="main"></div><br>
 	<div id="editor">
 		HTML<br>
 		<textarea id="code_html" onKeyDown="textArea_onKeyDown(event)" onInput="textArea_onInput(event)"></textarea><br>
-		<input type="radio" id="c1" name="userid" value="1" checked>每一變更更新</input>
-		<input type="radio" id="c2" name="userid" value="2">每一換行更新</input>
-		<input type="radio" id="c3" name="userid" value="3">Ctrl+R更新</input>
+		JS<br>
+		<textarea id="code_js" onKeyDown="textArea_onKeyDown(event)" onInput="textArea_onInput(event)"></textarea><br>
+		Ctrl+R Update(更新) JS
 	</div>
 	<script>
 		map = {}
@@ -36,11 +40,11 @@
 			map[e.keyCode] = e.type == 'keydown';
 			/* insert conditional here */
 			//防止特定按鍵
-			if(map[17] && map[82] &&　c3.checked){
+			if(map[17] && map[82]){
 				console.log("save oh...")
 				event.cancelBubble = false;
 				event.preventDefault()
-				update()
+				eval(code_js.value)
 			}
 		}
 		String.prototype.insert = function(index, string) {
@@ -56,23 +60,12 @@
 			}
 		}
 		function update(){
-			var text=code_html.value;
-			var s=main;
-			s.contentDocument.open();
-			s.contentDocument.write(text);
-			s.contentDocument.close()
 		}
 		function textArea_onKeyDown(e){
 			
 		}
 		function textArea_onInput(event){
-			if(c1.checked){
-				update()
-			}else if(c2.checked){
-				if(map[13]){
-					update()
-				}
-			}
+			main.innerHTML=code_html.value
 		}
 		function removeElement(elementId) {
 			// Removes an element from the document
