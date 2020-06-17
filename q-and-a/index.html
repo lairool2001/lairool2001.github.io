@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta http-equiv="content-language" content="zh-tw">
+	<script src="https://code.responsivevoice.org/responsivevoice.js?key=oj1GR4RI"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	
     <title>Q and A 2</title>
     <style type="text/css">
 		h1{
@@ -53,6 +56,11 @@
             height: auto;
             font-size: 3em;
         }
+		
+		.playSoundButton{
+			vertical-align: top;
+		}
+		
 		#splitDiv{
 			font-size:20px;
 			float:right;
@@ -110,16 +118,19 @@ banana/香蕉</textarea></br></br>
             </div>
         </div>
         <div class="div2" id="div2">
-            <textarea readonly="readonly" id="textareaQ" class="textarea">Q</textarea></br>
-            <textarea readonly="readonly" id="textareaA" class="textarea">A</textarea></br></br>
+            <textarea readonly="readonly" id="textareaQ" class="textarea">Q</textarea><button id="btnSayIt1" class="playSoundButton"  onclick="SayIt(textareaQ.value,true)">
+			<ruby>發音<rt>pronunciation</rt></ruby></button></br>
+            <textarea readonly="readonly" id="textareaA" class="textarea">A</textarea><button id="btnSayIt2" class="playSoundButton"  onclick="SayIt(textareaA.value,true)">
+			<ruby>發音<rt>pronunciation</rt></ruby></button></br>
             <div class="div3" id="div3">
-                <button onmousedown="show_answer()" id="buttonBA" class="button2"><ruby>秀出答案<rt>show correct answer</rt>
+                <button onmousedown="show_answer();SayIt(textareaA.value,checkbox1.checked);" id="buttonBA" class="button2"><ruby>秀出答案<rt>show correct answer</rt>
                     </ruby></button>
             </div>
             <div class="div4" id="div4">
                 <button onmousedown="correct()" id="button_correct" class="button"><ruby>答對<rt>correct</rt></ruby></button>
                 <button onmousedown="wrong()" id="button_wrong" class="button"><ruby>答錯<rt>wrong</rt></ruby></button>
             </div>
+			<input type="checkbox" id="checkbox1" checked><ruby>自動發音<rt>Automatic pronunciation</rt><ruby></input>
         </div>
         <div class="div5" id="div5">
             <h1 id="end_result">
@@ -133,6 +144,7 @@ banana/香蕉</textarea></br></br>
         </div>
     </div>
     </div>
+	
 </body>
 <script>
     var arr;
@@ -190,8 +202,8 @@ banana/香蕉</textarea></br></br>
             }
             textareaQ.value = q;
             textareaA.value = "";
+			SayIt(textareaQ.value,checkbox1.checked);
         }
-
     }
 
     function getRandomInt(max) {
@@ -249,7 +261,83 @@ banana/香蕉</textarea></br></br>
         textarea1.value = textareaWrongs.value;
         Test(0);
     }
+	
+	function SayIt(talkOut,toSay) {
+		console.log(talkOut)
+		if(!toSay)return;
+		//var lng = $('#sltLng').val();
+		//var Rlt = $('#trn').val();
+		if(isContainJapanese(talkOut)){
+			console.log("日文");
+			responsiveVoice.speak(talkOut,"Japanese Female");
+		}else if(isContainKoera(talkOut)){
+			console.log("韓文");
+			responsiveVoice.speak(talkOut,"Korean Female");
+		}
+		else{
+			console.log("其他 內建發音");
+			window.speechSynthesis.cancel()
+			var words = new SpeechSynthesisUtterance(talkOut);
+			window.speechSynthesis.speak(words);
+		}
+	}
+	function isContainJapanese(temp){
+		var cnt = 0;
+		for(var i=0;i < temp.length ; i++)
+		{
+			if(isJapanese(temp.charCodeAt(i)))
+				cnt++;
+		}
+		if (cnt > 2) return true;
+		return false;
+	}
+	function isJapanese(chr) { 
+		/*var re = /[^\u0800-\u4e00]/; 
+		if(re.test(temp)) return false; 
+		return true; 
+		*/
+		if((chr > 0x0800 && chr < 0x4e00)) 
+		{
+			return true;
+		}
+		return false;
+	}
+	function isContainKoera(temp){
+		var cnt = 0;
+		for(var i=0;i < temp.length ; i++)
+		{
+			if(isKoera(temp.charCodeAt(i)))
+				cnt++;
+		}
+		if (cnt > 0) return true;
+		return false;
+	}
+	function isKoera(chr) {
+		/*var hex=convertToHex(chr)
+		console.log(hex);*/
+		console.log(chr);
+		if(((chr > 0x3130 && chr < 0x318F) || 
+			(chr >= 0xAC00 && chr <= 0xD7A3))) 
+		{
+			return true;
+		}
+		return false;
+	}
+	function convertFromHex(hex) {
+		var hex = hex.toString();//force conversion
+		var str = '';
+		for (var i = 0; i < hex.length; i += 2)
+			str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+		return str;
+	}
 
+	function convertToHex(str) {
+		var hex = '';
+		for(var i=0;i<str.length;i++) {
+			hex += ''+str.charCodeAt(i).toString(16);
+		}
+		return hex;
+	}
 </script>
 </body>
 
