@@ -267,10 +267,16 @@ banana/香蕉</textarea></br></br>
 		if(!toSay)return;
 		//var lng = $('#sltLng').val();
 		//var Rlt = $('#trn').val();
-		if(isContainJapanese(talkOut)){
+		if(isEnglish(talkOut)){
+			console.log("英文");
+			responsiveVoice.speak(talkOut,"US English Male");
+		}else if(isChinese(talkOut)){
+			console.log("中文");
+			responsiveVoice.speak(talkOut,"Chinese Taiwan Male");
+		}else if(isContainJapanese(talkOut)){
 			console.log("日文");
 			responsiveVoice.speak(talkOut,"Japanese Female");
-		}else if(isContainKoera(talkOut)){
+		}else if(isContainKorea(talkOut)){
 			console.log("韓文");
 			responsiveVoice.speak(talkOut,"Korean Female");
 		}
@@ -281,14 +287,39 @@ banana/香蕉</textarea></br></br>
 			window.speechSynthesis.speak(words);
 		}
 	}
-	function isContainJapanese(temp){
+	
+	function isChinese(temp) 
+	{ 
+		var re = /[^\u4e00-\u9fa5|、|。|，|/|]/; 
+		if(re.test(temp)) return false; 
+		return true; 
+	}
+	function isContainChinese(temp){
 		var cnt = 0;
 		for(var i=0;i < temp.length ; i++)
 		{
-			if(isJapanese(temp.charCodeAt(i)))
+			if(isChinese(temp.charAt(i)))
 				cnt++;
 		}
-		if (cnt > 2) return true;
+		if (cnt > 0) return true;
+		return false;
+	}
+	function isEnglish( str ) {
+	console.log(str)
+		var regExp = /^[\d|a-zA-Z|,|.|:|"|']+$/;
+		if (regExp.test(str))
+			return true;
+		else
+			return false;
+	}
+	function isContainEnglish(temp){
+		var cnt = 0;
+		for(var i=0;i < temp.length ; i++)
+		{
+			if(isEnglish(temp.charAt(i)))
+				cnt++;
+		}
+		if (cnt > 0) return true;
 		return false;
 	}
 	function isJapanese(chr) { 
@@ -302,17 +333,17 @@ banana/香蕉</textarea></br></br>
 		}
 		return false;
 	}
-	function isContainKoera(temp){
+	function isContainJapanese(temp){
 		var cnt = 0;
 		for(var i=0;i < temp.length ; i++)
 		{
-			if(isKoera(temp.charCodeAt(i)))
+			if(isJapanese(temp.charCodeAt(i)))
 				cnt++;
 		}
 		if (cnt > 0) return true;
 		return false;
 	}
-	function isKoera(chr) {
+	function isKorea(chr) {
 		/*var hex=convertToHex(chr)
 		console.log(hex);*/
 		console.log(chr);
@@ -321,6 +352,16 @@ banana/香蕉</textarea></br></br>
 		{
 			return true;
 		}
+		return false;
+	}
+	function isContainKorea(temp){
+		var cnt = 0;
+		for(var i=0;i < temp.length ; i++)
+		{
+			if(isKorea(temp.charCodeAt(i)))
+				cnt++;
+		}
+		if (cnt > 0) return true;
 		return false;
 	}
 	function convertFromHex(hex) {
