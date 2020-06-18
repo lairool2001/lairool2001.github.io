@@ -290,7 +290,7 @@ banana/香蕉</textarea></br></br>
 	
 	function isChinese(temp) 
 	{ 
-		var re = /[^\u4e00-\u9fa5|、|。|，|/|]/; 
+		var re = /[^\u4e00-\u9fa5|、|。|，|　|\/]/; 
 		if(re.test(temp)) return false; 
 		return true; 
 	}
@@ -306,7 +306,7 @@ banana/香蕉</textarea></br></br>
 	}
 	function isEnglish( str ) {
 	console.log(str)
-		var regExp = /^[\d|a-zA-Z|,|.|:|"|']+$/;
+		var regExp = /^[\d|a-zA-Z|,|.|:|"|'| |\/]+$/;
 		if (regExp.test(str))
 			return true;
 		else
