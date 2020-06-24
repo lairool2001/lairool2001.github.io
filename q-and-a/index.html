@@ -276,8 +276,8 @@ banana/香蕉</textarea></br>
 		if(isEnglish(talkOut)){
 			console.log("英文");
 			responsiveVoice.speak(talkOut,"US English Male");
-		}else if(isChinese(talkOut)){
-			console.log("中文");
+		}else if(isChineseOrEnglish(talkOut)){
+			console.log("中文或一點英文");
 			responsiveVoice.speak(talkOut,"Chinese Taiwan Male");
 		}else if(isContainJapanese(talkOut)){
 			console.log("日文");
@@ -294,9 +294,9 @@ banana/香蕉</textarea></br>
 		}
 	}
 	
-	function isChinese(temp) 
+	function isChineseOrEnglish(temp) 
 	{ 
-		var re = /[^\u4e00-\u9fa5|、|。|，|　|\/]/; 
+		var re = /[^\u4e00-\u9fa5|、|。|，|　|\/|？|！|～|’|”|｜|＝|＋|－|,|.|:|"|'| |\/|\-|?|!|\+|=|\*|\\|（|）|a-zA-Z|\d|(|)|~]/; 
 		if(re.test(temp)) return false; 
 		return true; 
 	}
@@ -312,7 +312,7 @@ banana/香蕉</textarea></br>
 	}
 	function isEnglish( str ) {
 	console.log(str)
-		var regExp = /^[\d|a-zA-Z|,|.|:|"|'| |\/|\-|?|!|\+|=|\*|\\]+$/;
+		var regExp = /^[\d|a-zA-Z|,|.|:|"|'| |\/|\-|?|!|\+|=|\*|\\|(|)|~]+$/;
 		if (regExp.test(str))
 			return true;
 		else
