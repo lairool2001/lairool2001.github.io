@@ -73,7 +73,7 @@
 			line-height:30px;
 		}
 		#end_result{
-		font-size:15px;
+			font-size:15px;
 		}
 
         @media screen and (max-device-width: 480px) {
@@ -312,7 +312,7 @@ banana/香蕉</textarea></br>
 	}
 	function isEnglish( str ) {
 	console.log(str)
-		var regExp = /^[\d|a-zA-Z|,|.|:|"|'| |\/|-]+$/;
+		var regExp = /^[\d|a-zA-Z|,|.|:|"|'| |\/|\-|?|!|\+|=|\*|\\]+$/;
 		if (regExp.test(str))
 			return true;
 		else
