@@ -105,7 +105,8 @@
             </h1>
 			<div id="splitDiv"><ruby>分割符號<rt>Split sign</rt></ruby>:<textarea id="splitSign">/</textarea></div>
             <textarea oninput="change_text()" id="textarea1" class="textarea">apple/蘋果
-banana/香蕉</textarea></br></br>
+banana/香蕉</textarea></br>
+			<ruby>從檔案載入文字：<rt>Load text from file.</rt></ruby><input type="file" id="input" onchange="handleFiles(this.files)" accept=".txt"/>
             <div class="div" id="div_test">
                 <button onmousedown="Test(0)" id="buttonAB" class="button">
                     <ruby>A-B考試<rt>A-B Test</rt>
@@ -167,6 +168,7 @@ banana/香蕉</textarea></br></br>
             console.log("ba-test");
         }
         console.log(textarea1.value);
+		origin_text=textarea1.value;
         arr = textarea1.value.split('\n');
         type = set_type;
         div1.style.display = "none";
@@ -254,12 +256,16 @@ banana/香蕉</textarea></br></br>
     function back_to_start() {
         div5.style.display = "none";
         div1.style.display = "block";
+		
+		textarea1.value=origin_text;
     }
 
     function fix_q() {
         div5.style.display = "none";
         textarea1.value = textareaWrongs.value;
+		var origin=origin_text;
         Test(0);
+		origin_text=origin;
     }
 	
 	function SayIt(talkOut,toSay) {
@@ -306,7 +312,7 @@ banana/香蕉</textarea></br></br>
 	}
 	function isEnglish( str ) {
 	console.log(str)
-		var regExp = /^[\d|a-zA-Z|,|.|:|"|'| |\/]+$/;
+		var regExp = /^[\d|a-zA-Z|,|.|:|"|'| |\/|-]+$/;
 		if (regExp.test(str))
 			return true;
 		else
@@ -378,6 +384,23 @@ banana/香蕉</textarea></br></br>
 			hex += ''+str.charCodeAt(i).toString(16);
 		}
 		return hex;
+	}
+	
+	function handleFiles(filez){
+		if(filez.length>=1){
+			var f=filez[0];
+			console.log(f);
+			try{				
+				const reader = new FileReader();
+				reader.addEventListener('load', (event) => {
+					textarea1.value=event.target.result;
+				});
+				reader.readAsText(f);
+			}
+			catch{
+				console.log("error")
+			}
+		}
 	}
 </script>
 </body>
