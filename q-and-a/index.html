@@ -40,7 +40,8 @@
         }
 
         .button {
-            width: 220px;
+			min-width: 220px;
+			width:40%;
             height: auto;
             font-size: 3em;
         }
@@ -75,6 +76,12 @@
 		#end_result{
 			font-size:15px;
 		}
+		#returnButton{
+			float:right;
+			margin-top:-30px;
+			margin-left:-30px;
+			z-index:1;
+		}
 
         @media screen and (max-device-width: 480px) {
             div.divContent {
@@ -87,7 +94,6 @@
             }
 
             .button {
-                width: 220px;
                 height: auto;
                 font-size: 3em;
             }
@@ -107,31 +113,50 @@
             <textarea oninput="change_text()" id="textarea1" class="textarea">apple/蘋果
 banana/香蕉</textarea></br>
 			<ruby>從檔案載入文字：<rt>Load text from file.</rt></ruby><input type="file" id="input" onchange="handleFiles(this.files)" accept=".txt"/>
+			<p />
             <div class="div" id="div_test">
                 <button onmousedown="Test(0)" id="buttonAB" class="button">
                     <ruby>A-B考試<rt>A-B Test</rt>
                     </ruby>
+					<svg width="50" height="50"><image xlink:href="quiz.svg"  height="50"></image></svg>
                 </button>
                 <button onmousedown="Test(1)" id="buttonBA" class="button">
                     <ruby>B-A考試<rt>B-A Test</rt>
                     </ruby>
+					<svg width="50" height="50"><image xlink:href="quiz.svg"  height="50"></image></svg>
                 </button>
             </div>
+			<p />
+			<div>Icons made by <a href="https://www.flaticon.com/authors/pixel-perfect" title="Pixel perfect">Pixel perfect</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+			Icons made by <a href="http://www.freepik.com/" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
         </div>
         <div class="div2" id="div2">
-            <textarea readonly="readonly" id="textareaQ" class="textarea">Q</textarea><button id="btnSayIt1" class="playSoundButton"  onclick="SayIt(textareaQ.value,true)">
-			<ruby>發音<rt>pronunciation</rt></ruby></button></br>
-            <textarea readonly="readonly" id="textareaA" class="textarea">A</textarea><button id="btnSayIt2" class="playSoundButton"  onclick="SayIt(textareaA.value,true)">
-			<ruby>發音<rt>pronunciation</rt></ruby></button></br>
+            <textarea readonly="readonly" id="textareaQ" class="textarea">Q</textarea>
+			<button id="btnSayIt1" class="playSoundButton"  onclick="SayIt(textareaQ.value,true)">
+				<svg width="30" height="30"><image xlink:href="speak.svg"  height="30"></image>
+			</button>
+			</br>
+            <textarea readonly="readonly" id="textareaA" class="textarea">A</textarea>
+			<button id="btnSayIt2" class="playSoundButton"  onclick="SayIt(textareaA.value,true)">
+				<svg width="30" height="30"><image xlink:href="speak.svg"  height="30"></image></svg>
+			</button>
+			</br>
             <div class="div3" id="div3">
-                <button onmousedown="show_answer();SayIt(textareaA.value,checkbox1.checked);" id="buttonBA" class="button2"><ruby>秀出答案<rt>show correct answer</rt>
-                    </ruby></button>
+                <button onmousedown="show_answer();SayIt(textareaA.value,checkbox1.checked);" id="buttonBA" class="button2">
+					<ruby>秀出答案<rt>show correct answer</rt></ruby>
+					<svg width="50" height="50"><image xlink:href="information.svg"  height="50"></image></svg>
+				</button>
             </div>
             <div class="div4" id="div4">
-                <button onmousedown="correct()" id="button_correct" class="button"><ruby>答對<rt>correct</rt></ruby></button>
-                <button onmousedown="wrong()" id="button_wrong" class="button"><ruby>答錯<rt>wrong</rt></ruby></button>
+                <button onmousedown="correct()" id="button_correct" class="button">
+					<ruby>答對<rt>correct</rt></ruby>
+					<svg width="50" height="50"><image xlink:href="correct.svg"  height="50"></image></svg>
+				</button>
+                <button onmousedown="wrong()" id="button_wrong" class="button">
+					<ruby>答錯<rt>wrong</rt></ruby>
+					<svg width="50" height="50"><image xlink:href="wrong.svg"  height="50"></image></svg>
+				</button>
             </div>
-			<input type="checkbox" id="checkbox1" checked><ruby>自動發音<rt>Automatic pronunciation</rt><ruby></input>
         </div>
         <div class="div5" id="div5">
             <h1 id="end_result">
@@ -140,9 +165,17 @@ banana/香蕉</textarea></br>
             <h1><ruby>總錯誤表<rt>wrongs</rt></ruby>
             </h1>
             <textarea id="textareaWrongs" class="textarea"></textarea></br>
-            <button class="button" onmousedown="back_to_start();" id="button_wrong"><ruby>回一開始<rt>back to start</rt></ruby></button><br /><br />
-            <button class="button3" onmousedown="fix_q();" id="button_fix_wrong"><ruby>再考一次錯誤的<rt>wrong quiz</rt></ruby></button>
+            <button class="button" onmousedown="back_to_start();" id="button_wrong"><ruby>回一開始<rt>back to start</rt></ruby>
+				<svg width="50" height="50"><image xlink:href="back.svg"  height="50"></image></svg>
+				</button><br /><br />
+            <button class="button3" onmousedown="fix_q();" id="button_fix_wrong"><ruby>再考一次錯誤的<rt>wrong quiz</rt>
+				<svg width="50" height="50"><image xlink:href="wrong.svg" height="50"></image><image xlink:href="back.svg"  height="50"></image></svg>
+			</ruby>
+			</button>
         </div>
+		<p/>
+		<input type="checkbox" id="checkbox1" checked><ruby>自動發音<rt>Automatic pronunciation</rt></ruby></input>
+		<button id="returnButton" onclick="returnButtonOnClick()"><svg width="50" height="50"><image xlink:href="back.svg"  height="50"></image></svg></button>
     </div>
     </div>
 	
@@ -167,6 +200,7 @@ banana/香蕉</textarea></br>
         } else if (set_type == 1) {
             console.log("ba-test");
         }
+		returnButton.style.display="block";
         console.log(textarea1.value);
 		origin_text=textarea1.value;
         arr = textarea1.value.split('\n');
@@ -256,6 +290,7 @@ banana/香蕉</textarea></br>
     function back_to_start() {
         div5.style.display = "none";
         div1.style.display = "block";
+		returnButton.style.display="none";
 		
 		textarea1.value=origin_text;
     }
@@ -296,7 +331,7 @@ banana/香蕉</textarea></br>
 	
 	function isChineseOrEnglish(temp) 
 	{ 
-		var re = /[^\u4e00-\u9fa5|、|。|，|　|\/|？|！|～|’|”|｜|＝|＋|－|,|.|:|"|'| |\/|\-|?|!|\+|=|\*|\\|（|）|a-zA-Z|\d|(|)|~]+/; 
+		var re = /[^\u4e00-\u9fa5|、|。|，|　|：|\/|？|！|～|’|”|｜|＝|＋|－|,|.|:|"|'| |\/|\-|?|!|\+|=|\*|\\|（|）|a-zA-Z|\d|(|)|~]+/; 
 		if(re.test(temp)) return false; 
 		return true; 
 	}
@@ -401,6 +436,13 @@ banana/香蕉</textarea></br>
 				console.log("error")
 			}
 		}
+	}
+	
+	returnButton.style.display="none";
+	function returnButtonOnClick(){
+        div2.style.display = "none";
+        div5.style.display = "block";
+		back_to_start();
 	}
 </script>
 </body>
