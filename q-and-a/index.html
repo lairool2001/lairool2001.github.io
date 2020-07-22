@@ -85,6 +85,9 @@
 		#checkbox2Div{
 			display:inline;
 		}
+		#button_wrong_output{
+			vertical-align: top;
+		}
         @media screen and (max-device-width: 480px) {
             div.divContent {
                 -webkit-transform: scale(1.5);
@@ -167,9 +170,12 @@ banana/香蕉</textarea></br>
             <h1><ruby>總錯誤表<rt>wrongs</rt></ruby>
             </h1>
             <textarea id="textareaWrongs" class="textarea"></textarea></br>
+			<textarea id="wrongFileName">錯誤表</textarea>
+			<button onmousedown="output_wrong();" id="button_wrong_output"><ruby>輸出錯誤<rt>output wrongs</rt></ruby>
+			</button><br /><br />
             <button class="button" onmousedown="back_to_start();" id="button_wrong"><ruby>回一開始<rt>back to start</rt></ruby>
 				<svg width="50" height="50"><image xlink:href="back.svg"  height="50"></image></svg>
-				</button><br /><br />
+			</button><br /><br />
             <button class="button3" onmousedown="fix_q();" id="button_fix_wrong"><ruby>再考一次錯誤的<rt>wrong quiz</rt>
 				<svg width="50" height="50"><image xlink:href="wrong.svg" height="50"></image><image xlink:href="back.svg"  height="50"></image></svg>
 			</ruby>
@@ -447,6 +453,7 @@ banana/香蕉</textarea></br>
 				console.log("error")
 			}
 		}
+		change_text();
 	}
 	
 	returnButton.style.display="none";
@@ -455,6 +462,29 @@ banana/香蕉</textarea></br>
         div5.style.display = "block";
 		back_to_start();
 	}
+	
+	function output_wrong(){
+		var FileName;
+		if(wrongFileName.value==""){
+			FileName="錯誤表";
+		}else{
+			FileName=wrongFileName.value;
+		}
+		saveTextAsFile(FileName+".txt",textareaWrongs.value)
+	} 
+	
+	function saveTextAsFile(_fileName, _text) {
+
+            var downloadLink = document.createElement("a");
+            downloadLink.style.display = "none";
+            document.body.appendChild(downloadLink);
+            downloadLink.href = 'data:text/plain; charset=utf8,' + encodeURIComponent(_text);
+            downloadLink.download = _fileName;
+            downloadLink.innerHTML = "Download File";
+            downloadLink.click();
+            window.URL.revokeObjectURL(downloadLink.href);
+            document.body.removeChild(downloadLink);
+        }
 </script>
 </body>
 
