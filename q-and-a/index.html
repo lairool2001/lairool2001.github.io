@@ -342,7 +342,7 @@ banana/香蕉</textarea></br>
 	
 	function isChineseOrEnglish(temp) 
 	{ 
-		var re = /[^\u4e00-\u9fa5|、|。|，|　|：|\/|？|！|～|’|”|｜|＝|＋|－|,|.|:|"|'| |\/|\-|?|!|\+|=|\*|\\|（|）|a-zA-Z|\d|(|)|~]+/; 
+		var re = /[^\u4e00-\u9fa5|、|。|，|　|：|；|\/|？|！|～|’|”|｜|＝|＋|－|,|.|:|"|'| |\/|\-|?|!|\+|=|\*|\\|（|）|a-zA-Z|\d|(|)|~]+/; 
 		if(re.test(temp)) return false; 
 		return true; 
 	}
