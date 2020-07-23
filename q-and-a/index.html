@@ -137,12 +137,12 @@ banana/香蕉</textarea></br>
         </div>
         <div class="div2" id="div2">
             <textarea readonly="readonly" id="textareaQ" class="textarea">Q</textarea>
-			<button id="btnSayIt1" class="playSoundButton"  onclick="SayIt(textareaQ.value,true)">
+			<button id="btnSayIt1" class="playSoundButton"  onclick="SayIt(q,true)">
 				<svg width="30" height="30"><image xlink:href="speak.svg"  height="30"></image>
 			</button>
 			</br>
             <textarea readonly="readonly" id="textareaA" class="textarea">A</textarea>
-			<button id="btnSayIt2" class="playSoundButton"  onclick="SayIt(textareaA.value,true)">
+			<button id="btnSayIt2" class="playSoundButton"  onclick="SayIt(a,true)">
 				<svg width="30" height="30"><image xlink:href="speak.svg"  height="30"></image></svg>
 			</button>
 			</br>
@@ -183,7 +183,11 @@ banana/香蕉</textarea></br>
         </div>
 		<br>
 		<input type="checkbox" id="checkbox1" checked><ruby>自動發音<rt>Automatic pronunciation</rt></ruby>
-		<div id="checkbox2Div"><input type="checkbox" id="checkbox2" checked><ruby>隨機出題<rt>Randomize Quetion</rt></ruby></div>
+		<div id="checkbox2Div">
+			<input type="checkbox" id="checkbox2" checked><ruby>隨機出題<rt>Randomize Question</rt></ruby>
+			<input type="checkbox" id="checkbox3"><ruby>隱藏題目<rt>Hide Question</rt></ruby>
+		</div>
+		
 		<button id="returnButton" onclick="returnButtonOnClick()"><svg width="50" height="50"><image xlink:href="back.svg"  height="50"></image></svg></button>
     </div>
     </div>
@@ -194,7 +198,7 @@ banana/香蕉</textarea></br>
     var type = 0;
     var q;
     var a;
-
+	
     function change_text() {
         if (textarea1.value.trim().replace(' ', '').replace('\n', '').replace('\t', '').replace('\r', '') == "") {
             div_test.style.display = "none";
@@ -253,9 +257,14 @@ banana/香蕉</textarea></br>
                 q = qa[1];
                 a = qa[0];
             }
-            textareaQ.value = q;
+			if(checkbox3.checked){
+				textareaQ.value = "";
+			}else{
+				textareaQ.value = q;
+			}
             textareaA.value = "";
-			SayIt(textareaQ.value,checkbox1.checked);
+			btnSayIt2.style.display="none"
+			SayIt(q,checkbox1.checked);
     }
 
     function getRandomInt(max) {
@@ -263,9 +272,11 @@ banana/香蕉</textarea></br>
     }
 
     function show_answer() {
+		textareaQ.value = q;
         textareaA.value = a;
         div3.style.display = "none";
         div4.style.display = "block";
+		btnSayIt2.style.display="inline"
     }
     var correct_count;
 
