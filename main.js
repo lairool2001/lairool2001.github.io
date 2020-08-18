@@ -204,6 +204,7 @@ function set_page(p, event) {
 				img.setAttribute("width","512")
 				img.setAttribute("height","512")
 				img.onload=()=>{
+					img.style.opacity=1
 					img.style.visibility="visible"
 				}
 			}
