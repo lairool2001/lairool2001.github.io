@@ -201,6 +201,8 @@ function set_page(p, event) {
 			console.log(imgz)
 			for(var i=0;i<imgz.length;i++){
 				let img=imgz[i];
+				img.setAttribute("width","512")
+				img.setAttribute("height","512")
 				img.onload=()=>{
 					img.style.visibility="visible"
 				}
