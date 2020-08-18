@@ -195,6 +195,16 @@ function set_page(p, event) {
             div1.innerHTML = page.html;
             change_url(page.name);
             previous_menu = null;
+			
+			
+			var imgz=document.querySelectorAll("img")
+			console.log(imgz)
+			for(var i=0;i<imgz.length;i++){
+				let img=imgz[i];
+				img.onload=()=>{
+					img.style.visibility="visible"
+				}
+			}
 
             for (var i = 0; i < page.layer; i++) {
                 var menu2 = this["menu" + i]
