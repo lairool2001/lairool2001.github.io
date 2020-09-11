@@ -28,7 +28,7 @@ function sizeSetIni() {
 }
 
 window.onresize = function (event) {
-    console.log("window.onresize")
+    //console.log("window.onresize")
     sizeSetIni()
     for (var i = 0; i < menu_deep; i++) {
         var div = $("#menu" + i)
@@ -56,7 +56,7 @@ function menuIni() {
         newDiv.className = "top_menu_content";
         var rgb = (i + 1 * 3).toString(16);
         newDiv.style.backgroundColor = "#" + rgb + "" + rgb + "" + rgb;
-        console.log(newDiv.style.backgroundColor);
+        //console.log(newDiv.style.backgroundColor);
         a00.appendChild(newDiv);
     }
 }
@@ -70,7 +70,7 @@ for (var i = 0; i < pages.length; i++) {
 	var s=page.name.replace(".","_")
 	div1.innerHTML+=`<div id='page_${s}'>${page.html}</div>`
 	
-	console.log(s)
+	//console.log(s)
 	var pp=document.querySelector("#page_"+s)
 	pp.style.display="none"
 }
@@ -102,7 +102,7 @@ for (var i = 0; i < one_menu.length; i++) {
 }
 
 function setLeyer(page, layer, parent) {
-    console.log("set layer " + page.name + ":" + layer)
+    //console.log("set layer " + page.name + ":" + layer)
     page.layer = layer
     page.parent = parent
     if (page.childz == undefined) {
@@ -183,7 +183,7 @@ previous_menu = null
 //div1.style.top = menuX2 + (1) * menuX1 + "px";
 
 var imgz=document.querySelectorAll("img")
-console.log(imgz)
+//console.log(imgz)
 for(var i=0;i<imgz.length;i++){
 	let img=imgz[i];
 	img.setAttribute("width","512")
@@ -217,7 +217,7 @@ function set_page(p, event) {
 
 			if(typeof previous_page !== 'undefined')
 			{
-				console.log(previous_page)
+				//console.log(previous_page)
 				var old_pp=previous_page
 				old_pp.style.display="none"
 			}
@@ -227,7 +227,7 @@ function set_page(p, event) {
 						
 			var s=page.name.replace(".","_")
 			var new_page='#page_'+s
-			console.log(new_page)
+			//console.log(new_page)
 			var pp=document.querySelector(new_page)
 			pp.style.display="block"
 			if(pp)
