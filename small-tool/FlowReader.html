@@ -24,7 +24,7 @@
 		position:relative;
 	}
 	img{
-		width:100%;
+		width:auto;
 	}
 	#control_fix{
 		position:fixed;
@@ -40,9 +40,10 @@
 
 <body>
 	<div id="control_fix">
-		<button onclick="onClickWidth(100)" >100%</button>
-		<button onclick="onClickWidth(75)" >75%</button>
-		<button onclick="onClickWidth(50)" >50%</button>
+		<button onclick="onClickWidth('auto')" >原圖寬度</button>
+		<button onclick="onClickWidth('100%')" >100%</button>
+		<button onclick="onClickWidth('75%')" >75%</button>
+		<button onclick="onClickWidth('50%')" >50%</button>
 		<input type="text" id="text_width" value="100" onchange="onChange2(event)"></input>%
 	</div>
     <input type="file" id="file1" onchange="onChange(event);" webkitdirectory mozdirectory></input>
@@ -75,7 +76,7 @@
 						minElement=img
 					}
 				}
-				$("img").css("width",w+"%");
+				$("img").css("width",w);
 				minElement.scrollIntoView(true)
 			}
 			console.log("change")
@@ -109,7 +110,7 @@
 		function onChange2(e){
 			var re = /^[0-9]+$/;
 			if (re.test(text_width.value)){
-				onClickWidth(text_width.value)
+				onClickWidth(text_width.value+"%")
 			}
 		}
 	</script>
