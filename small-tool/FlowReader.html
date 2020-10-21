@@ -81,7 +81,12 @@
 			console.log("change")
 		}
 		function onChange(e){
-			const files = e.target.files;
+			var filesX = e.target.files;
+			files=[...filesX]
+			//sort
+			files.sort((a,b)=> a.name.match(/\d+/)-b.name.match(/\d+/));
+			//files.sort((a,b)=> a.name-b.name);
+			console.log(files)
 			let listing = div1;	//(透過id)取得要放置圖片的標籤位置
 			listing.innerHTML=""
 			imgz=[]
