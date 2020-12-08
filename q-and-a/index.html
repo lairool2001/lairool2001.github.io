@@ -229,7 +229,10 @@ banana/香蕉</textarea></br>
         textareaA.value = "";
 		checkbox2Div.style.display="none";
 		qaWait=[]
-		push_q();
+		preload_count=5
+		for(var i=0;i<preload_count;i++){
+			push_q();
+		}
 		push_q();
 		qaShow();
 	}
@@ -254,8 +257,8 @@ banana/香蕉</textarea></br>
 			console.log("qa.length:" + qa.length);
 		}while(qa.length<2)
 		qaWait.push(qa);
-		reloadSayIt(qa[0])
-		reloadSayIt(qa[1])
+		preloadSayIt(qa[0])
+		preloadSayIt(qa[1])
 	}
 	function qaShow(){
 		qa=qaWait[0];
@@ -342,7 +345,7 @@ banana/香蕉</textarea></br>
 		origin_text=origin;
 	}
 	talkCache={}
-	function reloadSayIt(talkOut){
+	function preloadSayIt(talkOut){
 		console.log("cache:"+talkOut)
 		if(isEnglish(talkOut)){
 			console.log("英文");
