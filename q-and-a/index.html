@@ -91,7 +91,8 @@
         @media screen and (max-device-width: 480px) {
             div.divContent {
                 -webkit-transform: scale(1.5);
-                -moz-transform: scale(1.5) transform: scale(1.5);
+                -moz-transform: scale(1.5);
+				 transform: scale(1.5);
             }
 
             body {
@@ -138,7 +139,7 @@ banana/香蕉</textarea></br>
         <div class="div2" id="div2">
             <textarea readonly="readonly" id="textareaQ" class="textarea">Q</textarea>
 			<button id="btnSayIt1" class="playSoundButton"  onclick="SayIt(q,true)">
-				<svg width="30" height="30"><image xlink:href="speak.svg"  height="30"></image>
+				<svg width="30" height="30"><image xlink:href="speak.svg"  height="30"></image></svg>
 			</button>
 			</br>
             <textarea readonly="readonly" id="textareaA" class="textarea">A</textarea>
@@ -186,6 +187,7 @@ banana/香蕉</textarea></br>
 		<div id="checkbox2Div">
 			<input type="checkbox" id="checkbox2" checked><ruby>隨機出題<rt>Randomize Question</rt></ruby>
 			<input type="checkbox" id="checkbox3"><ruby>隱藏題目<rt>Hide Question</rt></ruby>
+			<input type="checkbox" id="checkbox4" checked><ruby>內建發音<rt>Built-in Speak</rt></ruby>
 		</div>
 		
 		<button id="returnButton" onclick="returnButtonOnClick()"><svg width="50" height="50"><image xlink:href="back.svg"  height="50"></image></svg></button>
@@ -347,13 +349,13 @@ banana/香蕉</textarea></br>
 	talkCache={}
 	function preloadSayIt(talkOut){
 		console.log("cache:"+talkOut)
-		if(isEnglish(talkOut)){
+		if(!checkbox4.checked && isEnglish(talkOut)){
 			console.log("英文");
-		}else if(isChineseOrEnglish(talkOut)){
+		}else if(!checkbox4.checked && isChineseOrEnglish(talkOut)){
 			console.log("中文或一點英文");
-		}else if(isContainJapanese(talkOut)){
+		}else if(!checkbox4.checked && isContainJapanese(talkOut)){
 			console.log("日文");
-		}else if(isContainKorea(talkOut)){
+		}else if(!checkbox4.checked && isContainKorea(talkOut)){
 			console.log("韓文");
 		}
 		else{
@@ -366,16 +368,16 @@ banana/香蕉</textarea></br>
 		if(!toSay)return;
 		//var lng = $('#sltLng').val();
 		//var Rlt = $('#trn').val();
-		if(isEnglish(talkOut)){
+		if(!checkbox4.checked && isEnglish(talkOut)){
 			console.log("英文");
 			responsiveVoice.speak(talkOut,"US English Male");
-		}else if(isChineseOrEnglish(talkOut)){
+		}else if(!checkbox4.checked && isChineseOrEnglish(talkOut)){
 			console.log("中文或一點英文");
 			responsiveVoice.speak(talkOut,"Chinese Taiwan Male");
-		}else if(isContainJapanese(talkOut)){
+		}else if(!checkbox4.checked && isContainJapanese(talkOut)){
 			console.log("日文");
 			responsiveVoice.speak(talkOut,"Japanese Female");
-		}else if(isContainKorea(talkOut)){
+		}else if(!checkbox4.checked && isContainKorea(talkOut)){
 			console.log("韓文");
 			responsiveVoice.speak(talkOut,"Korean Female");
 		}
