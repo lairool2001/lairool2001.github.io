@@ -228,14 +228,18 @@ banana/香蕉</textarea></br>
         textareaQ.value = "";
         textareaA.value = "";
 		checkbox2Div.style.display="none";
-        push_q();
-    }
+		qaWait=[]
+		push_q();
+		push_q();
+		qaShow();
+	}
+	
 
     function push_q() {
         console.log("push_q");
 		do{
 			if (arr.length == 0) {
-				show_result();
+				//show_result();
 				return;
 			}
 			var qa;
@@ -249,23 +253,29 @@ banana/香蕉</textarea></br>
 			}
 			console.log("qa.length:" + qa.length);
 		}while(qa.length<2)
-		
+		qaWait.push(qa);
+		reloadSayIt(qa[0])
+		reloadSayIt(qa[1])
+	}
+	function qaShow(){
+		qa=qaWait[0];
+		qaWait.splice(0,1);
         if (type == 0) {
-                q = qa[0];
-                a = qa[1];
-            } else if (type == 1) {
-                q = qa[1];
-                a = qa[0];
-            }
-			if(checkbox3.checked){
-				textareaQ.value = "";
-			}else{
-				textareaQ.value = q;
-			}
-            textareaA.value = "";
-			btnSayIt2.style.display="none"
-			SayIt(q,checkbox1.checked);
-    }
+			q = qa[0];
+			a = qa[1];
+		} else if (type == 1) {
+			q = qa[1];
+			a = qa[0];
+		}
+		if(checkbox3.checked){
+			textareaQ.value = "";
+		}else{
+			textareaQ.value = q;
+		}
+		textareaA.value = "";
+		btnSayIt2.style.display="none"
+		SayIt(q,checkbox1.checked);
+	}
 
     function getRandomInt(max) {
         return Math.floor(Math.random() * Math.floor(max));
@@ -294,10 +304,11 @@ banana/香蕉</textarea></br>
     }
 
     function next() {
-        if (arr.length == 0) {
+        if (qaWait.length==0) {
             show_result();
         } else {
-            push_q();
+			push_q();
+			qaShow();
         }
 
         div4.style.display = "none";
@@ -329,8 +340,24 @@ banana/香蕉</textarea></br>
 		var origin=origin_text;
         Test(0);
 		origin_text=origin;
-    }
-	
+	}
+	talkCache={}
+	function reloadSayIt(talkOut){
+		console.log("cache:"+talkOut)
+		if(isEnglish(talkOut)){
+			console.log("英文");
+		}else if(isChineseOrEnglish(talkOut)){
+			console.log("中文或一點英文");
+		}else if(isContainJapanese(talkOut)){
+			console.log("日文");
+		}else if(isContainKorea(talkOut)){
+			console.log("韓文");
+		}
+		else{
+			console.log("其他 內建發音");
+			talkCache[talkOut]= new SpeechSynthesisUtterance(talkOut);
+		}
+	}
 	function SayIt(talkOut,toSay) {
 		console.log(talkOut)
 		if(!toSay)return;
@@ -352,7 +379,10 @@ banana/香蕉</textarea></br>
 		else{
 			console.log("其他 內建發音");
 			window.speechSynthesis.cancel()
-			var words = new SpeechSynthesisUtterance(talkOut);
+			if(typeof(talkCache[talkOut]) === "undefined"){
+				reloadSayIt(talkOut)
+			}
+			var words = talkCache[talkOut];
 			window.speechSynthesis.speak(words);
 		}
 	}
