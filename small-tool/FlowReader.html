@@ -122,7 +122,13 @@
 				files.sort((a,b)=>{
 					var a2=getJustNumber(a.name)
 					var b2=getJustNumber(b.name)
-					if(isNaN(a2) || isNaN(b2)){
+					if(!isNaN(a2) && isNaN(b2)){
+						return 1;
+					}
+					else if(isNaN(a2) && !isNaN(b2)){
+						return -1;
+					}
+					else if(isNaN(a2) && isNaN(b2)){
 						if(a.name>b.name){
 							return 1;
 						}else if(a.name<b.name){
