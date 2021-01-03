@@ -44,9 +44,20 @@
 		<button onclick="onClickWidth('100%')" >100%</button>
 		<button onclick="onClickWidth('75%')" >75%</button>
 		<button onclick="onClickWidth('50%')" >50%</button>
+		<button onclick="onClickWidth('25%')" >25%</button>
 		<input type="text" id="text_width" value="100" onchange="onChange2(event)"></input>%
 	</div>
-    <input type="file" id="file1" onchange="onChange(event);" webkitdirectory mozdirectory></input>
+    <input type="file" id="file1" onchange="onChange(event,true);" webkitdirectory mozdirectory></input>
+	<div >
+		<div style="display: inline-block;">
+			<input type="radio" id="sortByDateTime" name="sortBy" value="by_date_time" onchange="onChange(event,false)">
+			<label for="louie">按時間排序</label>
+		</div>
+		<div style="display: inline-block;">
+			<input type="radio" id="sortByName" name="sortBy" value="by_name" onchange="onChange(event,false)" checked>
+			<label for="louie">按名稱排序</label>
+		</div>
+	</div>
 	<pre>padding-top padding-right padding-bottom padding-left</pre>
 	<input type="text" id="text1" value="0px 0px 0px 0px"></input>
 	<div id="div1"></div>
@@ -77,15 +88,61 @@
 					}
 				}
 				$("img").css("width",w);
+				wantWidth=w
 				minElement.scrollIntoView(true)
 			}
 			console.log("change")
 		}
-		function onChange(e){
-			var filesX = e.target.files;
-			files=[...filesX]
+		function getJustNumber(str){
+			var str2=""
+			for(var i=0;i<str.length;i++){
+				var c=str[i]
+				if(/^\d+$/.test(c)){
+					str2+=c
+				}
+			}
+			return parseInt(str2)
+		}
+		function onChange(e,file){
+			if(file){
+				files=[...e.target.files]
+			}
 			//sort
-			files.sort((a,b)=> a.name.match(/\d+/)-b.name.match(/\d+/));
+			if(sortByDateTime.checked){
+				files.sort((a,b)=>{
+					if(a.lastModifiedDate>b.lastModifiedDate){
+						return 1;
+					}else if(a.lastModifiedDate<b.lastModifiedDate){
+						return -1;
+					}else{
+						return 0;
+					}
+				} )
+			}else if(sortByName.checked){
+				files.sort((a,b)=>{
+					var a2=getJustNumber(a.name)
+					var b2=getJustNumber(b.name)
+					if(isNaN(a2) || isNaN(b2)){
+						if(a.name>b.name){
+							return 1;
+						}else if(a.name<b.name){
+							return -1;
+						}else{
+							return 0;
+						}
+					}else{
+						console.log(a2+" "+b2)
+						if(a2>b2){
+							return 1;
+						}else if(a2<b2){
+							return -1;
+						}else{
+							return 0;
+						}
+					}
+				} )
+				console.log("sortByName")
+			}
 			//files.sort((a,b)=> a.name-b.name);
 			console.log(files)
 			let listing = div1;	//(透過id)取得要放置圖片的標籤位置
@@ -100,12 +157,17 @@
 					nowItem=item
 					console.log(nowItem)
 				}
+				item.onerror=()=>{
+					item.style.display="none"
+				}
 				imgz.push(item)
 				listing.appendChild(item);
 				let br=document.createElement("br")
 				listing.appendChild(br)
 				//alert(files[i].webkitRelativePath);
+				console.log(getJustNumber(files[i].name))
 			}
+			onClickWidth(wantWidth)
 		}
 		function onChange2(e){
 			var re = /^[0-9]+$/;
