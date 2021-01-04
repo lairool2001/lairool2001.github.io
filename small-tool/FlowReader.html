@@ -58,6 +58,8 @@
 			<label for="louie">按名稱排序</label>
 		</div>
 	</div>
+	<input type="checkbox" id="noSame" checked></input>
+	<label>不顯示重複名稱圖片</label>
 	<pre>padding-top padding-right padding-bottom padding-left</pre>
 	<input type="text" id="text1" value="0px 0px 0px 0px"></input>
 	<div id="div1"></div>
@@ -66,6 +68,7 @@
 			return this.offsetTop + ( this.offsetParent ? this.offsetParent.documentOffsetTop() : 0 );
 		};
 		nowItem=null
+		wantWidth="100%"
 		function onClickWidth(w){
 			if(nowItem!= null){
 				/*nowItem.scrollIntoView(true)
@@ -101,7 +104,7 @@
 					str2+=c
 				}
 			}
-			return parseInt(str2)
+			return parseFloat(str2)
 		}
 		function onChange(e,file){
 			if(file){
@@ -110,9 +113,9 @@
 			//sort
 			if(sortByDateTime.checked){
 				files.sort((a,b)=>{
-					if(a.lastModifiedDate>b.lastModifiedDate){
+					if(a.lastModified>b.lastModified){
 						return 1;
-					}else if(a.lastModifiedDate<b.lastModifiedDate){
+					}else if(a.lastModified<b.lastModified){
 						return -1;
 					}else{
 						return 0;
@@ -137,7 +140,7 @@
 							return 0;
 						}
 					}else{
-						console.log(a2+" "+b2)
+						//console.log(a2+" "+b2)
 						if(a2>b2){
 							return 1;
 						}else if(a2<b2){
@@ -150,12 +153,22 @@
 				console.log("sortByName")
 			}
 			//files.sort((a,b)=> a.name-b.name);
-			console.log(files)
+			//console.log(files)
 			let listing = div1;	//(透過id)取得要放置圖片的標籤位置
 			listing.innerHTML=""
 			imgz=[]
+			imgzDic={}
 			for(let i=0; i<files.length; i++) {
+				if(noSame.checked){
+					var t=imgzDic[files[i].name]
+					if(typeof(t)!=="undefined"){
+						continue
+					}
+				}
 				let item = document.createElement("img");	//產生圖片標籤
+				if(noSame){
+					imgzDic[files[i].name]=item
+				}
 				item.src = URL.createObjectURL(files[i])
 				//files[i].webkitRelativePath;	//設定圖片的來源位置
 				item.style.padding = text1.value; //排版用
@@ -171,7 +184,8 @@
 				let br=document.createElement("br")
 				listing.appendChild(br)
 				//alert(files[i].webkitRelativePath);
-				console.log(getJustNumber(files[i].name))
+				//console.log(getJustNumber(files[i].name))
+				//console.log(files[i].lastModified)
 			}
 			onClickWidth(wantWidth)
 		}
