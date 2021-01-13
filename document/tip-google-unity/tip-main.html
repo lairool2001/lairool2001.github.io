@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="content-language" content="zh-tw">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <title>Google Unity 服務串接小記</title>
+    <style type="text/css">
+    body{
+        font-size: 26px;
+    }
+    h1{
+        line-height: 1em;
+    }
+    ul{
+        line-height: 1.2em;
+    }
+    </style>
+</head>
+
+<body>
+    <h1>GOOGLE 基本功能</h1>
+    <ul>
+        <li>GOOGLE上架前要先把主頁面的流程跑完、該填的單子要填完、圖片要上才可以上傳檔案</li>
+        <li>商店功能必須要跑完主頁</li>
+        <li>上傳APK後，ALPHA審核完才可以用商店功能</li>
+    </ul>
+    <h1>GOOGLE UNITY 服務串接大攻略</h1>
+    <ul>
+        <li>Play 遊戲服務要跑完流程填資料</li>
+        <li>UNITY-GOOGLE服務插件
+        <a href="https://github.com/playgameservices/play-games-plugin-for-unity">https://github.com/playgameservices/play-games-plugin-for-unity</a>
+        </li>
+    </ul>
+    <h1>Android Setup要做</h1>
+    <img src="螢幕擷取畫面 2021-01-13 150002.png"></img>
+    <ul>
+        <li>在成就、排分榜得到資源(Resource) </li>
+        <li>Play 遊戲服務->設定->憑證有OAuth 用戶端ID(Client ID)</li>
+    </ul>
+    記得Setup<br>
+    <h1>OAth 2.0要做</h1>
+    <ul>
+        <li>才可以在UNITY設定-用戶端ID(Client ID)</li>
+        <li>用keytool指令+.keystore檔生成SHA1指紋給OAuth2.0</li>
+        <li>keytool -exportcert -list -v -alias foo -keystore foo.keystore<br>
+            foo 改成 UNITY裡設定的金鑰的Alias<br>
+            foo.keystore 改成金鑰路徑或名稱
+        </li>
+        <li>用keytool指令在java/bin底下，要先安裝JAVA</li>
+    </ul>
+    <img src="螢幕擷取畫面 2021-01-13 152707.png"></img><br>
+    Unity Service裡面的IN-APP PURCHASING可以設定Options<br>
+    在營利設定->授權<br>
+    設定完可追蹤內購的樣子?<br>
+    <br>
+    Google-Unity插件若要使用存檔必須在Buider內啟用存檔<br>
+    PlayGamesClientConfiguration config = new PlayGamesClientConfiguration.Builder().EnableSavedGames().Build();<br>
+    <br>
+    參考:(第一個圖片壞了很多)<br>
+    <a href="https://tedliou.com/archives/unity-play-service-login/">https://tedliou.com/archives/unity-play-service-login/</a>
+</body>
+
+</html>
