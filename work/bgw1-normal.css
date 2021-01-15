@@ -1,0 +1,150 @@
+ img {
+      border: 1px solid black;
+	  max-height:512px;
+	  width:auto;
+	  visibility:hidden;
+	  opacity:0;
+	  transition: opacity 0.7s;
+	  transition-timing-function: ease-in-out;
+  }
+
+  #div1 {}
+
+  div.diplay_icon {
+      width: 1em;
+      float: right;
+      padding-right: 20px;
+      background-color: black;
+      background-color: #00000050;
+  }
+
+
+  div.top_menu_content {
+      float: left;
+      white-space: nowrap;
+      width: 100%;
+      height: auto;
+      background-color: black;
+      display: block;
+      white-space: pre-line;
+	  padding:10px;
+      padding-bottom: 5px;
+      line-height: 2.2em;
+      font-size: 23px;
+  }
+
+  div.top-menu {
+      top: 0px;
+      position: fixed;
+      color: white;
+      z-index: 1;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      height: 65px;
+      width: 100%;
+  }
+
+  div.content {
+      position: relative;
+      top: 35px;
+      font-size: 26px;
+      width: 100%;
+      word-break: break-all;
+	  margin-bottom:1em;
+  }
+
+  div.article {
+      box-shadow: 0px 0px 12px 3px black;
+      width: calc(100% - 12px * 2 - 20px);
+      line-height: auto;
+      text-align: left;
+      font-size: 0.7em;
+      word-break: break-all;
+	  padding:10px;
+	  margin:15px;
+  }
+
+  div.article a {
+      color: blue;
+      text-decoration: none;
+  }
+
+  body {
+      font-size: 2em;
+      height: auto;
+  }
+
+  body rt {
+      font-size: 25px;
+  }
+
+  h1 {
+      letter-spacing: 0px;
+      margin: 0px;
+  }
+
+  a rt {
+      font-size: 0.4em;
+  }
+
+  .no_select_menu {}
+
+  .select_menu {
+      border-width: 2px;
+      border-bottom-style: dashed;
+      border-color: gainsboro;
+      padding: 5px;
+  }
+
+  #a00 {}
+
+  .link {
+      border-bottom: 1px solid black;
+  }
+
+  .codeblock {
+      padding-left: 1em !important;
+      display: block;
+      /* fixes a strange ie margin bug */
+      font-family: Courier New;
+      font-size: 10pt;
+      overflow: auto;
+      background: #f0f0f0 url(img/code.gif) left top repeat-y;
+      border: 1px solid #ccc;
+      padding: 10px 10px 10px 21px;
+      //max-height: 1000px;
+      line-height: 1.2em;
+  }
+
+  @media screen and (max-device-width: 480px) {
+      div.top-menu {
+          font-size: 74px;
+          position: relative;
+      }
+
+      div.content {
+          top: 100px;
+      }
+
+      rt {
+          //font-size: 52px;
+      }
+
+      div.content {
+          position: relative;
+          top: 35px;
+          font-size: 40px;
+      }
+
+      img {
+          border: 1px solid black;
+          max-width: 80vw;
+      }
+
+
+      div.top_menu_content {
+          line-height: 90px;
+          font-size: 55px;
+      }
+
+  }

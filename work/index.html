@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="content-language" content="zh-tw">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <title>bgw的網頁</title>
+    <link href="bgw1-normal.css" rel="stylesheet" type="text/css" media="all">
+    <style type="text/css">
+
+    </style>
+</head>
+
+<body>
+    <div class="top-menu">
+        <div id="a00">
+            <div id="top_menu_content" class="top_menu_content"></div>
+        </div>
+        <div id="diplay_icon" class="diplay_icon" ontouchstart="diplay_icon_mouse_down()" onmousedown="diplay_icon_mouse_down()">[[[[</div>
+    </div>
+
+    <div id="div1" class="content">
+	</div>
+	<div id="menu_tip_show"><p>此頁面為選單，請選擇上面的子項目</p>"</div>
+	<div id="no_page_show"><p>沒有這個頁面喔!</p></div>
+
+    <script src="preFunction.js"></script>
+    <script>
+        one_menu = [0,1,2,3];
+        pages = [];
+        pages[0]= {
+            name: "work",
+            show_name: "bgw的作品集",
+            html: "bgw的作品集，裡面放了許多我的作品"
+        };
+        pages[1] = {
+            type: "menu",
+            name: "unity",
+            show_name: "Unity",
+            childz: [6,7,8,9,10,11,12,13,14,15]
+        };
+        pages[2] = {
+            type: "menu",
+            name: "web",
+            show_name: "網頁",
+            childz: [4, 5,16,17,18,19]
+        };
+        pages[3] = {
+            type: "menu",
+            name: "window",
+            show_name: "視窗程式",
+            childz: [20,21,22,23,24,25,26]
+        };
+        pages[4] = {
+            name: "shulin.church",
+            show_name: "樹林靈糧堂",
+            html: `<a target="_blank" href="https://shulin.church">樹林靈糧堂</a> by wordpress<br><img src='img/螢幕擷取畫面 2021-01-15 161709.png'></img>`
+        };
+        pages[5] = {
+            name: "amazingcosmetics",
+            show_name: "玫寧",
+            html: `<a target="_blank" href="http://www.amazingcosmetics.com.tw/">玫寧</a> by wordpress<br><img src='img/螢幕擷取畫面 2021-01-15 161723.png'></img>`
+        };
+        pages[6] = {
+            name: "lcwu-pc",
+            show_name: "龍尋物語(電腦版)",
+            html: `<img src="img/unnamed.png"/><br/>滑鼠點擊/移動遊戲<br/>二以上的魂石可以消除<br/><a target="_blank" href="https://mega.nz/#!rVclTDQR!yJB-ArdVycjOj5nMCVSCv43KB-M-w3qmKjwZtVf8cqc">載點</a>`
+        };
+        pages[7] = {
+            name: "lcwu-apk",
+            show_name: "龍尋物語(手機板)",
+            html: `<img src="img/unnamed (1).png"/><br/>觸碰點擊/拖拉移動遊戲<br/>二以上的魂石可以消除<br/>APK(android):<a target="_blank" href="https://drive.google.com/open?id=19pahE5qBy0nE5fmf_aT13YN3ruYp7JJK">載點</a>`
+        };
+        pages[8] = {
+            name: "save-imouto",
+            show_name: "拯救妹妹",
+            html: `<img src="img/unnamed (2).png"/><br/>作者:巴駿維 美術:吳彥德<br/>操作 Z攻擊 空白鍵跳躍 上下左右按鍵<br/>電腦1.1版:<a target="_blank" href="https://mega.nz/#!zRkB0DiL!F1hngLA-2JekyZMt91XoCGMRcD44t3nv8clG-jph1fQ">載點</a>`
+        };
+        pages[9] = {
+            name: "fas",
+            show_name: "FireArmAndSourcery",
+            html: `<img src="img/unnamed (3).png"/><br/>作者:巴駿維 美術:蕭宇哲<br/>PC控制:上下左右移動，ZX切換武器<br/>PC-1.2版:<a target="_blank" href="http://www.google.com/url?q=http%3A%2F%2Fbgw.magn.space%2Fwp-content%2Fuploads%2F2017%2F05%2Ffas_1_2.zip&sa=D&sntz=1&usg=AFQjCNFthuxlpjfQOa105yE5Y2idg2t9Yg">載點</a><br/>APK(android)手機-1.1版:<a target="_blank" href="http://www.google.com/url?q=http%3A%2F%2Fbgw.magn.space%2Fwp-content%2Fuploads%2F2017%2F05%2Fflyshot_1_1.zip&sa=D&sntz=1&usg=AFQjCNEP5kmwTgqPM3wYGcD-L-hHPnltwA">載點</a>`
+        };
+        pages[10] = {
+            name: "mazu",
+            show_name: "媽祖",
+            html: `<img src="img/1495952678-f753c3a75140ef4445b7e6826161c842.png"/><br/>作者:巴駿維、MICK、鳳鳳、紫虹、陳浩瑋<br/>說明:用滑鼠移動碰觸物件得分，不碰到鞭炮(沒加分)、點人物角色使用技能，時間結束後出現詩籤占卜<br/>電腦版:<a target="_blank" href="https://mega.nz/#!qEFjWIxa!ezWZKj-BqdfxmLQoOrs89PDhPvKPaK2AVu2aZYRIeeo">載點</a><br/>APK手機:<a target="_blank" href="https://mega.nz/#!LE1XxaTD!f9vNErOSQVANTSciw0XWPqkhZFHXkbLLfIjnVTcw1kA">載點</a>`
+        };
+        pages[11] = {
+            name: "free-piano",
+            show_name: "FreePiano",
+            html: `<img src="img/1495952407-f753c3a75140ef4445b7e6826161c842.png"/><br/>可以播放錄音的鋼琴<br/>作者:巴駿維、徐婉華、陳冠宇<br/>操作:S切換錄音/鋼琴模式 WERTYUIO按鍵彈奏<br/>具有連接arduino的功能，但是需要寫入特定程式到arduino。程式沒有留存，所以只剩下一般功能。<br/>電腦版(v1):<a target="_blank" href="https://mega.nz/#!vcU2SLjD!FhPhsVeTAR7yD3U34m_EWUrWFZovwNwtyrR_TQHnr0I">載點</a>`
+        };
+        pages[12] = {
+            name: "tarot-to",
+            show_name: "TAROT_TO",
+            html: `<img src="img/1495954152-f753c3a75140ef4445b7e6826161c842.png"/><br/>舊版Unity網頁遊戲，請使用IE開啟<br/>操作:AD左右移動，空白鍵跳躍，滑鼠點擊鎖定再按卡片使用<br/>電腦版:<a target="_blank" href="http://www.google.com/url?q=http%3A%2F%2Fbgw.magn.space%2Fwp-content%2Fuploads%2F2017%2F05%2Ftarot_to.zip&sa=D&sntz=1&usg=AFQjCNF85TWTaMP6tfInD9UdrsrQ6pdyEw">載點</a>`
+        };
+        pages[13] = {
+            name: "the-summer-that-year",
+            show_name: "那年夏天-電子小說",
+            html: `<img src="img/unnamed (4).png"/><img src="img/unnamed (5).png"/><br/>劇本:楊伶鈺<br/>
+程式:巴駿維<br/>
+美術:楊伶鈺、簡子寧、蔡侑佳<br/>
+版本:6.0<br/>
+音樂:YouTube音樂庫<br/>
+大致製作日期:2016-01-10<br/>
+台中科技大學多媒體設計系<br/>
+介紹:<br/>
+這是一個都市小孩，每年一到暑假，就會與母親一同回到娘家避暑、放鬆心情的小故事。<br/>
+主角阿莫與母親一同回到鄉下避暑，期待已久的放鬆讓阿莫迫不及待地去找他在鄉下的玩伴阿尚，本來以為又會有一段輕鬆愉快的回憶好度過往後都市的沉悶，可是沒想到，這年夏天卻讓他留下永生難忘的經歷………<br/>
+版本訊息:6.0 | 2016-06-22<br/>
+遊玩時間:5到10分鐘<br/>
+功能:<br/>
+章節選擇、歷史紀錄、人物介紹、大綱<br/>
+開發引擎:Unity<br/><br/>
+遊戲載點:<br/>
+<a target="_blank" href="https://mega.nz/#!nEkUGaQZ!GsPyK_WdaeHXvQxda-RBC48QBXIUaSfm7WvFa8MywA8">PC版本(.exe)</a><br/>
+<a target="_blank" href="https://mega.nz/#!HUkBFbBJ!7p29zBG7WkEUYItB1w6WPThHOBI3yMSDfhDivWk5v9M">iMac版本(.app)</a><br/>
+<a target="_blank" href="https://mega.nz/#!7NNSwZYY!PbXEPw1ebJrZQl-fcvN6wJyAPXfDevPGo0QHn8mFTVs">Android版本(.apk)</a>`
+        };
+        pages[14] = {
+            name: "py2",
+            show_name: "皮耶爾大冒險",
+            html: `<img src="img/1495954494-f753c3a75140ef4445b7e6826161c842.png"/><br/>製作:TG製作團隊<br/>
+最佳視窗比例1:1<br/>
+載點:<a target="_blank" href="http://www.google.com/url?q=http%3A%2F%2Fbgw.magn.space%2Fwp-content%2Fuploads%2F2017%2F05%2F%25E7%259A%25AE%25E8%2580%25B6%25E7%2588%25BE%25E5%25A4%25A7%25E5%2586%2592%25E9%259A%25AA.zip&sa=D&sntz=1&usg=AFQjCNFelVMMOH_gZdkHLqUJmFUuB-FwqQ">PC電腦版</a>`
+        };
+        pages[15] = {
+            name: "3d-snake",
+            show_name: "3DSnake",
+            html: `<img src="img/unnamed (6).png"/><br/>三維版貪食蛇<br/>
+兩種模式:<br/>
+1.WASD 上下<br/>
+2.WASD 空白建(跳躍一格後掉下來)<br/>
+(使用Unity開發)<br/>
+PC電腦版:<a target="_blank" href="https://drive.google.com/file/d/1t1BVlJcDdgen5PJCSvPMfwct5ZtSf9OS/view?usp=sharing">載點</a>`
+        };
+        pages[16] = {
+            name: "FR",
+            show_name: "FastReader快速閱覽",
+            html: `看漫畫用的工具網頁<br><a target="_blank" href="https://lairool2001.github.io/small-tool/FlowReader.html">FastReader快速閱覽</a><br><img src='img/螢幕擷取畫面 2021-01-15 162028.png'></img>`
+        };
+        pages[17] = {
+            name: "graph-editor",
+            show_name: "graph-editor(圖型編輯器)",
+            html: `做發想、筆記用的工具<br><a target="_blank" href="https://lairool2001.github.io/graph-editor/">graph-editor(圖型編輯器)</a><br><img src='img/螢幕擷取畫面 2021-01-15 162233.png'></img>`
+        };
+        pages[18] = {
+            name: "q-and-a",
+            show_name: "Q and A",
+            html: `記憶單字、知識的工具<br><a target="_blank" href="https://lairool2001.github.io/q-and-a/">Q and A</a><br><img src='img/螢幕擷取畫面 2021-01-15 162519.png'></img>`
+        };
+        pages[19] = {
+            name: "ruby-show-img",
+            show_name: "中二文字產生器",
+            html: `讓文字上方可以有小字，用?=&格式打在網址才有效過(網頁GET形式)<br>目前會自動刪除FB的附加GET字串<br><a target="_blank" href="https://lairool2001.github.io/ruby-show-img/?%E4%B8%AD%E4%BA%8C=middle%20two">中二文字產生器</a><br><img src='img/螢幕擷取畫面 2021-01-15 162901.png'></img>`
+        };
+        pages[20] = {
+            name: "BoringNightHaveFun",
+            show_name: "無聊半夜玩",
+            html: `★環境要求: .Net Framework 3.5<br>殺時間吃方塊小遊戲<br><a target="_blank" href="https://drive.google.com/open?id=0BwqrUB6l6nNld0d6V19uUlZpUFE">PC載點</a><br><img src='img/BoringNightHaveFun.png'></img>`
+        };
+        pages[21] = {
+            name: "PopStar",
+            show_name: "Pop Star",
+            html: `★環境要求: .Net Framework 3.5<br>音樂節奏遊戲<br>可匯入/匯出/自製音樂節奏檔<br><a target="_blank" href="https://drive.google.com/open?id=0BwqrUB6l6nNlWVprZFg3TXMzeWc">PC載點</a><br><img src='img/Pop Star.png'></img>`
+        };
+        pages[22] = {
+            name: "GUIDictionary",
+            show_name: "字典",
+            html: `★環境要求: .Net Framework 3.5<br>顧名思義<br><a target="_blank" href="http://bgw.magn.space/wp-content/uploads/2017/06/guidictionary.zip">PC載點</a><br><img src='img/GUIDictionary.png'></img>`
+        };
+        pages[23] = {
+            name: "GetIPA",
+            show_name: "GetIPA",
+            html: `★環境要求: .Net Framework 3.5<br>獲取本機上所有的IP位址(IP Address)<br>並且提供分類ABC等級(Leval) 廣域網路(WAN)及區域網路(LAN)的功能。<br><a target="_blank" href="https://drive.google.com/open?id=0BwqrUB6l6nNlazdGQ1Nzek9QTDg">PC載點</a><br><img src='img/GetIPA.png'></img>`
+        };
+        pages[24] = {
+            name: "hak_HideAndKill",
+            show_name: "hak_HideAndKill(躲避及殺)",
+            html: `★環境要求: .Net Framework 3.5<br>不斷的吃彩色球放出攻擊波，破壞敵人 被敵人碰到即死<br><a target="_blank" href="http://bgw.magn.space/wp-content/uploads/2017/05/hak_hideandkill.zip">PC載點</a><br><img src='img/hak_HideAndKill.png'></img>`
+        };
+        pages[25] = {
+            name: "LightCamera",
+            show_name: "LightCamera(輕型攝影機)",
+            html: `★環境要求: .Net Framework 3.5<br>小巧的螢幕結圖工具，<br>有鎖定視窗跟全螢幕或者自訂範圍截圖功能。<br>可以使用快捷鍵以及自動命名，完全不用擔心截圖後強迫命名的困擾，還可以選擇圖片的格式(JPEG,BMP,PNG等)。<br><a target="_blank" href="https://drive.google.com/open?id=0BwqrUB6l6nNldjdlcF9MNFV0VmM">PC載點</a><br><img src='img/LightCamera.png'></img>`
+        };
+        pages[26] = {
+            name: "easy-key",
+            show_name: "easy-key(懶得打字))",
+            html: `★環境要求: .Net Framework 4吧?<br>輸入快捷鍵即可輸入以前設定好的一串字，原本有點擊滑鼠輸出字的功能，不過被我重灌C槽消失掉了<br><a target="_blank" href="https://drive.google.com/file/d/1wGWH_7Spz0PZuoyH-m99_5D8ymlq4bWm/view?usp=sharing">PC載點</a><br><img src='img/螢幕擷取畫面 2021-01-15 164616.png'></img>`
+        };
+        //
+    </script>
+    <script src="main2.js"></script>
+    <br />
+</body>
+
+</html>
