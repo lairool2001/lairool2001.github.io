@@ -28,7 +28,7 @@ function sizeSetIni() {
 }
 
 window.onresize = function (event) {
-    //console.log("window.onresize")
+    console.log("window.onresize")
     sizeSetIni()
     for (var i = 0; i < menu_deep; i++) {
         var div = $("#menu" + i)
@@ -38,7 +38,6 @@ window.onresize = function (event) {
     }
 };
 //a00.style.height = (1) * menuX1 + "px";
-//var one_menu = [0, 43, 4, 5];
 $(function () {
     //$("#abc").html("123"); 
 });
@@ -56,7 +55,7 @@ function menuIni() {
         newDiv.className = "top_menu_content";
         var rgb = (i + 1 * 3).toString(16);
         newDiv.style.backgroundColor = "#" + rgb + "" + rgb + "" + rgb;
-        //console.log(newDiv.style.backgroundColor);
+        console.log(newDiv.style.backgroundColor);
         a00.appendChild(newDiv);
     }
 }
@@ -66,25 +65,11 @@ top_menu_content.innerHTML = "";
 for (var i = 0; i < pages.length; i++) {
     var page = pages[i];
     //console.log(i)
-    if(typeof(page)!=="undefined"){
-        page.index = i;
-        var s=page.name.replace(".","_")
-        div1.innerHTML+=`<div id='page_${s}'>${page.html}</div>`
-        
-        //console.log(s)
-        var pp=document.querySelector("#page_"+s)
-        pp.style.display="none"
-    }
+    page.index = i;
 }
-
-var one_pp=document.querySelector("#page_"+pages[0].name)
-one_pp.style.display="block"
-previous_page=one_pp
-	
 for (var i = 0; i < pages.length; i++) {
     var page = pages[i]
-    if(typeof(page)==="undefined")continue;
-    if (typeof(page.type) === "undefined") {
+    if (page.type == undefined) {
 
     } else if (page.type == "menu") {
 
@@ -94,6 +79,7 @@ for (var i = 0; i < pages.length; i++) {
 for (var i = 0; i < one_menu.length; i++) {
     var index = one_menu[i];
     var page = pages[index];
+    console.log(index);
     setLeyer(page, 0, null);
     //<a onclick="home_page()">首頁</a>／<a onclick="tip()">資源</a>
     top_menu_content.innerHTML += `<a id="menu_item_` + index + `" class="no_select_menu" onmousedown="set_page(` + index + `,event)"><ruby>` + page.show_name + `<rt>` + page.name + `</rt>` + `</ruby></a>`;
@@ -105,7 +91,7 @@ for (var i = 0; i < one_menu.length; i++) {
 }
 
 function setLeyer(page, layer, parent) {
-    //console.log("set layer " + page.name + ":" + layer)
+    console.log("set layer " + page.name + ":" + layer)
     page.layer = layer
     page.parent = parent
     if (page.childz == undefined) {
@@ -185,18 +171,6 @@ previous_menu = null
 
 //div1.style.top = menuX2 + (1) * menuX1 + "px";
 
-var imgz=document.querySelectorAll("img")
-//console.log(imgz)
-for(var i=0;i<imgz.length;i++){
-	let img=imgz[i];
-	img.setAttribute("width","512")
-	img.setAttribute("height","512")
-	img.onload=()=>{
-		img.style.opacity=1
-		img.style.visibility="visible"
-	}
-}
-
 function set_page(p, event) {
     if (event != undefined) {
         event.stopPropagation();
@@ -218,29 +192,23 @@ function set_page(p, event) {
         if (page.type == undefined) {
             window.scrollTo(0, 0);
 
-			if(typeof previous_page !== 'undefined')
-			{
-				//console.log(previous_page)
-				var old_pp=previous_page
-				old_pp.style.display="none"
-			}
-            //div1.innerHTML = page.html;
-			menu_tip_show.style.display="none"
-			no_page_show.style.display="none"
-						
-			var s=page.name.replace(".","_")
-			var new_page='#page_'+s
-			//console.log(new_page)
-			var pp=document.querySelector(new_page)
-			pp.style.display="block"
-			if(pp)
-			{
-				previous_page=pp
-			}
-			
+            div1.innerHTML = page.html;
             change_url(page.name);
             previous_menu = null;
 			
+			
+			var imgz=document.querySelectorAll("img")
+			console.log(imgz)
+			for(var i=0;i<imgz.length;i++){
+				let img=imgz[i];
+				img.setAttribute("width","512")
+				img.setAttribute("height","512")
+				img.onload=()=>{
+					img.style.opacity=1
+					img.style.visibility="visible"
+				}
+			}
+
             for (var i = 0; i < page.layer; i++) {
                 var menu2 = this["menu" + i]
                 menu2.style.display = "inline"
@@ -253,8 +221,7 @@ function set_page(p, event) {
             switch (page.type) {
                 case "menu":
                     if (loading) {
-						menu_tip_show.style.display="block"
-						no_page_show.style.display="none"
+                        div1.innerHTML = "此頁面為選單，請選擇上面的子項目"
                     }
                     //console.log(page.layer)
                     var menu = this["menu" + page.layer];
@@ -358,9 +325,7 @@ function set_page(p, event) {
 }
 
 function no_found() {
-	menu_tip_show.style.display="none"
-    no_page_show.style.display="block"
-	
+    div1.innerHTML = `<p>沒有這個頁面喔!</p>`;
     var top = top_menu_content.offsetTop + top_menu_content.offsetHeight + 10
     if (!isMobile) {
         div1.style.top = top + "px"
