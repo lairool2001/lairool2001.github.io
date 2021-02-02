@@ -189,8 +189,8 @@ var imgz=document.querySelectorAll("img")
 //console.log(imgz)
 for(var i=0;i<imgz.length;i++){
 	let img=imgz[i];
-	img.setAttribute("width","512")
-	img.setAttribute("height","512")
+	//img.setAttribute("width","512")
+	//img.setAttribute("height","512")
 	img.onload=()=>{
 		img.style.opacity=1
 		img.style.visibility="visible"
