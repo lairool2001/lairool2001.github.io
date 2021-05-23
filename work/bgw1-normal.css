@@ -22,6 +22,9 @@
       background-position: center;
       border: none;
       height: 100px;
+      width: 100%;
+      margin: 0;
+      padding: 0;
   }
 
   #div1 {

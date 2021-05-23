@@ -290,11 +290,8 @@ function set_page(p, event) {
                 break
             }
         }
-        if (!isMobile) {
-            div2.style.top = top + "px"
-        } else {
-            div2.style.top = 50 + "px"
-        }
+        var top2 = a00.offsetTop + a00.offsetHeight + 10
+        div2.style.top = top + "px"
         a00.style.height = (top - 10) + "px"
         //console.log(div1.style.top)
         //div1.style.top = a00.style.height;
@@ -326,24 +323,25 @@ function set_page(p, event) {
 
 function no_found() {
     div1.innerHTML = `<p>沒有這個頁面喔!</p>`;
-    var top = top_menu_content.offsetTop + top_menu_content.offsetHeight + 10
+    var top = a00.offsetTop + a00.offsetHeight + 10
     if (!isMobile) {
-        div1.style.top = top + "px"
+        div2.style.top = top + "px"
     } else {
-        div1.style.top = 20 + "px"
+        div2.style.top = 20 + "px"
     }
     change_url("no_found");
 }
 
 function diplay_icon_mouse_down() {
+    var top = a00.offsetTop + a00.offsetHeight + 10
     if (a00.style.display != 'none') {
         a00.style.display = "none";
         //a00_old_top = a00.style.top
-        div1.oldTop = div1.style.top
+        div2.oldTop = div2.style.top
         //div1.style.top = diplay_icon.offsetHeight + "px"
-        div1.style.top = 0 + "px"
+        div2.style.top = 0 + "px"
     } else {
-        div1.style.top = div1.oldTop
+        div2.style.top = top
         a00.style.display = "block";
         //a00.style.top = a00_old_top
     }
