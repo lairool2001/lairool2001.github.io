@@ -291,9 +291,9 @@ function set_page(p, event) {
             }
         }
         if (!isMobile) {
-            div1.style.top = top + "px"
+            div2.style.top = top + "px"
         } else {
-            div1.style.top = 50 + "px"
+            div2.style.top = 50 + "px"
         }
         a00.style.height = (top - 10) + "px"
         //console.log(div1.style.top)
