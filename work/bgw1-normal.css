@@ -122,7 +122,9 @@
       font-size: 0.4em;
   }
 
-  .no_select_menu {}
+  .no_select_menu {
+      padding: 5px;
+  }
 
   .select_menu {
       border-width: 2px;

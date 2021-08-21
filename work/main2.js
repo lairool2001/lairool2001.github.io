@@ -28,13 +28,28 @@ function sizeSetIni() {
 }
 
 window.onresize = function (event) {
-    console.log("window.onresize")
+    //console.log("window.onresize")
     sizeSetIni()
     for (var i = 0; i < menu_deep; i++) {
         var div = $("#menu" + i)
         //newDiv.style.top = 100 * (i + 1) + "px"
         //console.log(menuX1)
         //newDiv.style.height = menuX1 + "px"
+    }
+    var top = top_menu_content.offsetTop + top_menu_content.offsetHeight + 10
+    for (var i = 0; i < menu_deep; i++) {
+        var menu = this["menu" + i];
+        if (menu.style.display != "none") {
+            top += menu.offsetHeight
+        } else {
+            break
+        }
+    }
+    var top2 = a00.offsetTop + a00.offsetHeight + 10
+    if(isMobile){
+        div2.style.top = 0 + "px"
+    }else{
+        div2.style.top = top + "px"
     }
 };
 //a00.style.height = (1) * menuX1 + "px";
