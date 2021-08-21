@@ -149,7 +149,7 @@
       background: #f0f0f0 url(img/code.gif) left top repeat-y;
       border: 1px solid #ccc;
       padding: 10px 10px 10px 21px;
-      //max-height: 1000px;
+      /* max-height: 1000px; */
       line-height: 1.2em;
   }
 
@@ -164,7 +164,7 @@
       }
 
       rt {
-          //font-size: 52px;
+          /* font-size: 52px; */
       }
 
       div.content {
