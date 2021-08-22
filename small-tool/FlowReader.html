@@ -91,7 +91,11 @@
 				}
 				$("img").css("max-width",w);
 				wantWidth=w
-				minElement.scrollIntoView(true)
+				if(minElement==null){
+					
+				}else{
+					minElement.scrollIntoView(true)
+				}
 			}
 			console.log("change")
 		}
