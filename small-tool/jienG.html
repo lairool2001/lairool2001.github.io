@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8515898985858287"
+        crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <title>JienG檢舉</title>
+    <style>
+        body {
+            font-size: 20px;
+        }
+
+        #map {
+            max-width: 100%;
+            width: 412px;
+            height: 230px;
+        }
+
+        button {
+            font-size: 20px;
+            margin: 2px;
+        }
+
+        select {
+            font-size: 20px;
+            display: inline;
+            margin: 0px !important;
+        }
+
+        .c1 {
+            border: 1px solid black;
+            margin: 3px;
+            display: block;
+            width: fit-content;
+            padding: 5px;
+        }
+
+        textarea {
+            font-size: 20px;
+            display: block;
+            min-width: 90%;
+            min-height: 100px;
+        }
+
+        .small1 {
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+    <div title="請使用行動裝置使用本網頁 可以將本網頁加入至主畫面（請GOOGLE）" class="small1">版本：0.0.2(目前公測中)</div>
+
+    <div id="map"></div>
+    <button onclick="setMyPosition()">取得當前地點</button>
+    <select id="city" onchange="updatePhoneNumber()">
+    </select>
+    <select id="type" onchange="updateULan()">
+    </select>
+    <br>
+    <div class="c1">單位：<span id="cityText">預覽</span>
+    </div>
+    <div class="c1">簡訊訊息：<textarea id="uLan">預覽</textarea>
+    </div>
+    <button id="sendJienG" onclick="toSendJienG()">輸出到簡訊</button>
+    <br><br>
+    <div class="small1">請使用行動裝置使用本網頁 可以將本網頁加入至主畫面（請GOOGLE）</div>
+    <script>
+        let data = `臺北市  02-2331-8898    0911-510-914
+新北市  02-2966-8310    0912-095-110
+臺中市  04-2327-8656    0911-510-915
+臺南市  06-637-0705     0911-510-916
+高雄市  07-251-8241     0911-510-917
+桃園市  03-332-2110     0917-110-880
+基隆市  02-2424-8884    0911-510-918
+新竹市  03-525-1966     0911-510-919
+嘉義市  05-222-0693     0911-510-920
+新竹縣  03-5513529      0911-510-921
+苗栗縣  037-326390      0911-510-922
+彰化縣  04-761-9882     0911-510-933
+南投縣  049-223-7295    0911-510-923
+雲林縣  05-533-0800     0911-510-924
+嘉義縣  05-362-0239     0911-510-925
+屏東縣  08-732-6239     0911-510-926
+宜蘭縣  03-935-6382     0911-510-927
+花蓮縣  03-823-0837     0911-510-928
+臺東縣  089-330-749     0911-510-929
+澎湖縣  06-927-8353     0911-510-930
+金門縣  082-328-872     0911-510-931
+連江縣  0836-22-489     0911-510-932`
+        data = data.replace(/\s\s+/g, ' ');
+        let dataArr = data.split(/\n/)
+        //console.log(dataArr)
+        let data2 = []
+        for (let i = 0; i < dataArr.length; i++) {
+            //use 0 2
+            var d = dataArr[i].split(/ /)
+            data2.push(d)
+            var varItem = new Option(d[0], d[2]);
+            city.options.add(varItem);
+        }
+        console.log(data2)
+        let data3 = `汽車併排停車
+紅線違規停車`
+        let dataArr2 = data3.split(/\n/)
+        for (let i = 0; i < dataArr2.length; i++) {
+            //use 0 2
+            var d = dataArr2[i].split(/ /)
+            var varItem = new Option(d[0], d[2]);
+            type.options.add(varItem);
+        }
+        function updateULan() {
+
+            let address = ""
+            let previous = ""
+            for (let i = address_components.length - 1; i >= 0; i--) {
+                let c = address_components[i]
+                let types = c.types
+                for (let j = 0; j < types.length; j++) {
+                    const type = types[j];
+                    if (type == "country" || type == "political" || type == "administrative_area_level_1" || type == "postal_code") {
+                        continue
+                    }
+                    else if (previous == c.long_name) {
+                        continue
+                    }
+                    address += c.long_name
+                    previous = c.long_name
+                }
+            }
+            uLan.innerHTML = address + "，" + type.value
+            if (uLan.innerHTML.indexOf("台灣") == 0) {
+                console.log(uLan.innerHTML)
+                uLan.innerHTML = uLan.innerHTML.substring(2)
+                console.log(uLan.innerHTML)
+            }
+            for (let i = 0; i < data2.length; i++) {
+                if (uLan.innerHTML.indexOf(data2[i][0]) == 0) {
+                    console.log(uLan.innerHTML)
+                    uLan.innerHTML = uLan.innerHTML.substring(data2[2][0].length)
+                    console.log(uLan.innerHTML)
+                }
+            }
+        }
+        function updatePhoneNumber() {
+            cityText.innerHTML = city.value;
+        }
+        function toSendJienG() {
+            var elementA = document.createElement("a")
+            document.body.appendChild(elementA)
+            elementA.setAttribute("href", "sms:" + cityText.innerHTML + "?body=" + uLan.innerHTML)
+            elementA.click()
+            document.body.removeChild(elementA)
+        }
+        let map
+        let address_components
+        function geocodeLatLng(geocoder, map, infowindow, latlng) {
+            //console.log(latlng)
+            if (latlng == null) {
+                if (marker != null) {
+                    latlng = marker.position
+                } else {
+                    return
+                }
+            }
+            geocoder
+                .geocode({ location: latlng })
+                .then((response) => {
+                    if (response.results[0]) {
+                        //map.setZoom(18);
+
+                        /*const marker = new google.maps.Marker({
+                            position: latlng,
+                            map: map,
+                        });*/
+
+                        //infowindow.setContent(response.results[0].formatted_address);
+                        address_components = response.results[0].address_components
+                        let cityName = ""
+                        for (let i = address_components.length - 1; i >= 0; i--) {
+                            let c = address_components[i]
+                            console.log(c)
+                            let types = c.types
+                            for (let j = 0; j < types.length; j++) {
+                                const type = types[j];
+                                if (type.includes("administrative_area_level_1")) {
+                                    cityName = c.long_name.replace("台", "臺");
+                                    break
+                                }
+                            }
+                        }
+                        //city.setAttribute("value", cityName)
+                        console.log(cityName)
+                        city.text = cityName
+                        for (let i = 0; i < city.options.length; i++) {
+                            const element = city.options[i];
+                            //console.log(element)
+                            if (cityName.indexOf(element.text) == 0) {
+                                element.setAttribute("selected", "")
+                            } else {
+                                element.removeAttribute("selected")
+                            }
+                        }
+                        updatePhoneNumber()
+                        updateULan()
+                        //infowindow.open(map, marker);
+                    } else {
+                        window.alert("No results found");
+                    }
+                })
+                .catch((e) => {
+                    console.log("Geocoder failed due to: " + e)
+                })
+        }
+        let marker = null
+        function setMyPosition() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    var pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    if (marker == null) {
+                        marker = new google.maps.Marker({
+                            position: pos,
+                            map: map,
+                            draggable: true
+                        });
+                        google.maps.event.addListener(marker, 'dragend', function () {
+                            if (geocoder && map && infowindow && marker.position) {
+                                console.log("good")
+                            } else {
+                                console.log("bad")
+                            }
+                            geocodeLatLng(geocoder, map, infowindow, null)
+                        });
+                    } else {
+                        marker.setPosition(pos)
+
+                    }
+                    console.log(marker.position)
+
+                    map.setZoom(18);
+                    map.setCenter(pos);
+                    geocodeLatLng(geocoder, map, infowindow, null)
+                    console.log(map)
+                });
+            } else {
+                // Browser doesn't support Geolocation
+                alert("未允許或遭遇錯誤！");
+            }
+        }
+        function initMap() {
+            geocoder = new google.maps.Geocoder();
+            infowindow = new google.maps.InfoWindow();
+            var latlng = { lat: 25.046891, lng: 121.516602 }; // 給一個初始位置
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 18, //放大的倍率
+                center: latlng //初始化的地圖中心位置
+            });
+            setMyPosition()
+        } //init_end
+    </script>
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBbECm-GPCSPm9rhuZ4RSzSe8XVru3uN9Y&callback=initMap">
+        </script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8515898985858287"
+        crossorigin="anonymous">
+        </script>
+</body>
+
+</html>
