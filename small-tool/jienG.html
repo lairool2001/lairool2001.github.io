@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="leaflet/leaflet.css" />
     <script src="leaflet/leaflet.js"></script>
-    <link rel="icon" href="jienG.ico" type="image/x-icon" />
+    <link rel="icon" href="/jienG.ico" type="image/x-icon" />
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8515898985858287"
         crossorigin="anonymous">
         </script>
@@ -32,29 +32,76 @@
         }
 
         button {
+            align-items: center;
+            background-image: linear-gradient(#464d55, #25292e);
+            border-radius: 8px;
+            border-width: 0;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, .1), 0 3px 6px rgba(0, 0, 0, .05);
+            box-sizing: border-box;
+            color: #fff;
+            cursor: pointer;
+            font-family: expo-brand-demi, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
             font-size: 20px;
-            margin: 2px;
+            justify-content: center;
+            margin: 3px;
+            outline: none;
+            padding: 10px 10px;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        button:hover {
+            box-shadow: rgba(0, 1, 0, .2) 0 2px 8px;
+            opacity: .85;
+        }
+
+        button:active {
+            outline: 0;
+        }
+
+        button:focus {
+            box-shadow: rgba(0, 0, 0, .5) 0 0 0 3px;
+        }
+
+        @media (max-width: 420px) {
+            button {
+                height: 48px;
+            }
         }
 
         select {
             font-size: 20px;
             display: inline;
-            margin: 0px !important;
+            margin: 3px;
+            margin-left: -6px;
+            background-color: rgb(168, 153, 153);
+            color: white;
+            padding: 5px;
+            border-radius: 10px;
         }
 
         .c1 {
-            border: 1px solid black;
-            margin: 3px;
+            border: 3px solid rgb(155, 155, 155);
+            margin: 5px;
             display: block;
             width: fit-content;
             padding: 5px;
+            max-width: 100%;
+            white-space: nowrap;
+            box-shadow: 3px 3px 6px gray;
+        }
+
+        .c2 {
+            display: block;
         }
 
         textarea {
+            margin: 3px;
             font-size: 20px;
             display: block;
             min-width: 90%;
             min-height: 100px;
+            border: 1px solid black;
         }
 
         .small1 {
@@ -66,70 +113,88 @@
             width: 412px;
             height: 230px;
         }
+
+        .c1_2 {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        pre {
+            white-space: pre-wrap;
+        }
     </style>
 </head>
 
 <body>
-    <div title="請使用行動裝置使用本網頁 可以將本網頁加入至主畫面（請GOOGLE）" class="small1">版本：0.1.2(目前公測中)</div>
-    <div id="mapid"></div>
-    <!-- <div id="map"></div> -->
-    <button onclick="setMyPosition()">取得當前地點</button>
-    <select id="city" onchange="updatePhoneNumber()">
-    </select>
-    <select id="type" onchange="updateULan()">
-    </select>
-    <br>
-    <div class="c1">電話：<span id="cityText">預覽</span>
+    <div class="c2">
+        <div title="請使用行動裝置使用本網頁 可以將本網頁加入至主畫面（請GOOGLE）" class="small1">版本：0.1.4(目前公測中)</div>
+        <div id="mapid"></div>
+        <!-- <div id="map"></div> -->
+        <button onclick="setMyPosition()">取得當前地點</button>
+        <select id="city" onchange="updatePhoneNumber()">
+        </select>
+        <select id="type" onchange="updateULan()">
+        </select>
+        <br>
+        <div class="c1">電話：<span id="cityText">預覽</span>
+        </div>
+        <div class="c1">簡訊訊息：<textarea id="uLan">預覽</textarea>
+            <span class="small1">警語：建議大家根據現場地址再修改</span>
+        </div>
+        <button id="sendJienG" onclick="toSendJienG()">輸出到簡訊</button>
+        <p class="small1">請使用行動裝置使用本網頁 可以將本網頁加入至主畫面（請GOOGLE）</p>
+        <div id="debug2"></div>
+        <pre id="debug1">臺北市 02-2331-8898 0911-510-914
+新北市 02-2966-8310 0912-095-110
+臺中市 04-2327-8656 0911-510-915
+臺南市 06-637-0705 0911-510-916
+高雄市 07-251-8241 0911-510-917
+桃園市 03-332-2110 0917-110-880
+基隆市 02-2424-8884 0911-510-918
+新竹市 03-525-1966 0911-510-919
+嘉義市 05-222-0693 0911-510-920
+新竹縣 03-5513529 0911-510-921
+苗栗縣 037-326390 0911-510-922
+彰化縣 04-761-9882 0911-510-933
+南投縣 049-223-7295 0911-510-923
+雲林縣 05-533-0800 0911-510-924
+嘉義縣 05-362-0239 0911-510-925
+屏東縣 08-732-6239 0911-510-926
+宜蘭縣 03-935-6382 0911-510-927
+花蓮縣 03-823-0837 0911-510-928
+臺東縣 089-330-749 0911-510-929
+澎湖縣 06-927-8353 0911-510-930
+金門縣 082-328-872 0911-510-931
+連江縣 0836-22-489 0911-510-932</pre>
     </div>
-    <div class="c1">簡訊訊息：<textarea id="uLan">預覽</textarea>
-    </div>
-    <button id="sendJienG" onclick="toSendJienG()">輸出到簡訊</button>
-    <br><br>
-    <div class="small1">請使用行動裝置使用本網頁 可以將本網頁加入至主畫面（請GOOGLE）</div>
-    <div class="c1" id="debug1"></div>
-    <div id="debug2"></div>
     </div>
 
     <script>
         try {
-            let data = `臺北市  02-2331-8898    0911-510-914
-新北市  02-2966-8310    0912-095-110
-臺中市  04-2327-8656    0911-510-915
-臺南市  06-637-0705     0911-510-916
-高雄市  07-251-8241     0911-510-917
-桃園市  03-332-2110     0917-110-880
-基隆市  02-2424-8884    0911-510-918
-新竹市  03-525-1966     0911-510-919
-嘉義市  05-222-0693     0911-510-920
-新竹縣  03-5513529      0911-510-921
-苗栗縣  037-326390      0911-510-922
-彰化縣  04-761-9882     0911-510-933
-南投縣  049-223-7295    0911-510-923
-雲林縣  05-533-0800     0911-510-924
-嘉義縣  05-362-0239     0911-510-925
-屏東縣  08-732-6239     0911-510-926
-宜蘭縣  03-935-6382     0911-510-927
-花蓮縣  03-823-0837     0911-510-928
-臺東縣  089-330-749     0911-510-929
-澎湖縣  06-927-8353     0911-510-930
-金門縣  082-328-872     0911-510-931
-連江縣  0836-22-489     0911-510-932`
+            let map = null
+            let address_components
+            var marker = null
+            var data = debug1.innerHTML
+            debug1.innerHTML = "單位,手機簡訊報案號碼\n"
             data = data.replace(/\s\s+/g, ' ');
-            let dataArr = data.split(/\n/)
+            //console.log(data)
+            var dataArr = data.split(/\n/)
             //console.log(dataArr)
-            let data2 = []
+            var data2 = []
             for (let i = 0; i < dataArr.length; i++) {
                 //use 0 2
                 var d = dataArr[i].split(/ /)
                 data2.push(d)
-                debug1.innerHTML += d[0] + "," + d[2] + "<br>"
+                //console.log(i)
+                debug1.innerHTML += d[0] + "," + d[2] + "\n"
                 var varItem = new Option(d[0], d[2]);
                 city.options.add(varItem);
             }
-            console.log(data2)
-            let data3 = `汽車併排停車
-紅線違規停車`
-            let dataArr2 = data3.split(/\n/)
+            //console.log(data2)
+            var data3 = '汽車併排停車-紅線違規停車'
+            //console.log(data3)
+            var dataArr2 = data3.split(/-/g)
             for (let i = 0; i < dataArr2.length; i++) {
                 //use 0 2
                 var d = dataArr2[i].split(/ /)
@@ -150,7 +215,8 @@
                         const element = city.options[i];
                         //console.log(element)
                         if (cityName.indexOf(element.text) == 0) {
-                            element.setAttribute("selected", "")
+                            element.setAttribute("selected", true)
+                            city.selectedIndex = i
                         } else {
                             element.removeAttribute("selected")
                         }
@@ -161,6 +227,7 @@
             }
             let reverseData
             if (navigator.geolocation) {
+                uLan.innerHTML = cityText.innerHTML = "請求資料中..."
                 navigator.geolocation.getCurrentPosition(function (position) {
                     pos = {
                         lat: position.coords.latitude,
@@ -174,14 +241,23 @@
                     //     maxZoom: 19,
                     //     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     // }).addTo(mymap)
-                    Jawg_Matrix = L.tileLayer('https://{s}.tile.jawg.io/jawg-matrix/{z}/{x}/{y}{r}.png?access-token=El0nZ6o3VfuZbt9p9pZznJzhUyCowUgTV0Aksp3p92gmlJBK4EFBaXKteTUgCYug', {
-                        attribution: '<a href="http://jawg.io" title="Tiles Courtesy of Jawg Maps" target="_blank">&copy; <b>Jawg</b>Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                    /*let userAgent = navigator.userAgent;
+                    if (userAgent.match(/safari/i)) {
+                        browserName = "safari";
+                    } else {
+                        browserName = "No browser detection";
+                    }*/
+                    Jawg_Matrix = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: 'openstreetmap',
                         minZoom: 0,
                         maxZoom: 22,
                         id: 'lairool2001',
                         accessToken: 'El0nZ6o3VfuZbt9p9pZznJzhUyCowUgTV0Aksp3p92gmlJBK4EFBaXKteTUgCYug'
                     }).addTo(mymap);
                     marker = L.marker([pos.lat, pos.lng], { draggable: true }).addTo(mymap);
+                    if (marker == null) {
+                        alert("marker is null")
+                    }
                     marker.addEventListener("dragend", (e) => {
                         console.log(e)
                         updatePByMarker()
@@ -206,9 +282,12 @@
 
                     // mymap.on('click', onMapClick);
                     //leaflet
-                });
+                }, getCurrentPositionError);
             }
-
+            function getCurrentPositionError() {
+                debug2.innerHTML = "無法取得座標orz(允許本程式權限即可使用)"
+                uLan.innerHTML = ""
+            }
 
             function updateULan() {
 
@@ -233,7 +312,7 @@
                 address = reverseData.address.City + reverseData.address.Neighborhood + reverseData.address.Address
 
                 if (reverseData.address.Type == "Ocean" || reverseData.address.Address == "") {
-                    uLan.innerHTML = "海上"
+                    uLan.innerHTML = "海上或者無位置"
                     sendJienG.style.display = "none"
                 } else {
                     uLan.innerHTML = address + "，" + type.value
@@ -262,8 +341,6 @@
                 elementA.click()
                 document.body.removeChild(elementA)
             }
-            let map
-            let address_components
             function geocodeLatLng(geocoder, map, infowindow, latlng) {
                 //console.log(latlng)
                 if (latlng == null) {
@@ -322,7 +399,6 @@
                         console.log("Geocoder failed due to: " + e)
                     })
             }
-            let marker = null
             function setMyPosition() {
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(function (position) {
@@ -358,7 +434,7 @@
                         map.setCenter(pos);
                         geocodeLatLng(geocoder, map, infowindow, null)
                         console.log(map)*/
-                    });
+                    }, getCurrentPositionError);
                 } else {
                     // Browser doesn't support Geolocation
                     alert("未允許或遭遇錯誤！");
