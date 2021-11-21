@@ -8,10 +8,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="leaflet/leaflet.css" />
     <script src="leaflet/leaflet.js"></script>
-    <link rel="icon" href="/jienG.ico" type="image/x-icon" />
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8515898985858287"
+    <link rel="icon" href="JSBA.ico" type="image/x-icon" />
+    <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8515898985858287"
         crossorigin="anonymous">
-        </script>
+        </script> -->
     <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8515898985858287"
         crossorigin="anonymous"></script> -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
@@ -19,7 +19,7 @@
     <!-- Esri Leaflet Geocoder -->
     <link rel="stylesheet" href="https://unpkg.com/esri-leaflet-geocoder/dist/esri-leaflet-geocoder.css" />
     <script src="https://unpkg.com/esri-leaflet-geocoder"></script>
-    <title>JienG檢舉</title>
+    <title>JSBA簡訊報案</title>
     <style>
         body {
             font-size: 20px;
@@ -140,7 +140,7 @@
         <div class="c1">電話：<span id="cityText">預覽</span>
         </div>
         <div class="c1">簡訊訊息：<textarea id="uLan">預覽</textarea>
-            <span class="small1">提醒：建議大家根據現場地址修改簡訊內容</span>
+            <span class="small1">警語：建議大家根據現場地址再修改</span>
         </div>
         <button id="sendJienG" onclick="toSendJienG()">輸出到簡訊</button>
         <p class="small1">請使用行動裝置使用本網頁 可以將本網頁加入至主畫面（請GOOGLE）</p>
@@ -172,9 +172,11 @@
 
     <script>
         try {
-            let map = null
-            let address_components
+            var Jawg_Matrix = null
+            var geocodeService = null
+            let mymap = null
             var marker = null
+            let address_components
             var data = debug1.innerHTML
             debug1.innerHTML = "單位,手機簡訊報案號碼\n"
             data = data.replace(/\s\s+/g, ' ');
@@ -201,7 +203,6 @@
                 var varItem = new Option(d[0], d[2]);
                 type.options.add(varItem);
             }
-            //leaflet
             function updatePByMarker() {
                 geocodeService.reverse().latlng(marker.getLatLng()).run(function (error, result) {
                     if (error) return;
@@ -225,28 +226,16 @@
                     updatePhoneNumber()
                 });
             }
-            let reverseData
-            if (navigator.geolocation) {
-                uLan.innerHTML = cityText.innerHTML = "請求資料中..."
-                navigator.geolocation.getCurrentPosition(function (position) {
-                    pos = {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    };
+            function initFunc() {
+                if (geocodeService == null) {
                     geocodeService = L.esri.Geocoding.geocodeService({
                         apikey: "AAPKe6230472dd7c480eb9ea40439c861616Lfu1YA-pPX_sstZmW4pIb8wNBMAVXMLB4dyjLqZjlGPgBv9U6KOuE5NtbBYbcy9J" // replace with your api key - https://developers.arcgis.com
                     });
+                }
+                if (mymap == null) {
                     mymap = L.map('mapid').setView([pos.lat, pos.lng], 18);
-                    // var OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    //     maxZoom: 19,
-                    //     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    // }).addTo(mymap)
-                    /*let userAgent = navigator.userAgent;
-                    if (userAgent.match(/safari/i)) {
-                        browserName = "safari";
-                    } else {
-                        browserName = "No browser detection";
-                    }*/
+                }
+                if (Jawg_Matrix == null) {
                     Jawg_Matrix = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                         attribution: 'openstreetmap',
                         minZoom: 0,
@@ -254,41 +243,32 @@
                         id: 'lairool2001',
                         accessToken: 'El0nZ6o3VfuZbt9p9pZznJzhUyCowUgTV0Aksp3p92gmlJBK4EFBaXKteTUgCYug'
                     }).addTo(mymap);
+                }
+                if (marker == null) {
                     marker = L.marker([pos.lat, pos.lng], { draggable: true }).addTo(mymap);
-                    if (marker == null) {
-                        alert("marker is null")
-                    }
                     marker.addEventListener("dragend", (e) => {
                         console.log(e)
                         updatePByMarker()
                     })
+                }
+            }
+            let reverseData
+            //alert("確認使用者互動")
+            if (navigator.geolocation) {
+                uLan.innerHTML = cityText.innerHTML = "請求資料中..."
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    initFunc();
                     updatePByMarker()
-                    // mymap.on('click', function (e) {
-                    //     geocodeService.reverse().latlng(e.latlng).run(function (error, result) {
-                    //         if (error) {
-                    //             return;
-                    //         }
-
-                    //         L.marker(result.latlng).addTo(mymap).bindPopup(result.address.Match_addr).openPopup();
-                    //     });
-                    // });
-
-                    // function onMapClick(e) {
-                    //     console.log(marker)
-                    //     marker.setLatLng(e.latlng)
-                    //     //alert("You clicked the map at " + e.latlng);
-                    //     console.log(e.latlng)
-                    // }
-
-                    // mymap.on('click', onMapClick);
-                    //leaflet
                 }, getCurrentPositionError);
             }
             function getCurrentPositionError() {
                 debug2.innerHTML = "無法取得座標orz(允許本程式權限即可使用)"
                 uLan.innerHTML = ""
             }
-
             function updateULan() {
 
                 let address = ""
@@ -401,6 +381,7 @@
             }
             function setMyPosition() {
                 if (navigator.geolocation) {
+                    initFunc()
                     navigator.geolocation.getCurrentPosition(function (position) {
                         var pos = {
                             lat: position.coords.latitude,
