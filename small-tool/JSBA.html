@@ -133,7 +133,7 @@
         <select id="type" onchange="updateULan()">
         </select>
         <br>
-        <div class="c1">電話：<span id="cityText">預覽</span>
+        <div class="c1">電話：<span id="phoneText">預覽</span>
         </div>
         <div class="c1">簡訊訊息：<textarea id="uLan">預覽</textarea>
             <span class="small1">警語：建議大家根據現場地址再修改</span>
@@ -200,10 +200,10 @@
                 type.options.add(varItem);
             }
             function updatePByMarker() {
-                uLan.innerHTML = cityText.innerHTML = "請求資料中..."
+                uLan.innerHTML = phoneText.innerHTML = "請求資料中..."
                 geocodeService.reverse().latlng(marker.getLatLng()).run(function (error, result) {
                     if (error) {
-                        cityText.innerHTML = ""
+                        phoneText.innerHTML = ""
                         uLan.innerHTML = "發生錯誤，無法取得地址"
                         return;
                     }
@@ -256,7 +256,7 @@
             let reverseData
             //alert("確認使用者互動")
             if (navigator.geolocation) {
-                uLan.innerHTML = cityText.innerHTML = "請求資料中..."
+                uLan.innerHTML = phoneText.innerHTML = "請求資料中..."
                 navigator.geolocation.getCurrentPosition(function (position) {
                     pos = {
                         lat: position.coords.latitude,
@@ -270,7 +270,7 @@
                 uLan.innerHTML = "無法取得座標orz(允許本程式權限即可使用)"
                 //debug2.innerHTML = "無法取得座標orz(允許本程式權限即可使用)"
                 //uLan.innerHTML = ""
-                cityText.innerHTML = "";
+                phoneText.innerHTML = "";
             }
             function updateULan() {
 
@@ -294,8 +294,9 @@
                 //address = reverseData.address.City + reverseData.address.Neighborhood + reverseData.address.Address + reverseData.address.PlaceName
                 address = reverseData.address.City + reverseData.address.Neighborhood + reverseData.address.Address
 
-                if (reverseData.address.Type == "Ocean" || reverseData.address.Address == "") {
-                    uLan.innerHTML = "海上或者無位置"
+                if (reverseData.address.Type == "Ocean" || address == "") {
+                    uLan.innerHTML = "海上或不在簡訊報案範圍內"
+                    phoneText.innerHTML = ""
                     sendJienG.style.display = "none"
                 } else {
                     uLan.innerHTML = address + "，" + type.value
@@ -315,12 +316,14 @@
                 }
             }
             function updatePhoneNumber() {
-                cityText.innerHTML = city.value;
+                if (sendJienG.style.display == "block") {
+                    phoneText.innerHTML = city.value;
+                }
             }
             function toSendJienG() {
                 var elementA = document.createElement("a")
                 document.body.appendChild(elementA)
-                elementA.setAttribute("href", "sms:" + cityText.innerHTML + "?body=" + uLan.innerHTML)
+                elementA.setAttribute("href", "sms:" + phoneText.innerHTML + "?body=" + uLan.innerHTML)
                 elementA.click()
                 document.body.removeChild(elementA)
             }
