@@ -59,10 +59,6 @@
             outline: 0;
         }
 
-        button:focus {
-            box-shadow: rgba(0, 0, 0, .5) 0 0 0 3px;
-        }
-
         @media (max-width: 420px) {
             button {
                 height: 48px;
@@ -85,7 +81,7 @@
             margin: 5px;
             display: block;
             width: fit-content;
-            padding: 5px;
+            padding: 7px;
             max-width: 100%;
             white-space: nowrap;
             box-shadow: 3px 3px 6px gray;
@@ -143,7 +139,7 @@
             <span class="small1">警語：建議大家根據現場地址再修改</span>
         </div>
         <button id="sendJienG" onclick="toSendJienG()">輸出到簡訊</button>
-        <p class="small1">請使用行動裝置使用本網頁 可以將本網頁加入至主畫面（請GOOGLE）</p>
+        <p class="small1">請使用行動裝置使用本網頁 可以將本網頁加入至主畫面（請GOOGLE）；若請求資料太久（正常在3秒以內）應該是程式壞掉。</p>
         <div id="debug2"></div>
         <pre id="debug1">臺北市 02-2331-8898 0911-510-914
 新北市 02-2966-8310 0912-095-110
@@ -204,8 +200,13 @@
                 type.options.add(varItem);
             }
             function updatePByMarker() {
+                uLan.innerHTML = cityText.innerHTML = "請求資料中..."
                 geocodeService.reverse().latlng(marker.getLatLng()).run(function (error, result) {
-                    if (error) return;
+                    if (error) {
+                        cityText.innerHTML = ""
+                        uLan.innerHTML = "發生錯誤，無法取得地址"
+                        return;
+                    }
                     console.log(result)
                     reverseData = result
                     let cityName = ""
@@ -266,8 +267,10 @@
                 }, getCurrentPositionError);
             }
             function getCurrentPositionError() {
-                debug2.innerHTML = "無法取得座標orz(允許本程式權限即可使用)"
-                uLan.innerHTML = ""
+                uLan.innerHTML = "無法取得座標orz(允許本程式權限即可使用)"
+                //debug2.innerHTML = "無法取得座標orz(允許本程式權限即可使用)"
+                //uLan.innerHTML = ""
+                cityText.innerHTML = "";
             }
             function updateULan() {
 
