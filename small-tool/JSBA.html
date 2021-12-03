@@ -5,13 +5,10 @@
     <meta charset="UTF-8">
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta http-equiv="content-language" content="zh-tw">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="leaflet/leaflet.css" />
     <script src="leaflet/leaflet.js"></script>
     <link rel="icon" href="JSBA.ico" type="image/x-icon" />
-    <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8515898985858287"
-        crossorigin="anonymous">
-        </script> -->
     <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8515898985858287"
         crossorigin="anonymous"></script> -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
@@ -23,6 +20,8 @@
     <style>
         body {
             font-size: 20px;
+            margin: 6px;
+            padding: 0;
         }
 
         #map {
@@ -45,7 +44,7 @@
             justify-content: center;
             margin: 3px;
             outline: none;
-            padding: 10px 10px;
+            padding: 5px 5px;
             text-align: center;
             text-decoration: none;
         }
@@ -66,7 +65,6 @@
         }
 
         select {
-            font-size: 20px;
             display: inline;
             margin: 3px;
             margin-left: -6px;
@@ -74,6 +72,7 @@
             color: white;
             padding: 5px;
             border-radius: 10px;
+            font-size: 20px;
         }
 
         .c1 {
@@ -83,7 +82,6 @@
             width: fit-content;
             padding: 7px;
             max-width: 100%;
-            white-space: nowrap;
             box-shadow: 3px 3px 6px gray;
         }
 
@@ -120,30 +118,32 @@
             white-space: pre-wrap;
             visibility: hidden;
         }
+
+        #debug1 {
+            display: none;
+        }
     </style>
 </head>
 
 <body>
-    <div class="c2">
-        <div title="請使用行動裝置使用本網頁 可以將本網頁加入至主畫面（請GOOGLE）" class="small1">版本：0.1.4(目前公測中)</div>
-        <div id="mapid"></div>
-        <!-- <div id="map"></div> -->
-        <button onclick="setMyPosition()">取得當前地點</button>
-        <select id="city" onchange="updatePhoneNumber()">
-        </select>
-        <select id="type" onchange="updateULan()">
-        </select>
-        <br>
-        <div class="c1">電話：<span id="phoneText">預覽</span>
-        </div>
-        <div class="c1">簡訊訊息：<textarea id="uLan">預覽</textarea>
-            <span class="small1">警語：建議大家根據現場地址與違規事實修改</span>
-        </div>
-        <button id="sendJienG" onclick="toSendJienG()">輸出到簡訊</button>
-        <a href="https://forms.gle/afD5ttmfuaasp5V96">問題回報</a> <a href="https://forms.gle/ZgoWFitRa4hTxyJ36">我有建議</a>
-        <p class="small1">請使用行動裝置使用本網頁 可以將本網頁加入至主畫面（請GOOGLE）；若請求資料太久（正常在3秒以內）應該是程式壞掉。</p>
-        <div id="debug2"></div>
-        <pre id="debug1" type="hidden">臺北市 02-2331-8898 0911-510-914
+    <div title="請使用行動裝置使用本網頁 可以將本網頁加入至主畫面（請GOOGLE）" class="small1">版本：0.1.4(目前公測中)</div>
+    <div id="mapid"></div>
+    <!-- <div id="map"></div> -->
+    <button onclick="setMyPosition()">取得當前地點</button>
+    <select id="city" onchange="updatePhoneNumber()">
+    </select>
+    <select id="type" onchange="updateULan()">
+    </select>
+    <div class="c1">電話：<span id="phoneText">預覽</span>
+    </div>
+    <div class="c1">簡訊訊息：<textarea id="uLan">預覽</textarea>
+        <span class="small1">警語：建議大家根據現場地址與違規事實修改</span>
+    </div>
+    <button id="sendJSBA" onclick="toSendJSBA()">輸出到簡訊</button>
+    <a href="https://forms.gle/afD5ttmfuaasp5V96">問題回報</a> <a href="https://forms.gle/ZgoWFitRa4hTxyJ36">我有建議</a>
+    <p class="small1">請使用行動裝置使用本網頁 可以將本網頁加入至主畫面（請GOOGLE）；若請求資料太久（正常在3秒以內）應該是程式壞掉。</p>
+    <div id="debug2"></div>
+    <pre id="debug1">臺北市 02-2331-8898 0911-510-914
 新北市 02-2966-8310 0912-095-110
 臺中市 04-2327-8656 0911-510-915
 臺南市 06-637-0705 0911-510-916
@@ -165,7 +165,6 @@
 澎湖縣 06-927-8353 0911-510-930
 金門縣 082-328-872 0911-510-931
 連江縣 0836-22-489 0911-510-932</pre>
-    </div>
     </div>
 
     <script>
@@ -299,7 +298,7 @@
                 if (reverseData.address.Type == "Ocean" || address == "") {
                     uLan.innerHTML = "海上或不在簡訊報案範圍內"
                     phoneText.innerHTML = ""
-                    sendJienG.style.display = "none"
+                    sendJSBA.style.display = "none"
                 } else {
                     uLan.innerHTML = address + "，" + type.value
                     if (uLan.innerHTML.indexOf("台灣") == 0) {
@@ -314,15 +313,15 @@
                             console.log(uLan.innerHTML)
                         }
                     }
-                    sendJienG.style.display = "block"
+                    sendJSBA.style.display = "inline-block"
                 }
             }
             function updatePhoneNumber() {
-                if (sendJienG.style.display == "block") {
+                if (sendJSBA.style.display == "inline-block") {
                     phoneText.innerHTML = city.value;
                 }
             }
-            function toSendJienG() {
+            function toSendJSBA() {
                 var elementA = document.createElement("a")
                 document.body.appendChild(elementA)
                 elementA.setAttribute("href", "sms:" + phoneText.innerHTML + "?body=" + uLan.innerHTML)
