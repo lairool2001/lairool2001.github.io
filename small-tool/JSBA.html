@@ -126,7 +126,7 @@
 </head>
 
 <body>
-    <div title="請使用行動裝置使用本網頁 可以將本網頁加入至主畫面（請GOOGLE）" class="small1">版本：0.1.4(目前公測中)</div>
+    <div title="請使用行動裝置使用本網頁 可以將本網頁加入至主畫面（請GOOGLE）" class="small1">版本：0.1.5(目前公測中)</div>
     <div id="mapid"></div>
     <!-- <div id="map"></div> -->
     <button onclick="setMyPosition()">取得當前地點</button>
@@ -134,7 +134,7 @@
     </select>
     <select id="type" onchange="updateULan()">
     </select>
-    <div class="c1">單位電話：<span id="phoneText">預覽</span>
+    <div class="c1">電話：<span id="phoneText">預覽</span>
     </div>
     <div class="c1">簡訊訊息：<textarea id="uLan">預覽</textarea>
         <span class="small1">警語：建議大家根據現場地址與違規事實修改</span>
@@ -171,7 +171,7 @@
         try {
             var Jawg_Matrix = null
             var geocodeService = null
-            let mymap = null
+            var mymap = null
             var marker = null
             let address_components
             var data = debug1.innerHTML
