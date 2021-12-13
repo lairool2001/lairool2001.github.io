@@ -30,49 +30,26 @@
             height: 230px;
         }
 
-        button {
-            align-items: center;
-            background-image: linear-gradient(#464d55, #25292e);
-            border-radius: 8px;
-            border-width: 0;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, .1), 0 3px 6px rgba(0, 0, 0, .05);
-            box-sizing: border-box;
-            color: #fff;
-            cursor: pointer;
-            font-family: expo-brand-demi, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-            font-size: 20px;
-            justify-content: center;
-            margin: 3px;
-            outline: none;
-            padding: 5px 5px;
-            text-align: center;
-            text-decoration: none;
-        }
-
-        button:hover {
-            box-shadow: rgba(0, 1, 0, .2) 0 2px 8px;
-            opacity: .85;
-        }
-
-        button:active {
-            outline: 0;
-        }
-
         @media (max-width: 420px) {
             button {
                 height: 48px;
             }
         }
 
-        select {
+        button,
+        select,
+        .c3 {
             display: inline;
-            margin: 3px;
-            margin-left: -6px;
+            margin: 5px;
+            margin-left: 0px;
             background-color: rgb(168, 153, 153);
             color: white;
             padding: 5px;
             border-radius: 10px;
             font-size: 20px;
+            box-shadow: 2px 2px 6px black;
+            text-shadow: 1px 1px 4px black;
+            border: none;
         }
 
         .c1 {
@@ -126,7 +103,7 @@
 </head>
 
 <body>
-    <div title="請使用行動裝置使用本網頁 可以將本網頁加入至主畫面（請GOOGLE）" class="small1">版本：0.1.5(目前公測中)</div>
+    <div title="請使用行動裝置使用本網頁 可以將本網頁加入至主畫面（請GOOGLE）" class="small1">版本：0.1.6(目前公測中)</div>
     <div id="mapid"></div>
     <!-- <div id="map"></div> -->
     <button onclick="setMyPosition()">取得當前地點</button>
@@ -134,6 +111,9 @@
     </select>
     <select id="type" onchange="updateULan()">
     </select>
+    <div class="c3">
+        <input type="checkbox" onchange="lntlngEnableToggle()" checked id="lntlngEnableCheckBox1">經緯度</input>
+    </div>
     <div class="c1">單位電話：<span id="phoneText">預覽</span>
     </div>
     <div class="c1">簡訊訊息：<textarea id="uLan">預覽</textarea>
@@ -275,22 +255,6 @@
 
                 let address = ""
                 let previous = ""
-                // for (let i = address_components.length - 1; i >= 0; i--) {
-                //     let c = address_components[i]
-                //     let types = c.types
-                //     for (let j = 0; j < types.length; j++) {
-                //         const type = types[j];
-                //         if (type == "country" || type == "political" || type == "administrative_area_level_1" || type == "postal_code") {
-                //             continue
-                //         }
-                //         else if (previous == c.long_name) {
-                //             continue
-                //         }
-                //         address += c.long_name
-                //         previous = c.long_name
-                //     }
-                // }
-                //address = reverseData.address.City + reverseData.address.Neighborhood + reverseData.address.Address + reverseData.address.PlaceName
                 address = reverseData.address.City + reverseData.address.Neighborhood + reverseData.address.Address
 
                 if (reverseData.address.Type == "Ocean" || address == "") {
@@ -298,7 +262,13 @@
                     phoneText.innerHTML = ""
                     sendJSBA.style.display = "none"
                 } else {
-                    uLan.innerHTML = address + "，" + type.value
+                    let latlng = marker.getLatLng()
+                    if (lntlngEnableCheckBox1.checked) {
+                        uLan.innerHTML = address + "，" + type.value + "；緯度：" + latlng.lat + "，經度：" + latlng.lng + "。"
+                    } else {
+
+                        uLan.innerHTML = address + "，" + type.value + "。"
+                    }
                     if (uLan.innerHTML.indexOf("台灣") == 0) {
                         console.log(uLan.innerHTML)
                         uLan.innerHTML = uLan.innerHTML.substring(2)
@@ -439,7 +409,9 @@
         } catch (ex) {
             debug2.innerHTML = ex
         }
-
+        function lntlngEnableToggle() {
+            updateULan();
+        }
     </script>
     <!-- <script async defer
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBbECm-GPCSPm9rhuZ4RSzSe8XVru3uN9Y&callback=initMap">
