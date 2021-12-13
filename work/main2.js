@@ -46,9 +46,9 @@ window.onresize = function (event) {
         }
     }
     var top2 = a00.offsetTop + a00.offsetHeight + 10
-    if(isMobile){
+    if (isMobile) {
         div2.style.top = 0 + "px"
-    }else{
+    } else {
         div2.style.top = top + "px"
     }
 };
@@ -68,7 +68,7 @@ function menuIni() {
         newDiv.style.display = "none";
         //newDiv.style.height = menuX1 + "px"
         newDiv.className = "top_menu_content";
-        var rgb = (i + 1 * 3).toString(16);
+        var rgb = (i + 1 * 5).toString(16);
         newDiv.style.backgroundColor = "#" + rgb + "" + rgb + "" + rgb;
         console.log(newDiv.style.backgroundColor);
         a00.appendChild(newDiv);
@@ -210,19 +210,19 @@ function set_page(p, event) {
             div1.innerHTML = page.html;
             change_url(page.name);
             previous_menu = null;
-			
-			
-			var imgz=document.querySelectorAll("img")
-			console.log(imgz)
-			for(var i=0;i<imgz.length;i++){
-				let img=imgz[i];
-				//img.setAttribute("width","512")
-				//img.setAttribute("height","512")
-				img.onload=()=>{
-					img.style.opacity=1
-					img.style.visibility="visible"
-				}
-			}
+
+
+            var imgz = document.querySelectorAll("img")
+            console.log(imgz)
+            for (var i = 0; i < imgz.length; i++) {
+                let img = imgz[i];
+                //img.setAttribute("width","512")
+                //img.setAttribute("height","512")
+                img.onload = () => {
+                    img.style.opacity = 1
+                    img.style.visibility = "visible"
+                }
+            }
 
             for (var i = 0; i < page.layer; i++) {
                 var menu2 = this["menu" + i]
@@ -306,12 +306,16 @@ function set_page(p, event) {
             }
         }
         var top2 = a00.offsetTop + a00.offsetHeight + 10
-        if(isMobile){
+
+        if (isMobile) {
             div2.style.top = 0 + "px"
-        }else{
+        } else {
             div2.style.top = top + "px"
         }
         a00.style.height = (top - 10) + "px"
+
+        var top = a00.offsetTop + a00.offsetHeight + 10
+        div2.style.top = top + "px"
         //console.log(div1.style.top)
         //div1.style.top = a00.style.height;
         div1.style.display = "block";
@@ -362,7 +366,7 @@ function display_icon_mouse_down() {
     } else {
         a00.style.display = "block";
         var top = a00.offsetTop + a00.offsetHeight + 10
-        div2.style.top = top +"px"
+        div2.style.top = top + "px"
         //a00.style.top = a00_old_top
     }
     event.stopPropagation();
