@@ -305,17 +305,12 @@ function set_page(p, event) {
                 break
             }
         }
-        var top2 = a00.offsetTop + a00.offsetHeight + 10
-
         if (isMobile) {
             div2.style.top = 0 + "px"
         } else {
             div2.style.top = top + "px"
         }
         a00.style.height = (top - 10) + "px"
-
-        var top = a00.offsetTop + a00.offsetHeight + 10
-        div2.style.top = top + "px"
         //console.log(div1.style.top)
         //div1.style.top = a00.style.height;
         div1.style.display = "block";
@@ -365,9 +360,21 @@ function display_icon_mouse_down() {
         div2.style.top = 0 + "px"
     } else {
         a00.style.display = "block";
-        var top = a00.offsetTop + a00.offsetHeight + 10
-        div2.style.top = top + "px"
-        //a00.style.top = a00_old_top
+        var top = top_menu_content.offsetTop + top_menu_content.offsetHeight + 10
+        for (var i = 0; i < menu_deep; i++) {
+            var menu = this["menu" + i];
+            if (menu.style.display != "none") {
+                top += menu.offsetHeight
+            } else {
+                break
+            }
+        }
+        if (isMobile) {
+            div2.style.top = 0 + "px"
+        } else {
+            div2.style.top = top + "px"
+        }
+        a00.style.height = (top - 10) + "px"
     }
     event.stopPropagation();
     event.preventDefault();
