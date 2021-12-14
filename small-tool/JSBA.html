@@ -97,7 +97,7 @@
 </head>
 
 <body>
-    <div title="請使用行動裝置使用本網頁 可以將本網頁加入至主畫面（請GOOGLE）" class="small1">版本：0.1.6(目前公測中)</div>
+    <div title="請使用行動裝置使用本網頁 可以將本網頁加入至主畫面（請GOOGLE）" class="small1">版本：0.1.7(目前公測中)</div>
     <div id="mapid"></div>
     <!-- <div id="map"></div> -->
     <button onclick="setMyPosition()">取得當前地點</button>
@@ -283,10 +283,26 @@
                     phoneText.innerHTML = city.value;
                 }
             }
+            function iOSversion() {
+                if (/iP(hone|od|ad)/.test(navigator.platform)) {
+                    // supports iOS 2.0 and later: <http://bit.ly/TJjs1V>
+                    var v = (navigator.appVersion).match(/OS (\d+)_(\d+)_?(\d+)?/);
+                    return [parseInt(v[1], 10), parseInt(v[2], 10), parseInt(v[3] || 0, 10)];
+                }
+            }
             function toSendJSBA() {
                 var elementA = document.createElement("a")
                 document.body.appendChild(elementA)
-                elementA.setAttribute("href", "sms:" + phoneText.innerHTML + "?body=" + uLan.innerHTML)
+                if (navigator.userAgent.match(/iPhone/i)) {
+                    let ver = iOSversion();
+                    if (ver[0] > 7) {
+                        elementA.setAttribute("href", "sms:" + phoneText.innerHTML + "&body=" + uLan.innerHTML)
+                    } else {
+                        elementA.setAttribute("href", "sms:" + phoneText.innerHTML + ";body=" + uLan.innerHTML)
+                    }
+                } else {
+                    elementA.setAttribute("href", "sms:" + phoneText.innerHTML + "?body=" + uLan.innerHTML)
+                }
                 elementA.click()
                 document.body.removeChild(elementA)
             }
