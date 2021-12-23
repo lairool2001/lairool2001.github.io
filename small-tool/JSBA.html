@@ -30,6 +30,17 @@
             height: 230px;
         }
 
+        table {
+            padding: 5px;
+            border: 2px solid gray;
+        }
+
+        th,
+        td {
+            border: 1px solid #aaa;
+            padding: 5px;
+        }
+
         button,
         select,
         .c3 {
@@ -46,7 +57,8 @@
             border: none;
         }
 
-        .c1 {
+        .c1,
+        table {
             border: 3px solid rgb(155, 155, 155);
             margin: 5px;
             display: block;
@@ -87,7 +99,6 @@
 
         pre {
             white-space: pre-wrap;
-            visibility: hidden;
         }
 
         #debug1 {
@@ -97,7 +108,7 @@
 </head>
 
 <body>
-    <div title="請使用行動裝置使用本網頁 可以將本網頁加入至主畫面（請GOOGLE）" class="small1">版本：0.1.7(目前公測中)</div>
+    <div title="請使用行動裝置使用本網頁 可以將本網頁加入至主畫面（請GOOGLE）" class="small1">版本：0.1.8(目前公測中)</div>
     <div id="mapid"></div>
     <!-- <div id="map"></div> -->
     <button onclick="setMyPosition()">取得當前地點</button>
@@ -140,9 +151,28 @@
 金門縣 082-328-872 0911-510-931
 連江縣 0836-22-489 0911-510-932</pre>
     </div>
+    更新日誌：<br>
+    <table>
+        <tr>
+            <td>2021-12-23</td>
+            <td>0.1.8</td>
+            <td>修正了"輸出簡訊改完字後，傳出時的文字這是沒改的文字"，目前已經有效了。</td>
+        </tr>
+        <tr>
+            <td>2021-12-20以前</td>
+            <td>0.1.7</td>
+            <td>修正了"轉成簡訊的時候會把body=“內容”整個參數一起塞到收件人那欄"，目前正常分開了。</td>
+        </tr>
+        <tr>
+            <td>2021-12-20以前</td>
+            <td>0.1.6</td>
+            <td>修正了iphone無法使用的問題</td>
+        </tr>
+    </table>
 
     <script>
         try {
+            const isMobile = navigator.userAgentData.mobile;
             var Jawg_Matrix = null
             var geocodeService = null
             var mymap = null
@@ -175,11 +205,11 @@
                 type.options.add(varItem);
             }
             function updatePByMarker() {
-                uLan.innerHTML = phoneText.innerHTML = "請求資料中..."
+                uLan.value = phoneText.innerHTML = "請求資料中..."
                 geocodeService.reverse().latlng(marker.getLatLng()).run(function (error, result) {
                     if (error) {
                         phoneText.innerHTML = ""
-                        uLan.innerHTML = "發生錯誤，無法取得地址"
+                        uLan.value = "發生錯誤，無法取得地址"
                         return;
                     }
                     console.log(result)
@@ -229,7 +259,7 @@
             let reverseData
             //alert("確認使用者互動")
             if (navigator.geolocation) {
-                uLan.innerHTML = phoneText.innerHTML = "請求資料中..."
+                uLan.value = phoneText.innerHTML = "請求資料中..."
                 navigator.geolocation.getCurrentPosition(function (position) {
                     pos = {
                         lat: position.coords.latitude,
@@ -240,9 +270,9 @@
                 }, getCurrentPositionError);
             }
             function getCurrentPositionError() {
-                uLan.innerHTML = "無法取得座標orz(允許本程式權限即可使用)"
+                uLan.value = "無法取得座標orz(允許本程式權限即可使用)"
                 //debug2.innerHTML = "無法取得座標orz(允許本程式權限即可使用)"
-                //uLan.innerHTML = ""
+                //uLan.value = ""
                 phoneText.innerHTML = "";
             }
             function updateULan() {
@@ -252,27 +282,27 @@
                 address = reverseData.address.City + reverseData.address.Neighborhood + reverseData.address.Address
 
                 if (reverseData.address.Type == "Ocean" || address == "") {
-                    uLan.innerHTML = "海上或不在簡訊報案範圍內"
+                    uLan.value = "海上或不在簡訊報案範圍內"
                     phoneText.innerHTML = ""
                     sendJSBA.style.display = "none"
                 } else {
                     let latlng = marker.getLatLng()
                     if (lntlngEnableCheckBox1.checked) {
-                        uLan.innerHTML = address + "，" + type.value + "；緯度：" + latlng.lat + "，經度：" + latlng.lng + "。"
+                        uLan.value = address + "，" + type.value + "；緯度：" + latlng.lat + "，經度：" + latlng.lng + "。"
                     } else {
 
-                        uLan.innerHTML = address + "，" + type.value + "。"
+                        uLan.value = address + "，" + type.value + "。"
                     }
-                    if (uLan.innerHTML.indexOf("台灣") == 0) {
-                        console.log(uLan.innerHTML)
-                        uLan.innerHTML = uLan.innerHTML.substring(2)
-                        console.log(uLan.innerHTML)
+                    if (uLan.value.indexOf("台灣") == 0) {
+                        console.log(uLan.value)
+                        uLan.value = uLan.value.substring(2)
+                        console.log(uLan.value)
                     }
                     for (let i = 0; i < data2.length; i++) {
-                        if (uLan.innerHTML.indexOf(data2[i][0]) == 0) {
-                            console.log(uLan.innerHTML)
-                            uLan.innerHTML = uLan.innerHTML.substring(data2[2][0].length)
-                            console.log(uLan.innerHTML)
+                        if (uLan.value.indexOf(data2[i][0]) == 0) {
+                            console.log(uLan.value)
+                            uLan.value = uLan.value.substring(data2[2][0].length)
+                            console.log(uLan.value)
                         }
                     }
                     sendJSBA.style.display = "inline-block"
@@ -291,17 +321,20 @@
                 }
             }
             function toSendJSBA() {
+                if (!isMobile) {
+                    alert(uLan.value)
+                }
                 var elementA = document.createElement("a")
                 document.body.appendChild(elementA)
                 if (navigator.userAgent.match(/iPhone/i)) {
                     let ver = iOSversion();
                     if (ver[0] > 7) {
-                        elementA.setAttribute("href", "sms:" + phoneText.innerHTML + "&body=" + uLan.innerHTML)
+                        elementA.setAttribute("href", "sms:" + phoneText.innerHTML + "&body=" + uLan.value)
                     } else {
-                        elementA.setAttribute("href", "sms:" + phoneText.innerHTML + ";body=" + uLan.innerHTML)
+                        elementA.setAttribute("href", "sms:" + phoneText.innerHTML + ";body=" + uLan.value)
                     }
                 } else {
-                    elementA.setAttribute("href", "sms:" + phoneText.innerHTML + "?body=" + uLan.innerHTML)
+                    elementA.setAttribute("href", "sms:" + phoneText.innerHTML + "?body=" + uLan.value)
                 }
                 elementA.click()
                 document.body.removeChild(elementA)
