@@ -108,7 +108,7 @@
 </head>
 
 <body>
-    <div title="請使用行動裝置使用本網頁 可以將本網頁加入至主畫面（請GOOGLE）" class="small1">版本：0.1.9</div>
+    <div title="請使用行動裝置使用本網頁 可以將本網頁加入至主畫面（請GOOGLE）" class="small1">版本：0.1.10</div>
     <div id="mapid"></div>
     <!-- <div id="map"></div> -->
     <button onclick="setMyPosition()">取得目前地點</button>
@@ -153,6 +153,11 @@
     </div>
     更新日誌：<br>
     <table>
+        <tr>
+            <td>2022-01-30</td>
+            <td>0.1.10</td>
+            <td>嘗試修復pixel機型簡訊問題</td>
+        </tr>
         <tr>
             <td>2022-01-03</td>
             <td>0.1.9</td>
@@ -344,7 +349,7 @@
                         elementA.setAttribute("href", "sms:" + phoneText.innerHTML + ";body=" + uLan.value)
                     }
                 } else {
-                    elementA.setAttribute("href", "sms:" + phoneText.innerHTML + "?body=" + uLan.value)
+                    elementA.setAttribute("href", "sms://" + phoneText.innerHTML + "/?body=" + uLan.value)
                 }
                 elementA.click()
                 document.body.removeChild(elementA)
