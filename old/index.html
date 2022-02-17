@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="content-language" content="zh-tw">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <title>bgw的作品集</title>
+    <link href="bgw1-normal.css" rel="stylesheet" type="text/css" media="all">
+    <style type="text/css">
+
+    </style>
+</head>
+
+<body>
+    <div class="top-menu">
+        <div id="a00">
+            <div id="top_menu_content" class="top_menu_content"></div>
+        </div>
+        <div id="diplay_icon" class="diplay_icon" ontouchstart="diplay_icon_mouse_down()" onmousedown="diplay_icon_mouse_down()">[[[[</div>
+    </div>
+
+    <div id="div1" class="content">
+	</div>
+	<div id="menu_tip_show"><p>此頁面為選單，請選擇上面的子項目</p>"</div>
+	<div id="no_page_show"><p>沒有這個頁面喔!</p></div>
+
+    <script src="preFunction.js"></script>
+    <script>
+        one_menu = [0, 43, 4];
+        pages = [];
+        pages[0] = {
+            name: "home_page",
+            show_name: "首頁",
+            html: `<h1><ruby>這是一個快速導覽網頁<rt>This is a fast explore website.</rt></ruby>，<ruby>享受一次載入後的快感吧！<rt>Enjoy one time loading!</rt></ruby></h1><p><ruby>作者<rt>Author</rt></ruby>是<ruby>貓咪不作戰<rt>cat no war</rt></ruby>，會寫基礎邏輯的Unity+C#、一點點網頁知識、架網方法。此網站使用HTML+CSS+JS，可以離線使用(可以另純新檔)但是只能看到文字。</p>
+  	<div class='article'>我稍微想了一下，想說這個最快的網站當主頁跟常用筆記，有些次要重要&需要更大量空間的給google協作平台，再來wordpress速度不穩定就保留好了
+  	<p>
+    <a>[主頁、線上文字資源、常用字典]<br/>https://lairool2001.github.io</a><br/>
+  	<a target='google' href='https://sites.google.com/site/zhoudechengshi/home?authuser=0'>[副頁、典藏筆記]<br/>https://sites.google.com/site/zhoudechengshi/home?authuser=0</a><br/>
+  	<a target='wordpress' href='https://bgw.magn.space/'>[備用、互動空間]<br/>https://bgw.magn.space/</a><br/><a target='wordpress' href='https://bgw.neocities.org/'>[紀念用]<br/>https://bgw.neocities.org/</a>
+          </p>
+  	</div>`
+        };
+        pages[1] = {
+            name: "resources",
+            show_name: "資源",
+            html: ``
+        };
+        pages[2] = {
+            name: "ton",
+            show_name: "曜同體",
+            html: `<h1><ruby>曜同體是什麼?<rt>What is Ton?</rt></ruby></h1><p>是一種在地球上新發現的能量體，發現時間為2019-04-21，目前已知用途是替代石油、玻璃，可也可做為太陽能板的主要材料。</p><img src='https://img.mplus.com.tw/images/article/1286/1470961814_3618627955_f50f19fb98_z.jpg' /><p>以上為曜同體實際畫面。</p><p>目前受中華民國政府管制及保管，開採地點位於南投，詳細地址保密。</p>
+  `
+        };
+        pages[3] = {
+            name: "lain",
+            show_name: "Lain",
+            html: `<h1>Lain OP</h1><iframe width="560" height="315" src="https://www.youtube.com/embed/4-PkAQcuZOw" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  `
+        };
+        pages[4] = {
+            type: "menu",
+            name: "wawa",
+            show_name: "娃娃家族",
+            childz: [27, 28]
+        };
+        pages[5] = {
+            type: "menu",
+            name: "works",
+            show_name: "作品集",
+            childz: [10, 11, 12]
+        };
+        pages[6] = {
+            name: "fish",
+            show_name: "魚丁",
+            html: `<img  src="img/IMG_20200111_161117.jpg"><br>魚丁好吃`
+        };
+        pages[7] = {
+            name: "big-blue",
+            show_name: "大藍",
+            html: `<img  src="img/IMG_20200111_161204.jpg"/><br/>大藍是隻兔咪`
+        };
+        pages[8] = {
+            name: "small-blue",
+            show_name: "小藍",
+            html: `<img  src="img/IMG_20200111_161137.jpg"/><br/>小藍是` + createLink("大藍", "big-blue") + `的弟弟，是隻兔咪`
+        };
+        pages[9] = {
+            name: "small-yellow",
+            show_name: "小黃",
+            html: `<img src="img/IMG_20200111_161155.jpg"/><br/>小黃是` + createLink("大藍", "big-blue") + `的妹妹，是隻兔咪`
+        };
+        pages[10] = {
+            type: "menu",
+            name: "unity",
+            show_name: "Unity",
+            childz: [30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+        };
+        pages[11] = {
+            type: "menu",
+            name: "web",
+            show_name: "網頁",
+            childz: [13, 14]
+        };
+        pages[12] = {
+            type: "menu",
+            name: "window",
+            show_name: "視窗程式",
+            childz: []
+        };
+        pages[13] = {
+            name: "shulin.church",
+            show_name: "樹林靈糧堂",
+            html: `<a target="_blank" href="https://shulin.church">樹林靈糧堂</a> by wordpress`
+        };
+        pages[14] = {
+            name: "amazingcosmetics",
+            show_name: "玫寧",
+            html: `<a target="_blank" href="http://www.amazingcosmetics.com.tw/">玫寧</a> by wordpress`
+        };
+        pages[15] = {
+            name: "naughty-rabbit-a",
+            show_name: "小兔崽子A",
+            html: `<img src="img/IMG_20200111_160939.jpg"/><br/>兔子寶寶，或稱兔子保鑣，小兔崽子複製體群，是隻手偶，特徵：沒掛環`
+        };
+        pages[16] = {
+            name: "naughty-rabbit-b",
+            show_name: "小兔崽子B",
+            html: `<img src="img/IMG_20200111_160901.jpg" /><br/>兔子寶寶，或稱兔子保鑣，小兔崽子複製體群，是隻手偶，特徵：有掛環，長得像是狐狸`
+        };
+        //
+        pages[17] = {
+            name: "octopuses",
+            show_name: "章魚",
+            html: `<img src="img/IMG_20200111_161018.jpg" /><br/>手偶章魚，快樂章魚`
+        };
+        pages[18] = {
+            name: "pig",
+            show_name: "豬豬",
+            html: `<img src="img/IMG_20200111_161053.jpg" /><br/>方塊豬，毛絨毛絨的，有豬鼻子`
+        };
+        pages[19] = {
+            name: "dog",
+            show_name: "狗狗",
+            html: `<img src="img/IMG_20200111_161218.jpg" /><img src="img/IMG_20200111_161248.jpg" /><br/>狗狗，很軟，又稱火箭狗，每天都在睡覺`
+        };
+        pages[20] = {
+            name: "big-red",
+            show_name: "大紅",
+            html: `<img src="img/IMG_20200111_161259.jpg" /><br/>大紅兔咪，是` + createLink("大藍", "big-blue") + `，` + createLink("小藍", "small-blue") + `、` + createLink("小黃", "small-yellow") + `、` + createLink("小橘", "small-orange") + `的媽媽，配偶是超大藍`
+        };
+        pages[21] = {
+            name: "small-orange",
+            show_name: "小橘",
+            html: `<img src="img/IMG_20200111_161009.jpg" /><br/>小橘，嘴巴粗，眼睛有點斜，奶奶給我的，質地飽滿，棉花充實，跟一般兔咪不太一樣`
+        };
+        pages[22] = {
+            name: "melody",
+            show_name: "美樂蒂",
+            html: `<img src="img/IMG_20200111_161311.jpg" /><br/>美樂蒂是一隻兔子玩偶，但不是` + createLink("兔咪", "too-mi") + `，頭戴紅帽，蠻好抱的`
+        };
+        pages[23] = {
+            type: "a1",
+            name: "a1",
+            show_name: "兔咪",
+            childz: [20, 21, 9, 8, 7]
+        };
+        pages[24] = {
+            type: "menu",
+            name: "too-mi",
+            show_name: "兔咪",
+            childz: [20, 21, 9, 8, 7]
+        };
+        pages[25] = {
+            type: "menu",
+            name: "naughty-rabbit",
+            show_name: "兔崽子",
+            childz: [15, 16]
+        };
+        pages[26] = {
+            type: "menu",
+            name: "sanrio",
+            show_name: "SANRIO",
+            childz: [22]
+        };
+        pages[27] = {
+            type: "menu",
+            name: "rabbit",
+            show_name: "兔子",
+            childz: [24, 25, 26]
+        };
+        pages[28] = {
+            type: "menu",
+            name: "other",
+            show_name: "其他動物",
+            childz: [6, 17, 18, 19, 29]
+        };
+        pages[29] = {
+            name: "rainbow-bear",
+            show_name: "彩虹熊熊",
+            html: `<img  src="img/IMG_20200111_160959.jpg"/><br/>彩虹熊熊，又稱RGB雄，有熊鼻，微笑狀態`
+        };
+        pages[30] = {
+            name: "lcwu-pc",
+            show_name: "龍尋物語(電腦版)",
+            html: `<img src="img/unnamed.png"/><br/>滑鼠點擊/移動遊戲<br/>二以上的魂石可以消除<br/><a target="_blank" href="https://mega.nz/#!rVclTDQR!yJB-ArdVycjOj5nMCVSCv43KB-M-w3qmKjwZtVf8cqc">載點</a>`
+        };
+        pages[31] = {
+            name: "lcwu-apk",
+            show_name: "龍尋物語(手機板)",
+            html: `<img src="img/unnamed (1).png"/><br/>觸碰點擊/拖拉移動遊戲<br/>二以上的魂石可以消除<br/>APK(android):<a target="_blank" href="https://drive.google.com/open?id=19pahE5qBy0nE5fmf_aT13YN3ruYp7JJK">載點</a>`
+        };
+        pages[32] = {
+            name: "save-imouto",
+            show_name: "拯救妹妹",
+            html: `<img src="img/unnamed (2).png"/><br/>作者:巴駿維 美術:吳彥德<br/>操作 Z攻擊 空白鍵跳躍 上下左右按鍵<br/>電腦1.1版:<a target="_blank" href="https://mega.nz/#!zRkB0DiL!F1hngLA-2JekyZMt91XoCGMRcD44t3nv8clG-jph1fQ">載點</a>`
+        };
+        pages[33] = {
+            name: "fas",
+            show_name: "FireArmAndSourcery",
+            html: `<img src="img/unnamed (3).png"/><br/>作者:巴駿維 美術:蕭宇哲<br/>PC控制:上下左右移動，ZX切換武器<br/>PC-1.2版:<a target="_blank" href="http://www.google.com/url?q=http%3A%2F%2Fbgw.magn.space%2Fwp-content%2Fuploads%2F2017%2F05%2Ffas_1_2.zip&sa=D&sntz=1&usg=AFQjCNFthuxlpjfQOa105yE5Y2idg2t9Yg">載點</a><br/>APK(android)手機-1.1版:<a target="_blank" href="http://www.google.com/url?q=http%3A%2F%2Fbgw.magn.space%2Fwp-content%2Fuploads%2F2017%2F05%2Fflyshot_1_1.zip&sa=D&sntz=1&usg=AFQjCNEP5kmwTgqPM3wYGcD-L-hHPnltwA">載點</a>`
+        };
+        pages[34] = {
+            name: "mazu",
+            show_name: "媽祖",
+            html: `<img src="img/1495952678-f753c3a75140ef4445b7e6826161c842.png"/><br/>作者:巴駿維、MICK、鳳鳳、紫虹、陳浩瑋<br/>說明:用滑鼠移動碰觸物件得分，不碰到鞭炮(沒加分)、點人物角色使用技能，時間結束後出現詩籤占卜<br/>電腦版:<a target="_blank" href="https://mega.nz/#!qEFjWIxa!ezWZKj-BqdfxmLQoOrs89PDhPvKPaK2AVu2aZYRIeeo">載點</a><br/>APK手機:<a target="_blank" href="https://mega.nz/#!LE1XxaTD!f9vNErOSQVANTSciw0XWPqkhZFHXkbLLfIjnVTcw1kA">載點</a>`
+        };
+        pages[35] = {
+            name: "free-piano",
+            show_name: "FreePiano",
+            html: `<img src="img/1495952407-f753c3a75140ef4445b7e6826161c842.png"/><br/>可以播放錄音的鋼琴<br/>作者:巴駿維、徐婉華、陳冠宇<br/>操作:S切換錄音/鋼琴模式 WERTYUIO按鍵彈奏<br/>具有連接arduino的功能，但是需要寫入特定程式到arduino。程式沒有留存，所以只剩下一般功能。<br/>電腦版(v1):<a target="_blank" href="https://mega.nz/#!vcU2SLjD!FhPhsVeTAR7yD3U34m_EWUrWFZovwNwtyrR_TQHnr0I">載點</a>`
+        };
+        pages[36] = {
+            name: "tarot-to",
+            show_name: "TAROT_TO",
+            html: `<img src="img/1495954152-f753c3a75140ef4445b7e6826161c842.png"/><br/>舊版Unity網頁遊戲，請使用IE開啟<br/>操作:AD左右移動，空白鍵跳躍，滑鼠點擊鎖定再按卡片使用<br/>電腦版:<a target="_blank" href="http://www.google.com/url?q=http%3A%2F%2Fbgw.magn.space%2Fwp-content%2Fuploads%2F2017%2F05%2Ftarot_to.zip&sa=D&sntz=1&usg=AFQjCNF85TWTaMP6tfInD9UdrsrQ6pdyEw">載點</a>`
+        };
+        pages[37] = {
+            name: "the-summer-that-year",
+            show_name: "那年夏天-電子小說",
+            html: `<img src="img/unnamed (4).png"/><img src="img/unnamed (5).png"/><br/>劇本:楊伶鈺<br/>
+程式:巴駿維<br/>
+美術:楊伶鈺、簡子寧、蔡侑佳<br/>
+版本:6.0<br/>
+音樂:YouTube音樂庫<br/>
+大致製作日期:2016-01-10<br/>
+台中科技大學多媒體設計系<br/>
+介紹:<br/>
+這是一個都市小孩，每年一到暑假，就會與母親一同回到娘家避暑、放鬆心情的小故事。<br/>
+主角阿莫與母親一同回到鄉下避暑，期待已久的放鬆讓阿莫迫不及待地去找他在鄉下的玩伴阿尚，本來以為又會有一段輕鬆愉快的回憶好度過往後都市的沉悶，可是沒想到，這年夏天卻讓他留下永生難忘的經歷………<br/>
+版本訊息:6.0 | 2016-06-22<br/>
+遊玩時間:5到10分鐘<br/>
+功能:<br/>
+章節選擇、歷史紀錄、人物介紹、大綱<br/>
+開發引擎:Unity<br/><br/>
+遊戲載點:<br/>
+<a target="_blank" href="https://mega.nz/#!nEkUGaQZ!GsPyK_WdaeHXvQxda-RBC48QBXIUaSfm7WvFa8MywA8">PC版本(.exe)</a><br/>
+<a target="_blank" href="https://mega.nz/#!HUkBFbBJ!7p29zBG7WkEUYItB1w6WPThHOBI3yMSDfhDivWk5v9M">iMac版本(.app)</a><br/>
+<a target="_blank" href="https://mega.nz/#!7NNSwZYY!PbXEPw1ebJrZQl-fcvN6wJyAPXfDevPGo0QHn8mFTVs">Android版本(.apk)</a>`
+        };
+        pages[38] = {
+            name: "py2",
+            show_name: "皮耶爾大冒險",
+            html: `<img src="img/1495954494-f753c3a75140ef4445b7e6826161c842.png"/><br/>製作:TG製作團隊<br/>
+最佳視窗比例1:1<br/>
+載點:<a target="_blank" href="http://www.google.com/url?q=http%3A%2F%2Fbgw.magn.space%2Fwp-content%2Fuploads%2F2017%2F05%2F%25E7%259A%25AE%25E8%2580%25B6%25E7%2588%25BE%25E5%25A4%25A7%25E5%2586%2592%25E9%259A%25AA.zip&sa=D&sntz=1&usg=AFQjCNFelVMMOH_gZdkHLqUJmFUuB-FwqQ">PC電腦版</a>`
+        };
+        pages[39] = {
+            name: "3d-snake",
+            show_name: "3DSnake",
+            html: `<img src="img/unnamed (6).png"/><br/>三維版貪食蛇<br/>
+兩種模式:<br/>
+1.WASD 上下<br/>
+2.WASD 空白建(跳躍一格後掉下來)<br/>
+(使用Unity開發)<br/>
+PC電腦版:<a target="_blank" href="https://drive.google.com/file/d/1t1BVlJcDdgen5PJCSvPMfwct5ZtSf9OS/view?usp=sharing">載點</a>`
+        };
+        pages[40] = {
+            name: "outline",
+            show_name: "1比1與x4外框線",
+            script: "https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js",
+            html: `1比1與2D外框線
+<pre class="prettyprint codeblock">
+Shader "Sprites/BGWDefault"
+{
+	Properties
+	{
+		[PerRendererData] _MainTex("Sprite Texture", 2D) = "white" {}
+		_LineColor("_LineColor", Color) = (1,1,1,1)
+		//_LineWidth("_LineWidth",Float) = 1
+		_small("極小差取樣",Float)=0.001
+		//_verySmall("基礎alpha判定",Float)=0.000001
+		[MaterialToggle] PixelSnap("Pixel snap", Float) = 0
+	}
+
+	SubShader
+	{
+		Tags
+		{
+			"Queue" = "Transparent"
+			"IgnoreProjector" = "True"
+			"RenderType" = "Transparent"
+			"PreviewType" = "Plane"
+			"CanUseSpriteAtlas" = "True"
+		}
+
+		Cull Off
+		Lighting Off
+		ZWrite Off
+		ZTest Always
+		Fog{ Mode Off }
+		Blend One OneMinusSrcAlpha
+
+		Pass
+		{
+			CGPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
+			#pragma multi_compile DUMMY PIXELSNAP_ON
+			#pragma fragmentoption ARB_precision_hint_fastest
+			#include "UnityCG.cginc"
+			
+			float4 _MainTex_ST;
+
+			struct appdata_t
+			{
+				float4 vertex   : POSITION;
+				float4 color    : COLOR;
+				float2 texcoord : TEXCOORD0;
+			};
+
+			struct v2f
+			{
+				float4 vertex   : SV_POSITION;
+				fixed4 color : COLOR;
+				half2 texcoord  : TEXCOORD0;
+			};
+
+			fixed4 _LineColor;
+			float _LineWidth;
+			float _small;
+			float _verySmall;
+
+			v2f vert(appdata_t IN)
+			{
+				v2f OUT;
+				OUT.vertex = UnityObjectToClipPos(IN.vertex);
+				OUT.texcoord = TRANSFORM_TEX(IN.texcoord, _MainTex);
+				OUT.color=IN.color;
+ 
+				// Snapping params
+				float hpcX = _ScreenParams.x * 0.5;
+				float hpcY = _ScreenParams.y * 0.5;
+			#ifdef UNITY_HALF_TEXEL_OFFSET
+				float hpcOX = -0.5;
+				float hpcOY = 0.5;
+			#else
+				float hpcOX = 0;
+				float hpcOY = 0;
+			#endif	
+				// Snap
+				float pos = floor((OUT.vertex.x / OUT.vertex.w) * hpcX + 0.5f) + hpcOX;
+				OUT.vertex.x = pos / hpcX * OUT.vertex.w;
+ 
+				pos = floor((OUT.vertex.y / OUT.vertex.w) * hpcY + 0.5f) + hpcOY;
+				OUT.vertex.y = pos / hpcY * OUT.vertex.w;
+ 
+				return OUT;
+			}
+
+			sampler2D _MainTex;
+
+			fixed4 frag(v2f IN) : SV_Target
+			{
+				fixed4 c = tex2D(_MainTex, IN.texcoord) * IN.color;
+				c.rgb *= c.a;
+				fixed4 c2 = tex2D(_MainTex, IN.texcoord+fixed2(_small,0)) * IN.color;
+				fixed4 c3 = tex2D(_MainTex, IN.texcoord+fixed2(0,_small)) * IN.color;
+				fixed4 c4 = tex2D(_MainTex, IN.texcoord+fixed2(-_small,0)) * IN.color;
+				fixed4 c5 = tex2D(_MainTex, IN.texcoord+fixed2(0,-_small)) * IN.color;
+				//float isLine=step(c.a,0) * step(1,(step(_verySmall,c2.a)+step(_verySmall,c3.a)+step(_verySmall,c4.a)+step(_verySmall,c5.a)));
+				float isLine=c.a==0 && (c2.a>0 ||c3.a>0||c4.a>0||c5.a>0);
+				return _LineColor*isLine+(c*(1-isLine));
+			}
+			ENDCG
+		}
+	}
+}
+</pre>`
+        };
+        pages[41] = {
+            name: "X",
+            show_name: "X",
+            html: `<img src="img/1495954152-f753c3a75140ef4445b7e6826161c842.png"/><br/>舊版Unity網頁遊戲，請使用IE開啟<br/>操作:AD左右移動，空白鍵跳躍，滑鼠點擊鎖定再按卡片使用<br/>電腦版:<a target="_blank" href="http://www.google.com/url?q=http%3A%2F%2Fbgw.magn.space%2Fwp-content%2Fuploads%2F2017%2F05%2Ftarot_to.zip&sa=D&sntz=1&usg=AFQjCNF85TWTaMP6tfInD9UdrsrQ6pdyEw">載點</a>`
+        };
+        pages[42] = {
+            name: "gray",
+            show_name: "1比1&灰階化",
+            script: "https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js",
+            html: `1比1與2D灰階化<br/>
+參考:<a target="_blank" href="http://atlaboratary.blogspot.com/2013/08/rgb-g-rey-l-gray-r0.html">http://atlaboratary.blogspot.com/2013/08/rgb-g-rey-l-gray-r0.html</a>
+<pre class="prettyprint codeblock">
+Shader "Sprites/BGWGray"
+{
+	Properties
+	{
+		[PerRendererData] _MainTex("Sprite Texture", 2D) = "white" {}
+		v("程度",Float) = 1
+		[MaterialToggle] PixelSnap("Pixel snap", Float) = 0
+	}
+
+	SubShader
+	{
+		Tags
+		{
+			"Queue" = "Transparent"
+			"IgnoreProjector" = "True"
+			"RenderType" = "Transparent"
+			"PreviewType" = "Plane"
+			"CanUseSpriteAtlas" = "True"
+		}
+
+		Cull Off
+		Lighting Off
+		ZWrite Off
+		ZTest Always
+		Fog{ Mode Off }
+		Blend One OneMinusSrcAlpha
+
+		Pass
+		{
+			CGPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
+			#pragma multi_compile DUMMY PIXELSNAP_ON
+			#pragma fragmentoption ARB_precision_hint_fastest
+			#include "UnityCG.cginc"
+			
+			float4 _MainTex_ST;
+
+			struct appdata_t
+			{
+				float4 vertex   : POSITION;
+				float4 color    : COLOR;
+				float2 texcoord : TEXCOORD0;
+			};
+
+			struct v2f
+			{
+				float4 vertex   : SV_POSITION;
+				fixed4 color : COLOR;
+				half2 texcoord  : TEXCOORD0;
+			};
+
+			float v;
+
+			v2f vert(appdata_t IN)
+			{
+				v2f OUT;
+				OUT.vertex = UnityObjectToClipPos(IN.vertex);
+				OUT.texcoord = TRANSFORM_TEX(IN.texcoord, _MainTex);
+				OUT.color=IN.color;
+ 
+				// Snapping params
+				float hpcX = _ScreenParams.x * 0.5;
+				float hpcY = _ScreenParams.y * 0.5;
+			#ifdef UNITY_HALF_TEXEL_OFFSET
+				float hpcOX = -0.5;
+				float hpcOY = 0.5;
+			#else
+				float hpcOX = 0;
+				float hpcOY = 0;
+			#endif	
+				// Snap
+				float pos = floor((OUT.vertex.x / OUT.vertex.w) * hpcX + 0.5f) + hpcOX;
+				OUT.vertex.x = pos / hpcX * OUT.vertex.w;
+ 
+				pos = floor((OUT.vertex.y / OUT.vertex.w) * hpcY + 0.5f) + hpcOY;
+				OUT.vertex.y = pos / hpcY * OUT.vertex.w;
+ 
+				return OUT;
+			}
+
+			sampler2D _MainTex;
+
+			fixed4 frag(v2f IN) : SV_Target
+			{
+				fixed4 c = tex2D(_MainTex, IN.texcoord) * IN.color;
+				//Gray = R*0.299 + G*0.587 + B*0.114
+				fixed3 grayMul=fixed3(.299,.587,.114);
+				float gray=dot(c.rgb,grayMul);
+				fixed4 c2=fixed4(gray,gray,gray,c.a);
+				c.rgb *= c.a;
+				c2.rgb*=c2.a;
+				return lerp(c,c2,v);
+			}
+			ENDCG
+		}
+	}
+}</pre>`
+        };
+        pages[43] = {
+            name: "knowledge",
+            show_name: "知識、技術",
+            type: "menu",
+            childz: [44]
+        };
+        pages[44] = {
+            name: "unity-knowledge",
+            show_name: "Unity",
+            type: "menu",
+            childz: [45]
+        };
+        pages[45] = {
+            name: "shader-lab",
+            show_name: "ShaderLab",
+            type: "menu",
+            childz: [46, 47]
+        };
+        pages[46] = {
+            type: "menu",
+            name: "2D",
+            show_name: "2D",
+            childz: [40, 42]
+        };
+        pages[47] = {
+            type: "menu",
+            name: "3D",
+            show_name: "3D",
+            childz: []
+        };
+
+    </script>
+    <script src="main2.js"></script>
+    <br />
+</body>
+
+</html>
