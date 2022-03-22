@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <title>巴巴天氣</title>
+    <style>
+        table {
+            margin: 0;
+            border: 1px solid gray;
+            font-size: 25px;
+            text-align: center;
+            border-collapse: collapse;
+            padding: 5px;
+        }
+
+        th {
+            background-color: #009FCC;
+            padding: 10px;
+            border: 1px solid #000;
+            color: #fff;
+        }
+
+        td {
+            border: 1px solid #000;
+            padding: 5px;
+        }
+
+        .today {
+            background-color: rgb(252, 13, 212);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="wData">
+        等待頁面資料中...
+    </div>
+    <script>
+        $.ajax({
+            type: "GET", //傳送方式
+            url: "https://api.openweathermap.org/data/2.5/onecall?lat=24.9898961&lon=121.42711024&exclude=current,minutely,hourly,alerts&appid=397216de5f6fe052ac2de7765015694a", //傳送目的地
+            dataType: "text", //資料格式
+            data: {
+            },
+            success: function (data) {
+                //console.log(data)
+                w = JSON.parse(data)
+                console.log(w)
+                let d = "<table border='0'><tbody>"
+                d += "<tr>"
+                console.log(w.daily[0])
+                date = new Date()
+                for (let i = 0; i < w.daily.length; i++) {
+                    let c = ""
+                    if (i == 0) {
+                        c = "today"
+                    }
+                    d += "<th class='" + c + "'>" + (date.getMonth() + 1) + "/" + date.getDate() + "</th>"
+                    date.setDate(date.getDate() + 1)
+                }
+                d += "</tr>"
+
+                d += "<tr>"
+                for (let i = 0; i < w.daily.length; i++) {
+                    let c = ""
+                    if (i == 0) {
+                        c = "today"
+                    }
+                    d += "<td class='" + c + "'>" + w.daily[i].pop * 100 + "%" + "</td>"
+                }
+                d += "</tr>"
+                d += "</tbody><table>"
+                wData.innerHTML = d
+            },
+            error: function (jqXHR) {
+                alert(jqXHR)
+            }
+        })
+    </script>
+</body>
+
+</html>
