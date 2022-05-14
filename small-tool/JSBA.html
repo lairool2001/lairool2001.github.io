@@ -128,11 +128,15 @@
         #table1 {
             display: none;
         }
+
+        #JSBA_title {
+            margin-left: 10px;
+        }
     </style>
 </head>
 
 <body>
-    <div title="請使用行動裝置使用本網頁 可以將本網頁加入至主畫面（請GOOGLE）" class="small1">版本：0.1.11</div>
+    <span title="請使用行動裝置使用本網頁 可以將本網頁加入至主畫面（請GOOGLE）" class="small1">版本：0.2.0</span><span id="JSBA_title"></span><br>
     <div id="mapid"></div>
     <!-- <div id="map"></div> -->
     <button onclick="setMyPosition()">取得目前地點</button>
@@ -180,7 +184,7 @@
         <tr>
             <td>2022-05-14</td>
             <td>0.2.0</td>
-            <td>本地儲存經緯度設定</td>
+            <td>本地儲存經緯度設定、檢舉稱號</td>
         </tr>
         <tr>
             <td>2022-04-06</td>
@@ -282,6 +286,27 @@
                     updatePhoneNumber()
                 });
             }
+            updateJSBATitle()
+            function updateJSBATitle() {
+                JSBA_title.innerHTML = "";
+                let level = localStorage.getItem("level")
+                if (level == null) {
+                    localStorage.setItem("level", "1")
+                    level = "1"
+                }
+                level = parseInt(level)
+                JSBA_title.innerHTML = "等級:" + level + "("
+                if (level >= 10) {
+                    JSBA_title.innerHTML += "檢舉超人"
+                } else if (level >= 6) {
+                    JSBA_title.innerHTML += "檢舉魔人"
+                } else if (level >= 3) {
+                    JSBA_title.innerHTML += "檢舉達人"
+                } else {
+                    JSBA_title.innerHTML += "檢舉仔"
+                }
+                JSBA_title.innerHTML += ")"
+            }
             function initFunc() {
                 if (geocodeService == null) {
                     geocodeService = L.esri.Geocoding.geocodeService({
@@ -376,8 +401,15 @@
                 }
             }
             function toSendJSBA() {
+                let level = localStorage.getItem("level")
+                if (level == null) {
+                    level = "1"
+                }
+                localStorage.setItem("level", parseInt(level) + 1)
+                updateJSBATitle()
                 if (!isMobile) {
                     alert(uLan.value)
+                    return
                 }
                 let elementA = document.createElement("a")
                 document.body.appendChild(elementA)
@@ -393,6 +425,7 @@
                 }
                 elementA.click()
                 document.body.removeChild(elementA)
+
             }
             function geocodeLatLng(geocoder, map, infowindow, latlng) {
                 //console.log(latlng)
@@ -480,10 +513,10 @@
                             });
                         } else {
                             marker.setPosition(pos)
-
+    
                         }
                         console.log(marker.position)
-
+    
                         map.setZoom(18);
                         map.setCenter(pos);
                         geocodeLatLng(geocoder, map, infowindow, null)
