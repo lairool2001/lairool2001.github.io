@@ -120,6 +120,14 @@
         #debug1 {
             display: none;
         }
+
+        button#sendJSBA {
+            display: inline-block;
+        }
+
+        #table1 {
+            display: none;
+        }
     </style>
 </head>
 
@@ -167,8 +175,13 @@
 金門縣 082-328-872 0911-510-931
 連江縣 0836-22-489 0911-510-932</pre>
     </div>
-    更新日誌：<br>
-    <table>
+    <button onmousedown="table1_Click()">更新日誌：</button>
+    <table id="table1">
+        <tr>
+            <td>2022-05-14</td>
+            <td>0.2.0</td>
+            <td>本地儲存經緯度設定</td>
+        </tr>
         <tr>
             <td>2022-04-06</td>
             <td>0.1.11</td>
@@ -215,6 +228,7 @@
             var marker = null
             var address_components
             var data = debug1.innerHTML
+            lntlngEnableCheckBox1.checked = localStorage.getItem("lntlngEnableCheckBox1.checked") != "false"
             debug1.innerHTML = "單位,手機簡訊報案號碼\n"
             data = data.replace(/\s\s+/g, ' ');
             //console.log(data)
@@ -347,7 +361,9 @@
             function updatePhoneNumber() {
                 if (sendJSBA.style.display == "inline-block") {
                     phoneText.innerHTML = city.value;
+                    //console.log("a")
                 }
+                //console.log("b")
             }
             function iOSversion() {
                 if (/iP(hone|od|ad)/.test(navigator.platform)) {
@@ -492,7 +508,11 @@
             debug2.innerHTML = ex
         }
         function lntlngEnableToggle() {
+            localStorage.setItem("lntlngEnableCheckBox1.checked", lntlngEnableCheckBox1.checked ? "true" : "false")
             updateULan();
+        }
+        function table1_Click() {
+            table1.style.display = table1.style.display == 'block' ? "none" : "block";
         }
     </script>
     <!-- <script async defer
