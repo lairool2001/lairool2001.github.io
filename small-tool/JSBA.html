@@ -136,7 +136,7 @@
 </head>
 
 <body>
-    <span title="請使用行動裝置使用本網頁 可以將本網頁加入至主畫面（請GOOGLE）" class="small1">版本：0.2.0</span><span id="JSBA_title"></span><br>
+    <span title="請使用行動裝置使用本網頁 可以將本網頁加入至主畫面（請GOOGLE）" class="small1">版本：0.2.1</span><span id="JSBA_title"></span><br>
     <div id="mapid"></div>
     <!-- <div id="map"></div> -->
     <button onclick="setMyPosition()">取得目前地點</button>
@@ -181,6 +181,11 @@
     </div>
     <button onmousedown="table1_Click()">更新日誌：</button>
     <table id="table1">
+        <tr>
+            <td>2022-05-14</td>
+            <td>0.2.1</td>
+            <td>修正更新日誌效果</td>
+        </tr>
         <tr>
             <td>2022-05-14</td>
             <td>0.2.0</td>
@@ -551,6 +556,9 @@
         }
         function table1_Click() {
             table1.style.display = table1.style.display == 'block' ? "none" : "block";
+            if (table1.style.display == "block") {
+                table1.scrollIntoView()
+            }
         }
     </script>
     <!-- <script async defer
