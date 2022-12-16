@@ -1,7 +1,7 @@
 var menuX1;
 sizeSetIni();
 menu_symbol = "..."
-
+var first = true
 function sizeSetIni() {
     isMobile = false; //initiate as false
     // device detection
@@ -51,6 +51,7 @@ window.onresize = function (event) {
     } else {
         div2.style.top = top + "px"
     }
+    changeWhite.style.top = div2.style.top
 };
 //a00.style.height = (1) * menuX1 + "px";
 $(function () {
@@ -185,12 +186,45 @@ var old_p_number = -1;
 previous_menu = null
 
 //div1.style.top = menuX2 + (1) * menuX1 + "px";
+function completeChange(page) {
+    div1.innerHTML = page.html;
 
+    var imgz = document.querySelectorAll("img")
+    console.log(imgz)
+    var targetImgCount = imgz.length
+    if (targetImgCount == 0) {
+        changeWhite.classList.remove("change")
+        changeWhite.classList.remove("change2")
+        changeWhite.classList.add("change2")
+    } else {
+        var imgCount = 0
+        var imgz = document.querySelectorAll("img")
+        console.log(imgz)
+        var targetImgCount = imgz.length
+        var imgCount = 0
+        for (var i = 0; i < imgz.length; i++) {
+            let img = imgz[i];
+            //img.setAttribute("width","512")
+            //img.setAttribute("height","512")
+            img.onload = () => {
+                //img.style.opacity = 1
+                //img.style.visibility = "visible"
+                imgCount++
+                if (imgCount >= targetImgCount) {
+                    changeWhite.classList.remove("change")
+                    changeWhite.classList.remove("change2")
+                    changeWhite.classList.add("change2")
+                }
+            }
+        }
+    }
+}
 function set_page(p, event) {
     if (event != undefined) {
         event.stopPropagation();
         event.preventDefault();
     }
+
 
     if (typeof p == "number") {
         console.log('set_page(' + p + ')');
@@ -207,23 +241,20 @@ function set_page(p, event) {
         if (page.type == undefined) {
             window.scrollTo(0, 0);
 
-            div1.innerHTML = page.html;
             change_url(page.name);
             previous_menu = null;
 
-
-            var imgz = document.querySelectorAll("img")
-            console.log(imgz)
-            for (var i = 0; i < imgz.length; i++) {
-                let img = imgz[i];
-                //img.setAttribute("width","512")
-                //img.setAttribute("height","512")
-                img.onload = () => {
-                    img.style.opacity = 1
-                    img.style.visibility = "visible"
-                }
+            if (first) {
+                completeChange(page)
+                first = false
+            } else {
+                changeWhite.classList.remove("change2")
+                changeWhite.classList.remove("change")
+                changeWhite.classList.add("change")
+                changeWhite.addEventListener('animationend', function () {
+                    completeChange(page)
+                });
             }
-
             for (var i = 0; i < page.layer; i++) {
                 var menu2 = this["menu" + i]
                 menu2.style.display = "inline"
@@ -307,8 +338,10 @@ function set_page(p, event) {
         }
         if (isMobile) {
             div2.style.top = 0 + "px"
+            changeWhite.style.top = 0 + "px"
         } else {
             div2.style.top = top + "px"
+            changeWhite.style.top = (top - 10 + parseInt(window.getComputedStyle(div2).marginTop, 10)) + "px"
         }
         a00.style.height = (top - 10) + "px"
         //console.log(div1.style.top)
@@ -347,6 +380,7 @@ function no_found() {
     } else {
         div2.style.top = 20 + "px"
     }
+    changeWhite.style.top = div2.style.top
     a00.style.height = (top - 10) + "px"
     change_url("no_found");
 }
@@ -358,6 +392,7 @@ function display_icon_mouse_down() {
         div2.oldTop = div2.style.top
         //div1.style.top = display_icon.offsetHeight + "px"
         div2.style.top = 0 + "px"
+        changeWhite.style.top = div2.style.top
     } else {
         a00.style.display = "block";
         var top = top_menu_content.offsetTop + top_menu_content.offsetHeight + 10
@@ -374,6 +409,7 @@ function display_icon_mouse_down() {
         } else {
             div2.style.top = top + "px"
         }
+        changeWhite.style.top = div2.style.top
         a00.style.height = (top - 10) + "px"
     }
     event.stopPropagation();
