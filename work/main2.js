@@ -211,9 +211,12 @@ function completeChange(page) {
                 //img.style.visibility = "visible"
                 imgCount++
                 if (imgCount >= targetImgCount) {
-                    changeWhite.classList.remove("change")
-                    changeWhite.classList.remove("change2")
-                    changeWhite.classList.add("change2")
+
+                    setTimeout(() => {
+                        changeWhite.classList.remove("change")
+                        changeWhite.classList.remove("change2")
+                        changeWhite.classList.add("change2")
+                    }, 500);
                 }
             }
         }
