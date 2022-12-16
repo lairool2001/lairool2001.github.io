@@ -1,6 +1,7 @@
 var menuX1;
 sizeSetIni();
 menu_symbol = "..."
+animateStep = 0
 var first = true
 function sizeSetIni() {
     isMobile = false; //initiate as false
@@ -45,19 +46,36 @@ window.onresize = function (event) {
             break
         }
     }
-    var top2 = a00.offsetTop + a00.offsetHeight + 10
-    if (isMobile) {
-        div2.style.top = 0 + "px"
-    } else {
-        div2.style.top = top + "px"
-    }
-    changeWhite.style.top = div2.style.top
+    setPageUIPosition(a00.offsetTop + a00.offsetHeight + 10)
 };
 //a00.style.height = (1) * menuX1 + "px";
 $(function () {
     //$("#abc").html("123"); 
 });
+function setPageUIPosition(top) {
 
+    var top;
+    top = top_menu_content.offsetTop + top_menu_content.offsetHeight + 10
+    for (var i = 0; i < menu_deep; i++) {
+        var menu = this["menu" + i];
+        if (menu.style.display != "none") {
+            top += menu.offsetHeight
+        } else {
+            break
+        }
+    }
+
+    if (isMobile) {
+        div2.style.top = 0 + "px"
+        changeWhite.style.top = (top - 50 + parseInt(window.getComputedStyle(div2).marginTop, 10)) + "px"
+        a00.style.height = (top - 10) + "px"
+    }
+    else {
+        div2.style.top = top + "px"
+        changeWhite.style.top = (top - 10 + parseInt(window.getComputedStyle(div2).marginTop, 10)) + "px"
+        a00.style.height = (top - 10) + "px"
+    }
+}
 function menuIni() {
     menu_deep = 10;
     for (var i = 0; i < menu_deep; i++) {
@@ -171,6 +189,7 @@ function load_page() {
 var now_url = "";
 
 function change_url(url) {
+    now_url = url
     var stateObj = {};
     if (!loading) {
         history.pushState(stateObj, "", "?url=" + url);
@@ -186,13 +205,14 @@ var old_p_number = -1;
 previous_menu = null
 
 //div1.style.top = menuX2 + (1) * menuX1 + "px";
-function completeChange(page) {
-    div1.innerHTML = page.html;
-
+function completeChange() {
+    console.log(setPage)
+    div1.innerHTML = setPage.html;
     var imgz = document.querySelectorAll("img")
     console.log(imgz)
     var targetImgCount = imgz.length
     if (targetImgCount == 0) {
+        changeWhite.outerHTML = changeWhite.outerHTML
         changeWhite.classList.remove("change")
         changeWhite.classList.remove("change2")
         changeWhite.classList.add("change2")
@@ -211,17 +231,16 @@ function completeChange(page) {
                 //img.style.visibility = "visible"
                 imgCount++
                 if (imgCount >= targetImgCount) {
-
-                    setTimeout(() => {
-                        changeWhite.classList.remove("change")
-                        changeWhite.classList.remove("change2")
-                        changeWhite.classList.add("change2")
-                    }, 500);
+                    changeWhite.outerHTML = changeWhite.outerHTML
+                    changeWhite.classList.remove("change")
+                    changeWhite.classList.remove("change2")
+                    changeWhite.classList.add("change2")
                 }
             }
         }
     }
 }
+var setPage
 function set_page(p, event) {
     if (event != undefined) {
         event.stopPropagation();
@@ -247,15 +266,21 @@ function set_page(p, event) {
             change_url(page.name);
             previous_menu = null;
 
+            if (typeof (changePageTimerID) === undefined) {
+                clearTimeout(changePageTimerID)
+            }
+            changeWhite.outerHTML = changeWhite.outerHTML
+            setPage = page
             if (first) {
-                completeChange(page)
+                completeChange()
                 first = false
-            } else {
+            }
+            else {
                 changeWhite.classList.remove("change2")
                 changeWhite.classList.remove("change")
                 changeWhite.classList.add("change")
                 changeWhite.addEventListener('animationend', function () {
-                    completeChange(page)
+                    completeChange()
                 });
             }
             for (var i = 0; i < page.layer; i++) {
@@ -330,23 +355,7 @@ function set_page(p, event) {
             parent = page2.parent
         }
         //console.log(top_menu_content.offsetTop)
-        var top = top_menu_content.offsetTop + top_menu_content.offsetHeight + 10
-        for (var i = 0; i < menu_deep; i++) {
-            var menu = this["menu" + i];
-            if (menu.style.display != "none") {
-                top += menu.offsetHeight
-            } else {
-                break
-            }
-        }
-        if (isMobile) {
-            div2.style.top = 0 + "px"
-            changeWhite.style.top = 0 + "px"
-        } else {
-            div2.style.top = top + "px"
-            changeWhite.style.top = (top - 10 + parseInt(window.getComputedStyle(div2).marginTop, 10)) + "px"
-        }
-        a00.style.height = (top - 10) + "px"
+        setPageUIPosition(top)
         //console.log(div1.style.top)
         //div1.style.top = a00.style.height;
         div1.style.display = "block";
@@ -378,15 +387,9 @@ function set_page(p, event) {
 function no_found() {
     var page = {}
     page.html = `<p>沒有這個頁面喔!</p>`;
-    completeChange(page)
+    completeChange()
     var top = top_menu_content.offsetTop + top_menu_content.offsetHeight + 10
-    if (!isMobile) {
-        div2.style.top = top + "px"
-    } else {
-        div2.style.top = 20 + "px"
-    }
-    changeWhite.style.top = div2.style.top
-    a00.style.height = (top - 10) + "px"
+    setPageUIPosition(top)
     change_url("no_found");
 }
 
@@ -396,8 +399,7 @@ function display_icon_mouse_down() {
         //a00_old_top = a00.style.top
         div2.oldTop = div2.style.top
         //div1.style.top = display_icon.offsetHeight + "px"
-        div2.style.top = 0 + "px"
-        changeWhite.style.top = div2.style.top
+        setPageUIPosition(top)
     } else {
         a00.style.display = "block";
         var top = top_menu_content.offsetTop + top_menu_content.offsetHeight + 10
@@ -409,13 +411,7 @@ function display_icon_mouse_down() {
                 break
             }
         }
-        if (isMobile) {
-            div2.style.top = 0 + "px"
-        } else {
-            div2.style.top = top + "px"
-        }
-        changeWhite.style.top = div2.style.top
-        a00.style.height = (top - 10) + "px"
+        setPageUIPosition(top)
     }
     event.stopPropagation();
     event.preventDefault();

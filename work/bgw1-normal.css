@@ -16,7 +16,7 @@
 
  .change {
      animation-name: show1;
-     animation-duration: 0.8s;
+     animation-duration: 0.6s;
      animation-iteration-count: 1;
      animation-play-state: running;
      animation-fill-mode: both;
@@ -25,7 +25,7 @@
 
  .change2 {
      animation-name: show2;
-     animation-duration: 0.8s;
+     animation-duration: 0.6s;
      animation-iteration-count: 1;
      animation-play-state: paused;
      animation-fill-mode: both;
