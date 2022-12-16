@@ -373,7 +373,9 @@ function set_page(p, event) {
 }
 
 function no_found() {
-    div1.innerHTML = `<p>沒有這個頁面喔!</p>`;
+    var page = {}
+    page.html = `<p>沒有這個頁面喔!</p>`;
+    completeChange(page)
     var top = top_menu_content.offsetTop + top_menu_content.offsetHeight + 10
     if (!isMobile) {
         div2.style.top = top + "px"
