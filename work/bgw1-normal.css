@@ -11,7 +11,7 @@
 
      background: rgb(255, 255, 255);
      background: rgb(255, 255, 255);
-     background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) 90%, rgba(255, 255, 255, 0) 100%);
+     background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) 70%, rgba(255, 255, 255, 0) 100%);
  }
 
  .change {
@@ -133,7 +133,6 @@
      width: 100%;
      word-break: break-all;
      text-align: center;
-     margin-top: 1.5em;
      margin-bottom: 1em;
      margin-left: 0;
      margin-right: 0;
@@ -208,7 +207,7 @@
      line-height: 1.2em;
  }
 
- @media screen and (max-device-width: 480px) {
+ /*@media screen and (max-device-width: 480px) {
      div.top-menu {
          font-size: 74px;
          position: relative;
@@ -219,27 +218,29 @@
      }
 
      rt {
-         /* font-size: 52px; */
-     }
+          font-size: 52px; 
+ }
 
-     div.content {
-         position: relative;
-         top: 35px;
-         font-size: 40px;
-     }
+ div.content {
+     position: relative;
+     top: 35px;
+     font-size: 40px;
+ }
 
-     img {
-         max-width: 80vw;
-         max-height: auto;
-     }
+ img {
+     max-width: 80vw;
+     max-height: auto;
+ }
 
 
-     div.top_menu_content {
-         line-height: 90px;
-         font-size: 55px;
-         padding: 10px;
-         width: 100%;
-         box-sizing: border-box;
-     }
+ div.top_menu_content {
+     line-height: 90px;
+     font-size: 55px;
+     padding: 10px;
+     width: 100%;
+     box-sizing: border-box;
+ }
 
  }
+
+ */

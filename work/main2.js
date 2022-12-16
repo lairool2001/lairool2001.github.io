@@ -53,9 +53,8 @@ $(function () {
     //$("#abc").html("123"); 
 });
 function setPageUIPosition(top) {
-
     var top;
-    top = top_menu_content.offsetTop + top_menu_content.offsetHeight + 10
+    top = top_menu_content.offsetTop + top_menu_content.offsetHeight
     for (var i = 0; i < menu_deep; i++) {
         var menu = this["menu" + i];
         if (menu.style.display != "none") {
@@ -64,17 +63,10 @@ function setPageUIPosition(top) {
             break
         }
     }
-
-    if (isMobile) {
-        div2.style.top = 0 + "px"
-        changeWhite.style.top = (top - 50 + parseInt(window.getComputedStyle(div2).marginTop, 10)) + "px"
-        a00.style.height = (top - 10) + "px"
-    }
-    else {
-        div2.style.top = top + "px"
-        changeWhite.style.top = (top - 10 + parseInt(window.getComputedStyle(div2).marginTop, 10)) + "px"
-        a00.style.height = (top - 10) + "px"
-    }
+    //37 is [[
+    div2.style.top = (top + 37) + "px"
+    changeWhite.style.top = ((top) + parseInt(window.getComputedStyle(div2).marginTop, 10)) + "px"
+    a00.style.height = (top) + "px"
 }
 function menuIni() {
     menu_deep = 10;
@@ -216,6 +208,7 @@ function completeChange() {
         changeWhite.classList.remove("change")
         changeWhite.classList.remove("change2")
         changeWhite.classList.add("change2")
+        window.scrollTo(0, 0);
     } else {
         var imgCount = 0
         var imgz = document.querySelectorAll("img")
@@ -235,6 +228,7 @@ function completeChange() {
                     changeWhite.classList.remove("change")
                     changeWhite.classList.remove("change2")
                     changeWhite.classList.add("change2")
+                    window.scrollTo(0, 0);
                 }
             }
         }
@@ -252,7 +246,6 @@ function set_page(p, event) {
         console.log('set_page(' + p + ')');
         menu_item = document.getElementById("menu_item_" + p);
         var page = pages[p];
-        div1.style.display = "none";
         if (page.script != undefined) {
             var head = document.getElementsByTagName('head')[0];
             var script = document.createElement('script');
@@ -261,8 +254,6 @@ function set_page(p, event) {
             head.appendChild(script);
         }
         if (page.type == undefined) {
-            window.scrollTo(0, 0);
-
             change_url(page.name);
             previous_menu = null;
 
