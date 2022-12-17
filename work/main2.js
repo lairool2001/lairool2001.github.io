@@ -195,7 +195,9 @@ function heredoc(fn) {
 
 var old_p_number = -1;
 previous_menu = null
-
+var hAnimation
+var hAnimationSpeed = 5
+var h = 100
 //div1.style.top = menuX2 + (1) * menuX1 + "px";
 function completeChange() {
     console.log(setPage)
@@ -204,11 +206,20 @@ function completeChange() {
     console.log(imgz)
     var targetImgCount = imgz.length
     if (targetImgCount == 0) {
-        changeWhite.outerHTML = changeWhite.outerHTML
-        changeWhite.classList.remove("change")
-        changeWhite.classList.remove("change2")
-        changeWhite.classList.add("change2")
+        animateStep = 1
+        clearInterval(hAnimation)
+        hAnimation = setInterval(() => {
+            h -= hAnimationSpeed
+            if (h <= 0) {
+                h = 0
+                animateStep = 0
+            }
+            changeWhite.style.height = h + "%"
+        }, 30);
         window.scrollTo(0, 0);
+        changeWhite.addEventListener('animationend', function () {
+            animateStep = 0
+        });
     } else {
         var imgCount = 0
         var imgz = document.querySelectorAll("img")
@@ -224,10 +235,16 @@ function completeChange() {
                 //img.style.visibility = "visible"
                 imgCount++
                 if (imgCount >= targetImgCount) {
-                    changeWhite.outerHTML = changeWhite.outerHTML
-                    changeWhite.classList.remove("change")
-                    changeWhite.classList.remove("change2")
-                    changeWhite.classList.add("change2")
+                    animateStep = 1
+                    clearInterval(hAnimation)
+                    hAnimation = setInterval(() => {
+                        h -= hAnimationSpeed
+                        if (h <= 0) {
+                            h = 0
+                            animateStep = 0
+                        }
+                        changeWhite.style.height = h + "%"
+                    }, 30);
                     window.scrollTo(0, 0);
                 }
             }
@@ -260,19 +277,24 @@ function set_page(p, event) {
             if (typeof (changePageTimerID) === undefined) {
                 clearTimeout(changePageTimerID)
             }
-            changeWhite.outerHTML = changeWhite.outerHTML
             setPage = page
             if (first) {
                 completeChange()
                 first = false
             }
             else {
-                changeWhite.classList.remove("change2")
-                changeWhite.classList.remove("change")
-                changeWhite.classList.add("change")
-                changeWhite.addEventListener('animationend', function () {
-                    completeChange()
-                });
+                //changeWhite.style.animationDirection = "normal"
+                changeWhite.outerHTML = changeWhite.outerHTML
+                clearInterval(hAnimation)
+                hAnimation = setInterval(() => {
+                    h += hAnimationSpeed
+                    if (h >= 120) {
+                        h = 120
+                        completeChange()
+                    }
+                    changeWhite.style.height = h + "%"
+                }, 30);
+                animateStep = 1
             }
             for (var i = 0; i < page.layer; i++) {
                 var menu2 = this["menu" + i]
