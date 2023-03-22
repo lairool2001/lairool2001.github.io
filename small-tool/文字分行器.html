@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width">
+    <title>文字分行器</title>
+    <style>
+        textarea#t1 {
+            width: 100%;
+            height: 100px;
+        }
+
+        textarea#t2 {
+            width: 100%;
+            height: 300px;
+            font-size: 40px;
+        }
+
+        input#goText {
+            width: 100px;
+            height: 60px;
+            font-size: 40px;
+        }
+
+        div {
+            border: 2px dashed rgb(219, 219, 219);
+            padding: 5px;
+            margin: 5px;
+            display: block;
+            width: 90%;
+        }
+
+        button {
+            font-size: 40px;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <textarea id="t1"></textarea><br>
+        <button id="t1Go" onclick="t1GoClick()">t1Go</button>
+    </div>
+    <div>
+        <span id="count">0 line</span>
+        <span id="index">0 index</span>
+    </div>
+    <div>
+        <textarea id="t2"></textarea><br>
+        <button id="previous" onclick="previousClick()">previous&lt;-</button>
+        <button id="next" onclick="nextClick()">next-&gt;</button>
+        &emsp;<button id="go" onclick="go()">go</button>
+        <input type="text" id="goText" />
+        <button onclick="hide()">Hide</button>
+    </div>
+    <script>
+        var linez = [];
+        var i = 0;
+        init();
+        function init() {
+            t1.value = localStorage.getItem("t1");
+            goText.value = localStorage.getItem("i").toString();
+            t1GoClick();
+            go();
+        }
+        function t1GoClick() {
+            localStorage.setItem("t1", t1.value);
+            linez = t1.value.split(/\n/);
+            count.innerHTML = linez.length + " line";
+            i = 0;
+            showNow();
+        }
+        function previousClick() {
+            i--;
+            if (i < 0) i = 0;
+            showNow();
+        }
+        function nextClick() {
+            i++;
+            if (i >= linez.length) i = linez.length - 1;
+            showNow();
+        }
+        function go() {
+            i = parseInt(goText.value);
+            showNow();
+        }
+        function showNow() {
+            localStorage.setItem("i", i);
+            t2.value = linez[i];
+            var msg = new SpeechSynthesisUtterance(t2.value);
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(msg);
+            index.innerHTML = i + " index";
+        }
+        function hide() {
+            console.log(t2.style.backgroundColor)
+            if (t2.style.backgroundColor == "black") {
+                t2.style.backgroundColor = "white";
+            } else {
+                t2.style.backgroundColor = "black";
+            }
+        }
+    </script>
+</body>
+
+</html>
