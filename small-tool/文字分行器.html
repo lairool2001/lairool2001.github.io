@@ -18,10 +18,10 @@
             font-size: 40px;
         }
 
-        input#goText {
+        input {
             width: 100px;
-            height: 60px;
-            font-size: 40px;
+            height: 50px;
+            font-size: 30px;
         }
 
         div {
@@ -49,11 +49,18 @@
     </div>
     <div>
         <textarea id="t2"></textarea><br>
-        <button id="previous" onclick="previousClick()">previous&lt;-</button>
-        <button id="next" onclick="nextClick()">next-&gt;</button>
+        <button onclick="speak()">speak</button>
+        &emsp;<button id="previous" onclick="previousClick()">previous ↑</button>
+        <button id="next" onclick="nextClick()">next ↓</button>
         &emsp;<button id="go" onclick="go()">go</button>
         <input type="text" id="goText" />
-        <button onclick="hide()">Hide</button>
+        &emsp;<button onclick="hide()">Hide</button>
+        <fieldset>
+            <legend>Cycle Loop Group</legend>
+            <input type="checkbox" id="cycle" oninput="save()"></input>
+            <input type="text" id="fromText" oninput="save()" />~<input type="text" id="toText" oninput="save()" />
+        </fieldset>
+
     </div>
     <script>
         var linez = [];
@@ -62,6 +69,11 @@
         function init() {
             t1.value = localStorage.getItem("t1");
             goText.value = localStorage.getItem("i").toString();
+
+            cycle.checked = localStorage.getItem("cycle");
+            fromText.value = localStorage.getItem("fromText");
+            toText.value = localStorage.getItem("toText");
+
             t1GoClick();
             go();
         }
@@ -78,6 +90,11 @@
             showNow();
         }
         function nextClick() {
+            if (cycle.value && i >= parseInt(toText.value)) {
+                i = parseInt(fromText.value);
+                showNow();
+                return;
+            }
             i++;
             if (i >= linez.length) i = linez.length - 1;
             showNow();
@@ -101,6 +118,16 @@
             } else {
                 t2.style.backgroundColor = "black";
             }
+        }
+        function speak() {
+            var msg = new SpeechSynthesisUtterance(t2.value);
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(msg);
+        }
+        function save() {
+            localStorage.setItem("cycle", cycle.checked);
+            localStorage.setItem("fromText", fromText.value);
+            localStorage.setItem("toText", toText.value);
         }
     </script>
 </body>
