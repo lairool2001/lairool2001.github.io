@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="content-language" content="zh-tw">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <title>貓咪不作戰的知識集</title>
+    <link href="cat-normal.css" rel="stylesheet" type="text/css" media="all">
+    <link rel="icon" href="favicon.ico" />
+    <style type="text/css">
+
+    </style>
+</head>
+
+<body>
+    <div class="top-menu">
+        <div id="a00">
+            <div id="top_menu_content" class="top_menu_content"></div>
+        </div>
+        <div id="display_icon" class="display_icon" ontouchstart="display_icon_mouse_down()"
+            onmousedown="display_icon_mouse_down()">[[[[</div>
+    </div>
+    <div id="changeWhite"></div>
+    <div id="div2">
+        <hr>
+        <div id="div1" class="content">
+        </div>
+        <hr>
+    </div>
+
+    <script src="preFunction.js"></script>
+    <script>
+        one_menu = [0, 1];
+        pages = [];
+        pages[0] = {
+            name: "know",
+            show_name: "貓咪的知識集",
+            html: "<img src='favicon.ico' /><br>貓咪不作戰的知識集，裡面放了許多我的想法"
+        };
+        pages[1] = {
+            type: "menu",
+            name: "愉悅",
+            show_name: "happy",
+            childz: [3]
+        };
+        pages[2] = {
+            type: "menu",
+            name: "程式",
+            show_name: "code",
+            childz: []
+        };
+        pages[3] = {
+            name: "nasal_congestion",
+            show_name: "鼻塞",
+            html: `<p>本網站不提供醫療建議。本網站僅提供一般資訊，並不能代替專業的醫療建議﹑診斷或治療。切勿依賴本網站上提供的信息來代替專業醫療建議。如果您認為自己可能有緊急醫療情況，應立即諮詢醫生。</p>
+            <hr>
+<h1>鼻塞解決手段</h1
+<ul>
+<li>用鼻子吸溫熱過濾水或一般溫度過濾水，但溫熱水效果更好，水最好要進去到鼻子深處到喉嚨，水最好吐出來，但如果懶可以喝下去（腸胃好的人）</li>
+<li>吸熱水蒸氣，時間要久一點，或是配合熱水到鼻子深處</li>
+<li>鼻子吸肉桂粉，一次不要吸太多，黏膜會太痛</li>
+<li>按摩震動棒震鼻子，震久鼻子就會有鼻水跟噴嚏就通了</li>
+<li>哇沙比（山葵）、芥末</li>
+<li>多喝白開水</li>
+</ul>
+<hr>
+<h1>備註</h1>
+<ul>
+<li>在鼻腔內最好是可飲用並且乾淨的水、自來水沒過濾不建議使用</li>
+<li>通常溫熱水對鼻黏膜消腫更好，不過一般溫度的水也可以清除鼻涕跟溼潤鼻黏膜也是對鼻塞有效</li>
+<li>醫生給你的抗組織胺藥常常會使人昏睡</li>
+<li>洗鼻方式如果只是鼻子到另一側鼻子可能會無效，因為可能是更深處塞住</li>
+<li>有些人情況是有鼻水或打噴嚏鼻塞就會通</li>
+<li>肥皂水可以更好清除鼻涕跟分泌物，我自己會用，但請斟酌，最好不要吃到胃裡，最好吐出來，然後要選安全好的肥皂</li>
+<li>茶跟咖啡會使人排出水分造成鼻子分泌的液體過黏會增加鼻塞風險，斟酌飲用</li>
+</ul>
+<hr>
+<h1>不建議或無效手段</h1>
+<ul>
+<li>過冷空氣吹鼻子（尤其是對著吹）</li>
+<li>任何乾燥手段、除濕機之類的</li>
+<li>用冰水搞鼻子</li>
+<li>撞擊鼻子</li>
+<li>過度使用去充血鼻噴劑（連續用太多次反造成鼻塞）</li>
+</ul>
+<hr>
+<p>本網站不提供醫療建議。本網站僅提供一般資訊，並不能代替專業的醫療建議﹑診斷或治療。切勿依賴本網站上提供的信息來代替專業醫療建議。如果您認為自己可能有緊急醫療情況，應立即諮詢醫生。</p>
+`
+        };
+        //
+    </script>
+    <script src="main2.js"></script>
+    <br />
+</body>
+
+</html>
