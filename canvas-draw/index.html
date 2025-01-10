@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Canvas 畫圈圈</title>
+    <style>
+        body{
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="myCanvas" width="1920" height="1080" style="border:0px solid #000000;"></canvas>
+    <script>
+        var canvas = document.getElementById("myCanvas");
+        var ctx = canvas.getContext("2d");
+
+        function drawCircle(color,x,y) {
+            ctx.beginPath();
+            ctx.strokeStyle=color;
+            ctx.strokeRect(x, y, 50, 50);
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y, 50, 50);
+            ctx.stroke();
+        }
+
+        function getRandomColor() {
+            var letters = '0123456789ABCDEF';
+            var color = '#';
+            for (var i = 0; i < 8; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+        let x=100,y=100
+        update()
+        setInterval(function() {
+           update()
+        }, 33);
+        function update(){
+            ctx.clearRect(0, 0, canvas.width, canvas.height); 
+            for (let y = 0; y <= 1080; y+=50) {
+                for (let x = 0; x <= 1920; x+=50) {
+                    var color = getRandomColor();
+                    drawCircle(color,x,y);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
