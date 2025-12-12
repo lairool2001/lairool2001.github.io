@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <title>漂亮計數器</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f9d423 0%, #ff4e50 100%);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', 'Microsoft JhengHei', Arial, sans-serif;
+        }
+
+        .counter-container {
+            background: rgba(255, 255, 255, 0.92);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+            border-radius: 24px;
+            padding: 40px 32px 32px 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 320px;
+            max-width: 90vw;
+            animation: fadeIn 1s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .counter-label {
+            font-size: 1.2rem;
+            color: #ff4e50;
+            margin-bottom: 18px;
+            letter-spacing: 1px;
+            user-select: none;
+            font-weight: bold;
+        }
+
+        .counter-value {
+            font-size: 4.5rem;
+            font-weight: bold;
+            color: #333;
+            margin: 0 0 24px 0;
+            min-width: 120px;
+            text-align: center;
+            user-select: none;
+            text-shadow: 0 2px 8px #fff8;
+            transition: color 0.3s, transform 0.2s;
+            will-change: transform;
+        }
+
+        .counter-animate {
+            animation: pop 0.3s;
+        }
+
+        @keyframes pop {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.18);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .counter-controls {
+            display: flex;
+            gap: 18px;
+            margin-bottom: 10px;
+        }
+
+        .counter-btn {
+            background: linear-gradient(90deg, #ff4e50 0%, #f9d423 100%);
+            border: none;
+            color: #fff;
+            font-size: 2rem;
+            font-weight: 600;
+            padding: 10px 28px;
+            border-radius: 24px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px #ff4e5044;
+            transition: background 0.2s, transform 0.1s;
+            outline: none;
+            min-width: 60px;
+        }
+
+        .counter-btn:active {
+            transform: scale(0.97);
+        }
+
+        .reset-btn {
+            background: linear-gradient(90deg, #43cea2 0%, #297cce 50%);
+            font-size: 1.1rem;
+            padding: 8px 22px;
+            margin-top: 8px;
+            border-radius: 18px;
+            box-shadow: 0 2px 8px #43cea244;
+            border: none;
+        }
+
+        .reset-btn:active {
+            transform: scale(0.97);
+        }
+
+        @media (max-width: 480px) {
+            .counter-value {
+                font-size: 2.5rem;
+                min-width: 60px;
+            }
+
+            .counter-container {
+                padding: 24px 8px;
+            }
+
+            .counter-btn {
+                font-size: 1.5rem;
+                min-width: 40px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="counter-container">
+        <div class="counter-label">計數器</div>
+        <div class="counter-value" id="counterValue">0</div>
+        <div class="counter-controls">
+            <button class="counter-btn" id="decrementBtn">-</button>
+            <button class="counter-btn" id="incrementBtn">+</button>
+        </div>
+        <button class="reset-btn" id="resetBtn">重設</button>
+    </div>
+    <script>
+        let count = 0;
+        const valueEl = document.getElementById('counterValue');
+        const incBtn = document.getElementById('incrementBtn');
+        const decBtn = document.getElementById('decrementBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        function updateDisplay(animate = true) {
+            valueEl.textContent = count;
+            if (animate) {
+                valueEl.classList.remove('counter-animate');
+                void valueEl.offsetWidth; // 觸發重繪
+                valueEl.classList.add('counter-animate');
+            }
+            valueEl.style.color = count > 0 ? "#ff4e50" : (count < 0 ? "#185a9d" : "#333");
+        }
+
+        incBtn.onclick = () => {
+            count++;
+            updateDisplay();
+        };
+        decBtn.onclick = () => {
+            count--;
+            updateDisplay();
+        };
+        resetBtn.onclick = () => {
+            count = 0;
+            updateDisplay();
+        };
+
+        // 支援鍵盤快捷鍵
+        document.addEventListener('keydown', e => {
+            if (e.key === '+' || e.key === '=' || e.key === 'ArrowUp') {
+                count++; updateDisplay();
+            } else if (e.key === '-' || e.key === '_' || e.key === 'ArrowDown') {
+                count--; updateDisplay();
+            } else if (e.key === '0' || e.key === ' ') {
+                count = 0; updateDisplay();
+            }
+        });
+
+        updateDisplay(false);
+    </script>
+</body>
+
+</html>

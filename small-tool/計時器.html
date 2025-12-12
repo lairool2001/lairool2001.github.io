@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <title>漂亮計時器</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="manifest" href="manifest_計時器.json" />
+    <meta name="theme-color" content="#66a6ff">
+    <style>
+        body {
+            background: linear-gradient(135deg, #89f7fe 50%, #66a6ff 100%);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', 'Microsoft JhengHei', Arial, sans-serif;
+        }
+
+        .timer-container {
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border-radius: 24px;
+            padding: 40px 32px 32px 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            min-width: 320px;
+            max-width: 90vw;
+            animation: fadeIn 1s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .timer-circle {
+            width: 260px;
+            height: 260px;
+            margin-bottom: 24px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .timer-svg {
+            transform: rotate(-90deg);
+        }
+
+        .timer-time {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            font-size: 2.8rem;
+            font-weight: bold;
+            color: #333;
+            letter-spacing: 2px;
+            user-select: none;
+            text-shadow: 0 2px 8px #fff8;
+            transition: color 0.3s;
+        }
+
+        .timer-label {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+            user-select: none;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 16px;
+            margin-top: 18px;
+        }
+
+        .timer-btn {
+            background: linear-gradient(90deg, #66a6ff 50%, #89f7fe 100%);
+            border: none;
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 10px 28px;
+            border-radius: 24px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px #66a6ff44;
+            transition: background 0.2s, transform 0.1s;
+            outline: none;
+        }
+
+        .timer-btn:active {
+            transform: scale(0.97);
+        }
+
+        .timer-btn[disabled] {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .timer-set {
+            margin-bottom: 18px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .timer-input {
+            width: 48px;
+            font-size: 1.1rem;
+            padding: 4px 8px;
+            border-radius: 8px;
+            border: 1px solid #bbb;
+            text-align: center;
+            margin-right: 2px;
+        }
+
+        @media (max-width: 480px) {
+            .timer-circle {
+                width: 140px;
+                height: 140px;
+            }
+
+            .timer-time {
+                font-size: 2rem;
+            }
+
+            .timer-container {
+                padding: 24px 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="timer-container">
+        <div class="timer-label">倒數計時器</div>
+        <div class="timer-circle">
+            <svg class="timer-svg" width="260" height="260">
+                <circle cx="130" cy="130" r="120" stroke="#e0e7ef" stroke-width="16" fill="none" />
+                <circle id="progress" cx="130" cy="130" r="120" stroke="#66a6ff" stroke-width="16" fill="none"
+                    stroke-linecap="round" stroke-dasharray="753.98" stroke-dashoffset="0"
+                    style="transition: stroke-dashoffset 0.5s cubic-bezier(.4,2,.6,1);" />
+            </svg>
+            <div class="timer-time" id="timerDisplay">00:00.0</div>
+        </div>
+        <form class="timer-set" id="setForm" autocomplete="off">
+            <input type="number" min="0" max="99" class="timer-input" id="hourInput" value="0"> 小時
+            <input type="number" min="0" max="59" class="timer-input" id="minInput" value="0"> 分
+            <input type="number" min="0" max="59.9" step="0.1" class="timer-input" id="secInput" value="30"> 秒
+            <button type="submit" class="timer-btn" style="padding:6px 18px;font-size:1rem;">設定</button>
+        </form>
+        <div class="timer-controls">
+            <button class="timer-btn" id="startBtn">開始</button>
+            <button class="timer-btn" id="pauseBtn" disabled>暫停</button>
+            <button class="timer-btn" id="resetBtn" disabled>重設</button>
+        </div>
+    </div>
+    <audio id="alarm" src="勾勾勾勾.mp3"></audio>
+    <script>
+        // Timer state
+        let totalSeconds = 30.0;
+        let endTime = null;
+        let timer = null;
+        let running = false;
+
+        function format(sec) {
+            const h = Math.floor(sec / 3600).toString().padStart(2, '0');
+            const m = Math.floor((sec % 3600) / 60).toString().padStart(2, '0');
+            const s = (sec % 60).toFixed(1).padStart(4, '0');
+            return `${h}<br>${m}<br>${s}`;
+        }
+
+        function updateDisplay() {
+            let remaining = 0;
+            if (endTime && running) {
+                remaining = Math.max(0, (endTime - Date.now()) / 1000);
+            } else {
+                remaining = totalSeconds;
+            }
+            timerDisplay.innerHTML = format(remaining);
+            // Animate progress circle
+            const circleLen = 2 * Math.PI * 120;
+            const percent = totalSeconds <= 0 ? 0 : remaining / totalSeconds;
+            progress.style.strokeDashoffset = circleLen * (1 - percent);
+            if (remaining <= 0) {
+                timerDisplay.style.color = "#f44336";
+            } else {
+                timerDisplay.style.color = "#333";
+            }
+        }
+
+        function startTimer() {
+            if (running || totalSeconds <= 0) return;
+            running = true;
+            endTime = Date.now() + totalSeconds * 1000;
+            startBtn.disabled = true;
+            pauseBtn.disabled = false;
+            resetBtn.disabled = false;
+            setForm.querySelectorAll('input,button,textarea').forEach(e => e.disabled = true);
+            timer = setInterval(() => {
+                updateDisplay();
+                let remaining = Math.max(0, (endTime - Date.now()) / 1000);
+                if (remaining <= 0) {
+                    clearInterval(timer);
+                    running = false;
+                    alarm.volume = 0.2;
+                    alarm.play();
+                    startBtn.disabled = false;
+                    pauseBtn.disabled = true;
+                    setForm.querySelectorAll('input,button,textarea').forEach(e => e.disabled = false);
+                    timerDisplay.animate([
+                        { color: "#f44336", transform: "scale(1)" },
+                        { color: "#f44336", transform: "scale(1.15)" },
+                        { color: "#f44336", transform: "scale(1)" }
+                    ], { duration: 600, iterations: 3 });
+                }
+            }, 100);
+        }
+
+        function pauseTimer() {
+            if (!running) return;
+            running = false;
+            clearInterval(timer);
+            // 計算剩餘秒數
+            totalSeconds = Math.max(0, (endTime - Date.now()) / 1000);
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+        }
+
+        function resetTimer() {
+            running = false;
+            clearInterval(timer);
+            endTime = null;
+            updateDisplay();
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            resetBtn.disabled = true;
+            setForm.querySelectorAll('input,button,textarea').forEach(e => e.disabled = false);
+            timerDisplay.style.color = "#333";
+        }
+
+        setForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            let hour = parseInt(hourInput.value, 10) || 0;
+            let min = parseInt(minInput.value, 10) || 0;
+            let sec = parseInt(secInput.value, 10) || 0;
+            if (hour < 0) hour = 0;
+            if (min < 0) min = 0;
+            if (sec < 0) sec = 0;
+            if (min > 59) min = 59;
+            if (sec > 59) sec = 59;
+            totalSeconds = hour * 3600 + min * 60 + sec;
+            if (totalSeconds === 0) totalSeconds = 1;
+            endTime = null;
+            updateDisplay();
+            resetTimer();
+        });
+
+        startBtn.addEventListener('click', startTimer);
+        pauseBtn.addEventListener('click', pauseTimer);
+        resetBtn.addEventListener('click', resetTimer);
+
+        // 初始化
+        updateDisplay();
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('sw_計時器.js');
+            });
+        }
+    </script>
+</body>
+
+</html>
