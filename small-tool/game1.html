@@ -144,6 +144,15 @@
             box-shadow: 0 0 20px #ffaa00;
         }
 
+        .difficulty-info {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #ff1493, #ff69b4);
+            border-radius: 5px;
+            color: #000;
+            font-weight: bold;
+            box-shadow: 0 0 20px #ff1493;
+        }
+
         .buttons {
             display: flex;
             gap: 20px;
@@ -200,7 +209,8 @@
         <div id="menuScreen">
             <div class="menu-title">選擇遊戲模式</div>
             <div class="menu-buttons">
-                <button onclick="startSinglePlayer()">🤖 單人對 AI</button>
+                <button onclick="startSinglePlayer('normal')">🤖 單人對 AI</button>
+                <button onclick="startSinglePlayer('advanced')">⚡ 單人對高級 AI</button>
                 <button onclick="startTwoPlayer()">👥 雙人對戰</button>
             </div>
         </div>
@@ -212,6 +222,10 @@
                 <div class="score" id="scoreBoard">玩家: <span id="playerScore">0</span></div>
                 <div class="speed-info" id="speedBoard">速度: <span id="speedLevel">0.5x</span></div>
                 <div class="ai-score" id="aiScoreBoard">AI: <span id="aiScore">0</span></div>
+            </div>
+
+            <div id="difficultyBoard" class="difficulty-info" style="display: none;">
+                難度: <span id="difficultyText">普通</span>
             </div>
 
             <div class="status">
@@ -241,7 +255,8 @@
             speedMultiplier: 0.5,
             maxSpeedMultiplier: 1.5,
             speedIncrement: 0.02,
-            mode: null
+            mode: null,
+            difficulty: null
         };
 
         const boundaries = {
@@ -387,14 +402,46 @@
             if (player.y + player.height > boundaries.bottom) player.y = boundaries.bottom - player.height;
         }
 
+        // 預測球落點位置
+        function predictBallLanding() {
+            let predictX = ball.x;
+            let predictY = ball.y;
+            let predictDx = ball.dx;
+            let predictDy = ball.dy;
+            const currentSpeed = game.speedMultiplier;
+
+            while (predictX < boundaries.right && predictX > boundaries.left) {
+                predictX += predictDx * currentSpeed;
+                predictY += predictDy * currentSpeed;
+
+                if (predictY - ball.radius < boundaries.top || predictY + ball.radius > boundaries.bottom) {
+                    predictDy *= -1;
+                }
+            }
+
+            return Math.max(boundaries.top, Math.min(boundaries.bottom, predictY));
+        }
+
         function updateAI() {
             if (game.mode === 'single') {
-                const aiCenter = ai.y + ai.height / 2;
-                const ballCenter = ball.y;
+                let targetY;
 
-                if (ballCenter < aiCenter - 35) {
+                if (game.difficulty === 'advanced') {
+                    targetY = predictBallLanding();
+                } else {
+                    const aiCenter = ai.y + ai.height / 2;
+                    targetY = ball.y;
+                    if (Math.abs(ball.y - aiCenter) < 35) {
+                        targetY = aiCenter;
+                    }
+                }
+
+                const aiCenter = ai.y + ai.height / 2;
+                const error = game.difficulty === 'advanced' ? 20 : 35;
+
+                if (targetY < aiCenter - error) {
                     ai.y -= ai.speed * game.speedMultiplier;
-                } else if (ballCenter > aiCenter + 35) {
+                } else if (targetY > aiCenter + error) {
                     ai.y += ai.speed * game.speedMultiplier;
                 }
             } else if (game.mode === 'two-player') {
@@ -539,23 +586,36 @@
             requestAnimationFrame(gameLoop);
         }
 
-        function startSinglePlayer() {
+        function startSinglePlayer(difficulty) {
             game.mode = 'single';
+            game.difficulty = difficulty;
             document.getElementById('menuScreen').classList.add('hidden');
             canvas.classList.add('active');
             document.getElementById('gamePanel').classList.add('active');
             document.getElementById('instructionsText').textContent = '使用 W/S 上下移動你的擋板，與 AI 對戰！';
             document.getElementById('status').textContent = '按下開始遊戲';
+            
+            const difficultyBoard = document.getElementById('difficultyBoard');
+            const difficultyText = document.getElementById('difficultyText');
+            if (difficulty === 'advanced') {
+                difficultyBoard.style.display = 'block';
+                difficultyText.textContent = '高級 (預測落點)';
+            } else {
+                difficultyBoard.style.display = 'none';
+            }
+            
             resetGameState();
         }
 
         function startTwoPlayer() {
             game.mode = 'two-player';
+            game.difficulty = null;
             document.getElementById('menuScreen').classList.add('hidden');
             canvas.classList.add('active');
             document.getElementById('gamePanel').classList.add('active');
             document.getElementById('instructionsText').textContent = '玩家1：W/S 移動｜玩家2：I/K 移動';
             document.getElementById('status').textContent = '按下開始遊戲';
+            document.getElementById('difficultyBoard').style.display = 'none';
             resetGameState();
         }
 
