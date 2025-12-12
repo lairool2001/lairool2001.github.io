@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>隨機密碼產生器</title>
+    <style>
+        :root{
+            --bg:#0f1724;
+            --card:#0b1220;
+            --accent:#60a5fa;
+            --muted:#94a3b8;
+            --glass: rgba(255,255,255,0.03);
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            color-scheme: dark;
+        }
+        *{box-sizing:border-box}
+        html,body{height:100%}
+        body{
+            margin:0;
+            background: linear-gradient(180deg, #071022 0%, #081229 100%);
+            font-size:16px;
+            color:#e6eef8;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:24px;
+        }
+        .card{
+            width:100%;
+            max-width:760px;
+            background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+            border-radius:12px;
+            padding:20px;
+            box-shadow: 0 6px 30px rgba(2,6,23,0.6);
+            border:1px solid rgba(255,255,255,0.04);
+        }
+        h1{margin:0 0 8px 0;font-size:20px}
+        p.desc{margin:0 0 16px 0;color:var(--muted);font-size:13px}
+        .row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+        .col{flex:1;min-width:180px}
+        label{display:block;font-size:13px;margin-bottom:6px;color:var(--muted)}
+        input[type="range"]{width:100%}
+        .controls{
+            display:flex;gap:8px;align-items:center;
+        }
+        .btn{
+            background:linear-gradient(180deg,var(--accent),#3b82f6);
+            border:none;color:#022055;padding:10px 14px;border-radius:8px;
+            cursor:pointer;font-weight:600;
+            box-shadow: 0 6px 18px rgba(59,130,246,0.18);
+        }
+        .btn.secondary{
+            background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);box-shadow:none;
+        }
+        .output{
+            width:100%;padding:12px;border-radius:8px;background:var(--glass);border:1px solid rgba(255,255,255,0.02);
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;
+            display:flex;align-items:center;justify-content:space-between;gap:10px;
+        }
+        .pw-text{word-break:break-all;flex:1;padding-right:8px}
+        .opts{display:flex;gap:8px;flex-wrap:wrap}
+        .chk{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:14px}
+        textarea{width:100%;min-height:64px;background:transparent;color:inherit;border:1px dashed rgba(255,255,255,0.04);padding:8px;border-radius:6px;resize:vertical}
+        .meter{height:10px;background:rgba(255,255,255,0.04);border-radius:6px;overflow:hidden}
+        .meter > i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ef4444,#f59e0b,#10b981);transition:width 180ms ease}
+        footer{margin-top:12px;color:var(--muted);font-size:13px;text-align:right}
+        @media (max-width:520px){
+            .controls{flex-direction:column;align-items:stretch}
+        }
+    </style>
+</head>
+<body>
+    <div class="card" role="region" aria-label="隨機密碼產生器">
+        <h1>隨機密碼產生器</h1>
+        <p class="desc">可設定密碼長度與抽取表（自訂抽取表會覆蓋勾選的字元組合）。使用 Web Crypto API 以提高隨機性。</p>
+
+        <div class="row">
+            <div class="col">
+                <label for="length">密碼長度: <span id="lenVal">16</span></label>
+                <input id="length" type="range" min="4" max="128" value="16" />
+            </div>
+            <div class="col">
+                <label>抽取表選項</label>
+                <div class="opts">
+                    <label class="chk"><input id="lower" type="checkbox" checked /> 小寫字母</label>
+                    <label class="chk"><input id="upper" type="checkbox" checked /> 大寫字母</label>
+                    <label class="chk"><input id="number" type="checkbox" checked /> 數字</label>
+                    <label class="chk"><input id="symbol" type="checkbox" checked /> 符號</label>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-bottom:12px">
+            <label for="custom">抽取表（可選，自訂會覆蓋勾選）</label>
+            <textarea id="custom" placeholder="例如: abcdef012345!@#"></textarea>
+            <p style="margin:6px 0 0 0;color:var(--muted);font-size:13px">留空則使用上方勾選字元組合。</p>
+        </div>
+
+        <div style="margin-bottom:12px">
+            <div class="output" aria-live="polite">
+                <div class="pw-text" id="password">請按「建立密碼」</div>
+                <div style="display:flex;gap:8px">
+                    <button class="btn" id="generate">建立密碼</button>
+                    <button class="btn secondary" id="copy">複製</button>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-bottom:8px">
+            <label>強度</label>
+            <div class="meter" title="密碼強度">
+                <i id="strengthBar" style="width:0%"></i>
+            </div>
+        </div>
+
+        <footer>提示：使用較長的長度與多樣化抽取表可提升安全性。</footer>
+    </div>
+
+    <script>
+        // 內建字元集
+        const SETS = {
+            lower: 'abcdefghijklmnopqrstuvwxyz',
+            upper: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+            number: '0123456789',
+            symbol: '!@#$%^&*()-_=+[]{}<>?/|~`.,;:'
+        };
+
+        const lengthInput = document.getElementById('length');
+        const lenVal = document.getElementById('lenVal');
+        const lower = document.getElementById('lower');
+        const upper = document.getElementById('upper');
+        const number = document.getElementById('number');
+        const symbol = document.getElementById('symbol');
+        const custom = document.getElementById('custom');
+        const generateBtn = document.getElementById('generate');
+        const copyBtn = document.getElementById('copy');
+        const passwordEl = document.getElementById('password');
+        const strengthBar = document.getElementById('strengthBar');
+
+        lengthInput.addEventListener('input', ()=> lenVal.textContent = lengthInput.value);
+
+        // 使用 Web Crypto 產生安全亂數
+        function secureRandomInt(max) {
+            const rand = new Uint32Array(1);
+            window.crypto.getRandomValues(rand);
+            return rand[0] % max;
+        }
+
+        // 產生密碼
+        function generatePassword(len) {
+            let pool = custom.value.trim();
+            if (!pool) {
+                pool = '';
+                if (lower.checked) pool += SETS.lower;
+                if (upper.checked) pool += SETS.upper;
+                if (number.checked) pool += SETS.number;
+                if (symbol.checked) pool += SETS.symbol;
+            }
+            if (!pool) return '';
+            const arr = [];
+            for (let i=0;i<len;i++){
+                arr.push(pool[secureRandomInt(pool.length)]);
+            }
+            return arr.join('');
+        }
+
+        // 簡單強度估算（長度與字元多樣性）
+        function estimateStrength(pw) {
+            if (!pw) return 0;
+            let kinds = 0;
+            if (/[a-z]/.test(pw)) kinds++;
+            if (/[A-Z]/.test(pw)) kinds++;
+            if (/[0-9]/.test(pw)) kinds++;
+            if (/[^A-Za-z0-9]/.test(pw)) kinds++;
+            // 基本公式：長度 * 類別數 / 最大可能，然後限於0-100
+            const score = Math.min(100, Math.round((pw.length * kinds) / 3 * 12.5));
+            return score;
+        }
+
+        function updateStrengthVisual(score) {
+            strengthBar.style.width = score + '%';
+            // 顏色漸層由 CSS 處理；可微調透明度或陰影
+        }
+
+        generateBtn.addEventListener('click', ()=>{
+            const len = parseInt(lengthInput.value,10) || 16;
+            const pw = generatePassword(len);
+            passwordEl.textContent = pw || '無可用抽取表';
+            const score = estimateStrength(pw);
+            updateStrengthVisual(score);
+        });
+
+        copyBtn.addEventListener('click', async ()=>{
+            const text = passwordEl.textContent;
+            if (!text) return;
+            try {
+                await navigator.clipboard.writeText(text);
+                copyBtn.textContent = '已複製';
+                setTimeout(()=> copyBtn.textContent = '複製', 1500);
+            } catch (e) {
+                // fallback
+                const ta = document.createElement('textarea');
+                ta.value = text; document.body.appendChild(ta);
+                ta.select();
+                try { document.execCommand('copy'); copyBtn.textContent = '已複製'; }
+                catch(e2){ alert('複製失敗'); }
+                document.body.removeChild(ta);
+                setTimeout(()=> copyBtn.textContent = '複製', 1500);
+            }
+        });
+
+        // 初始化
+        (()=>{
+            lenVal.textContent = lengthInput.value;
+        })();
+    </script>
+</body>
+</html>
