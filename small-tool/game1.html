@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pong 遊戲</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(45deg, #0a0e27, #1a1a3e, #0f3460, #16213e);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            font-family: 'Courier New', monospace;
+            color: #fff;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        h1 {
+            font-size: 3em;
+            text-shadow: 0 0 20px #00ff88, 0 0 40px #00ffff;
+            animation: glow 2s ease-in-out infinite;
+            letter-spacing: 3px;
+        }
+
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 20px #00ff88, 0 0 40px #00ffff; }
+            50% { text-shadow: 0 0 30px #ff00ff, 0 0 60px #00ffff; }
+        }
+
+        #menuScreen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+            min-height: 400px;
+            justify-content: center;
+        }
+
+        #menuScreen.hidden {
+            display: none;
+        }
+
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        canvas {
+            border: 3px solid #00ffff;
+            border-radius: 10px;
+            box-shadow: 0 0 30px #00ffff, 0 0 60px #ff00ff, inset 0 0 20px rgba(0, 255, 255, 0.1);
+            background: #000;
+            display: none;
+        }
+
+        canvas.active {
+            display: block;
+        }
+
+        .gamePanel {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .gamePanel.active {
+            display: flex;
+        }
+
+        .info {
+            display: flex;
+            gap: 50px;
+            font-size: 1.5em;
+            text-align: center;
+        }
+
+        .score {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #00ff88, #00ffff);
+            border-radius: 5px;
+            color: #000;
+            font-weight: bold;
+            min-width: 150px;
+            box-shadow: 0 0 20px #00ff88;
+        }
+
+        .score.warning {
+            background: linear-gradient(135deg, #ff6666, #ff0000);
+            box-shadow: 0 0 20px #ff0000;
+            animation: pulse 0.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .ai-score {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #ff00ff, #ff6ec7);
+            border-radius: 5px;
+            color: #000;
+            font-weight: bold;
+            min-width: 150px;
+            box-shadow: 0 0 20px #ff00ff;
+        }
+
+        .ai-score.warning {
+            background: linear-gradient(135deg, #ff6666, #ff0000);
+            box-shadow: 0 0 20px #ff0000;
+            animation: pulse 0.5s ease-in-out infinite;
+        }
+
+        .speed-info {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #ffaa00, #ff6600);
+            border-radius: 5px;
+            color: #000;
+            font-weight: bold;
+            box-shadow: 0 0 20px #ffaa00;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 20px;
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 1.1em;
+            background: linear-gradient(135deg, #00ff88, #00ffff);
+            color: #000;
+            border: 2px solid #00ffff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.8), 0 0 60px rgba(255, 0, 255, 0.5);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .status {
+            font-size: 1.3em;
+            text-shadow: 0 0 10px #00ff88;
+            min-height: 30px;
+            letter-spacing: 2px;
+        }
+
+        .instructions {
+            text-align: center;
+            font-size: 0.9em;
+            color: #00ffff;
+            text-shadow: 0 0 5px #00ffff;
+        }
+
+        .menu-title {
+            font-size: 2em;
+            text-shadow: 0 0 15px #00ff88;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 PONG 🎮</h1>
+        
+        <div id="menuScreen">
+            <div class="menu-title">選擇遊戲模式</div>
+            <div class="menu-buttons">
+                <button onclick="startSinglePlayer()">🤖 單人對 AI</button>
+                <button onclick="startTwoPlayer()">👥 雙人對戰</button>
+            </div>
+        </div>
+
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        
+        <div class="gamePanel" id="gamePanel">
+            <div class="info" id="infoBoard">
+                <div class="score" id="scoreBoard">玩家: <span id="playerScore">0</span></div>
+                <div class="speed-info" id="speedBoard">速度: <span id="speedLevel">0.5x</span></div>
+                <div class="ai-score" id="aiScoreBoard">AI: <span id="aiScore">0</span></div>
+            </div>
+
+            <div class="status">
+                <span id="status">按下開始遊戲</span>
+            </div>
+
+            <div class="buttons">
+                <button onclick="startGame()">開始遊戲</button>
+                <button onclick="backToMenu()">返回菜單</button>
+            </div>
+
+            <div class="instructions">
+                <span id="instructionsText"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const game = {
+            playerScore: 0,
+            aiScore: 0,
+            gameRunning: false,
+            gameOver: false,
+            speedMultiplier: 0.5,
+            maxSpeedMultiplier: 1.5,
+            speedIncrement: 0.02,
+            mode: null
+        };
+
+        const boundaries = {
+            left: 30,
+            right: 770,
+            top: 30,
+            bottom: 570
+        };
+
+        const player = {
+            x: boundaries.left + 10,
+            y: canvas.height / 2 - 50,
+            width: 15,
+            height: 100,
+            speed: 8,
+            dy: 0
+        };
+
+        const ai = {
+            x: boundaries.right - 25,
+            y: canvas.height / 2 - 50,
+            width: 15,
+            height: 100,
+            speed: 6,
+            dy: 0
+        };
+
+        const ball = {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            radius: 8,
+            dx: 5,
+            dy: -5
+        };
+
+        const keys = {};
+        window.addEventListener('keydown', (e) => {
+            keys[e.key.toLowerCase()] = true;
+        });
+        window.addEventListener('keyup', (e) => {
+            keys[e.key.toLowerCase()] = false;
+        });
+
+        function drawGlow(x, y, size, color) {
+            const gradient = ctx.createRadialGradient(x, y, 0, x, y, size);
+            gradient.addColorStop(0, color);
+            gradient.addColorStop(1, 'transparent');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(x - size, y - size, size * 2, size * 2);
+        }
+
+        function drawPaddle(paddle, color, glow) {
+            drawGlow(paddle.x + paddle.width / 2, paddle.y + paddle.height / 2, 30, glow);
+
+            const gradient = ctx.createLinearGradient(paddle.x, paddle.y, paddle.x + paddle.width, paddle.y);
+            gradient.addColorStop(0, color);
+            gradient.addColorStop(0.5, '#fff');
+            gradient.addColorStop(1, color);
+
+            ctx.fillStyle = gradient;
+            ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
+
+            ctx.strokeStyle = glow;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(paddle.x, paddle.y, paddle.width, paddle.height);
+        }
+
+        function drawBall() {
+            const gradient = ctx.createRadialGradient(ball.x, ball.y, 0, ball.x, ball.y, ball.radius * 2);
+            gradient.addColorStop(0, '#ffff00');
+            gradient.addColorStop(0.5, '#ff8800');
+            gradient.addColorStop(1, '#ff0000');
+
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            drawGlow(ball.x, ball.y, ball.radius * 3, 'rgba(255, 255, 0, 0.5)');
+
+            ctx.strokeStyle = '#ffff00';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+
+        function drawBoard() {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.strokeStyle = 'rgba(0, 255, 255, 0.3)';
+            ctx.setLineDash([10, 10]);
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2, 0);
+            ctx.lineTo(canvas.width / 2, canvas.height);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.strokeStyle = '#00ffff';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(boundaries.left, 0);
+            ctx.lineTo(boundaries.left, canvas.height);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(boundaries.right, 0);
+            ctx.lineTo(boundaries.right, canvas.height);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(boundaries.left, boundaries.top);
+            ctx.lineTo(boundaries.right, boundaries.top);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(boundaries.left, boundaries.bottom);
+            ctx.lineTo(boundaries.right, boundaries.bottom);
+            ctx.stroke();
+
+            ctx.strokeStyle = '#ff00ff';
+            ctx.lineWidth = 3;
+            const cornerSize = 25;
+            ctx.strokeRect(boundaries.left, boundaries.top, cornerSize, cornerSize);
+            ctx.strokeRect(boundaries.right - cornerSize, boundaries.top, cornerSize, cornerSize);
+            ctx.strokeRect(boundaries.left, boundaries.bottom - cornerSize, cornerSize, cornerSize);
+            ctx.strokeRect(boundaries.right - cornerSize, boundaries.bottom - cornerSize, cornerSize, cornerSize);
+        }
+
+        function updatePlayer() {
+            if (keys['w']) {
+                player.dy = -player.speed;
+            } else if (keys['s']) {
+                player.dy = player.speed;
+            } else {
+                player.dy = 0;
+            }
+
+            player.y += player.dy;
+            if (player.y < boundaries.top) player.y = boundaries.top;
+            if (player.y + player.height > boundaries.bottom) player.y = boundaries.bottom - player.height;
+        }
+
+        function updateAI() {
+            if (game.mode === 'single') {
+                const aiCenter = ai.y + ai.height / 2;
+                const ballCenter = ball.y;
+
+                if (ballCenter < aiCenter - 35) {
+                    ai.y -= ai.speed * game.speedMultiplier;
+                } else if (ballCenter > aiCenter + 35) {
+                    ai.y += ai.speed * game.speedMultiplier;
+                }
+            } else if (game.mode === 'two-player') {
+                if (keys['i']) {
+                    ai.dy = -ai.speed;
+                } else if (keys['k']) {
+                    ai.dy = ai.speed;
+                } else {
+                    ai.dy = 0;
+                }
+                ai.y += ai.dy;
+            }
+
+            if (ai.y < boundaries.top) ai.y = boundaries.top;
+            if (ai.y + ai.height > boundaries.bottom) ai.y = boundaries.bottom - ai.height;
+        }
+
+        function updateBall() {
+            const currentSpeed = game.speedMultiplier;
+            ball.x += ball.dx * currentSpeed;
+            ball.y += ball.dy * currentSpeed;
+
+            if (ball.y - ball.radius < boundaries.top) {
+                ball.dy *= -1;
+                ball.y = boundaries.top + ball.radius;
+            } else if (ball.y + ball.radius > boundaries.bottom) {
+                ball.dy *= -1;
+                ball.y = boundaries.bottom - ball.radius;
+            }
+
+            if (ball.x - ball.radius < boundaries.left) {
+                game.playerScore--;
+                ball.dx *= -1;
+                ball.x = boundaries.left + ball.radius;
+                checkGameOver();
+            } else if (ball.x + ball.radius > boundaries.right) {
+                game.aiScore--;
+                ball.dx *= -1;
+                ball.x = boundaries.right - ball.radius;
+                checkGameOver();
+            }
+
+            if (
+                ball.dx < 0 &&
+                ball.x - ball.radius < player.x + player.width &&
+                ball.y > player.y &&
+                ball.y < player.y + player.height
+            ) {
+                ball.dx *= -1.05;
+                ball.x = player.x + player.width + ball.radius;
+                const hitPos = (ball.y - (player.y + player.height / 2)) / (player.height / 2);
+                ball.dy += hitPos * 3;
+                ball.dy = Math.max(-10, Math.min(10, ball.dy));
+
+                if (game.speedMultiplier < game.maxSpeedMultiplier) {
+                    game.speedMultiplier += game.speedIncrement;
+                }
+            }
+
+            if (
+                ball.dx > 0 &&
+                ball.x + ball.radius > ai.x &&
+                ball.y > ai.y &&
+                ball.y < ai.y + ai.height
+            ) {
+                ball.dx *= -1.05;
+                ball.x = ai.x - ball.radius;
+                const hitPos = (ball.y - (ai.y + ai.height / 2)) / (ai.height / 2);
+                ball.dy += hitPos * 3;
+                ball.dy = Math.max(-10, Math.min(10, ball.dy));
+
+                if (game.speedMultiplier < game.maxSpeedMultiplier) {
+                    game.speedMultiplier += game.speedIncrement;
+                }
+            }
+        }
+
+        function checkGameOver() {
+            if (game.playerScore <= -10) {
+                game.gameRunning = false;
+                game.gameOver = true;
+                const winner = game.mode === 'single' ? 'AI 贏了！' : '玩家2 贏了！';
+                document.getElementById('status').textContent = '❌ 玩家1 輸了！' + winner;
+            } else if (game.aiScore <= -10) {
+                game.gameRunning = false;
+                game.gameOver = true;
+                const winner = game.mode === 'single' ? '你贏了！' : '玩家1 贏了！';
+                document.getElementById('status').textContent = '🎉 ' + winner + ' 🎉';
+            }
+        }
+
+        function resetBall() {
+            ball.x = canvas.width / 2;
+            ball.y = canvas.height / 2;
+            ball.dx = (Math.random() > 0.5 ? 1 : -1) * 5;
+            ball.dy = (Math.random() > 0.5 ? 1 : -1) * 5;
+        }
+
+        function updateScore() {
+            const scoreBoard = document.getElementById('scoreBoard');
+            const aiScoreBoard = document.getElementById('aiScoreBoard');
+            const speedBoard = document.getElementById('speedBoard');
+
+            if (game.mode === 'single') {
+                scoreBoard.textContent = '玩家: ' + game.playerScore;
+                aiScoreBoard.textContent = 'AI: ' + game.aiScore;
+                speedBoard.style.display = 'block';
+                document.getElementById('speedLevel').textContent = game.speedMultiplier.toFixed(1) + 'x';
+            } else {
+                scoreBoard.textContent = '玩家1: ' + game.playerScore;
+                aiScoreBoard.textContent = '玩家2: ' + game.aiScore;
+                speedBoard.style.display = 'none';
+            }
+
+            if (game.playerScore <= -5) {
+                scoreBoard.classList.add('warning');
+            } else {
+                scoreBoard.classList.remove('warning');
+            }
+
+            if (game.aiScore <= -5) {
+                aiScoreBoard.classList.add('warning');
+            } else {
+                aiScoreBoard.classList.remove('warning');
+            }
+        }
+
+        function gameLoop() {
+            drawBoard();
+
+            if (game.gameRunning) {
+                updatePlayer();
+                updateAI();
+                updateBall();
+            }
+
+            drawPaddle(player, '#00ff88', '#00ffff');
+            drawPaddle(ai, '#ff00ff', '#ff6ec7');
+            drawBall();
+            updateScore();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function startSinglePlayer() {
+            game.mode = 'single';
+            document.getElementById('menuScreen').classList.add('hidden');
+            canvas.classList.add('active');
+            document.getElementById('gamePanel').classList.add('active');
+            document.getElementById('instructionsText').textContent = '使用 W/S 上下移動你的擋板，與 AI 對戰！';
+            document.getElementById('status').textContent = '按下開始遊戲';
+            resetGameState();
+        }
+
+        function startTwoPlayer() {
+            game.mode = 'two-player';
+            document.getElementById('menuScreen').classList.add('hidden');
+            canvas.classList.add('active');
+            document.getElementById('gamePanel').classList.add('active');
+            document.getElementById('instructionsText').textContent = '玩家1：W/S 移動｜玩家2：I/K 移動';
+            document.getElementById('status').textContent = '按下開始遊戲';
+            resetGameState();
+        }
+
+        function resetGameState() {
+            game.playerScore = 0;
+            game.aiScore = 0;
+            game.gameRunning = false;
+            game.gameOver = false;
+            game.speedMultiplier = 0.5;
+            resetBall();
+            player.y = canvas.height / 2 - 50;
+            ai.y = canvas.height / 2 - 50;
+            document.getElementById('scoreBoard').classList.remove('warning');
+            document.getElementById('aiScoreBoard').classList.remove('warning');
+            updateScore();
+        }
+
+        function startGame() {
+            if (!game.gameRunning && !game.gameOver) {
+                game.gameRunning = true;
+                document.getElementById('status').textContent = '遊戲進行中...';
+            }
+        }
+
+        function backToMenu() {
+            game.gameRunning = false;
+            game.gameOver = false;
+            document.getElementById('menuScreen').classList.remove('hidden');
+            canvas.classList.remove('active');
+            document.getElementById('gamePanel').classList.remove('active');
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>
