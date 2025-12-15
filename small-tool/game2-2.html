@@ -16,6 +16,8 @@
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             cursor: default;
+            -webkit-user-select: none; /* Safari, Safari on iOS */
+            user-select: none;
         }
 
         #game-container {
@@ -58,6 +60,23 @@
             background-color: #ffffff;
             box-shadow: 0 0 15px rgba(255, 255, 255, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.5);
             border: 2px solid #00ffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 自定義十字光標 */
+        .player::before {
+            content: '';
+            width: 24px;
+            height: 24px;
+            position: relative;
+            background: 
+                linear-gradient(90deg, transparent 40%, #00ff88 40%, #00ff88 60%, transparent 60%) center / 100% 2px no-repeat,
+                linear-gradient(0deg, transparent 40%, #00ff88 40%, #00ff88 60%, transparent 60%) center / 2px 100% no-repeat;
+            box-shadow: 
+                0 0 8px #00ff88,
+                inset 0 0 8px rgba(0, 255, 136, 0.5);
         }
 
         /* 食物方塊 (綠色) */
@@ -95,6 +114,14 @@
             position: absolute;
             pointer-events: none;
             border-radius: 50%;
+        }
+
+        /* 滑鼠拖曳尾跡 */
+        .mouse-trail {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(0, 255, 136, 0.6);
         }
 
         /* 遊戲失敗訊息 */
@@ -596,8 +623,39 @@
             // 更新玩家方塊位置
             setBlockPosition(player, playerX, playerY);
 
+            // 添加拖曳尾跡效果
+            createMouseTrail(e.clientX - rect.left, e.clientY - rect.top);
+
             // 每次玩家移動後立即檢查碰撞，確保反應靈敏
             checkCollisions();
+        }
+
+        /** 建立滑鼠拖曳尾跡 */
+        function createMouseTrail(x, y) {
+            // 每隔幾個像素才建立一個尾跡（性能優化）
+            if (Math.random() > 0.3) return;
+
+            const trail = document.createElement('div');
+            trail.className = 'mouse-trail';
+            const size = Math.random() * 8 + 4;
+            trail.style.width = size + 'px';
+            trail.style.height = size + 'px';
+            trail.style.left = (x - size / 2) + 'px';
+            trail.style.top = (y - size / 2) + 'px';
+            trail.style.background = `hsl(${Math.random() * 60 + 120}, 100%, 50%)`;
+            gameContainer.appendChild(trail);
+
+            let life = 0.8;
+            function animate() {
+                life -= 0.05;
+                trail.style.opacity = life;
+                if (life > 0) {
+                    requestAnimationFrame(animate);
+                } else {
+                    trail.remove();
+                }
+            }
+            animate();
         }
 
         /** 遊戲主循環：由 setInterval 呼叫 */
