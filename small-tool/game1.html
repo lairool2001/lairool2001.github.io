@@ -254,7 +254,7 @@
             gameRunning: false,
             gameOver: false,
             speedMultiplier: 0.5,
-            maxSpeedMultiplier: 1.5,
+            maxSpeedMultiplier: 1.4,
             speedIncrement: 0.02,
             mode: null,
             difficulty: null,
@@ -442,9 +442,9 @@
                 const error = game.difficulty === 'advanced' ? 20 : 35;
 
                 if (targetY < aiCenter - error) {
-                    ai.y -= ai.speed * game.speedMultiplier;
+                    ai.y -= ai.speed * game.speedMultiplier*1.1;
                 } else if (targetY > aiCenter + error) {
-                    ai.y += ai.speed * game.speedMultiplier;
+                    ai.y += ai.speed * game.speedMultiplier*1.1;
                 }
             } else if (game.mode === 'ai-battle') {
                 // 雙 AI 對戰模式
