@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>滑鼠精確追蹤吃方塊遊戲</title>
+
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #e8e8e8;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            cursor: default;
+        }
+
+        #game-container {
+            position: relative;
+            width: 500px;
+            height: 500px;
+            border: 8px solid #333;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            background-color: #222;
+            overflow: hidden;
+            cursor: none;
+            /* 在遊戲容器內隱藏系統游標 */
+        }
+
+        #score-board {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            z-index: 10;
+            text-shadow: 1px 1px 2px black;
+        }
+
+        /* 遊戲方塊基礎樣式 */
+        .player,
+        .target,
+        .enemy {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+        }
+
+        /* 玩家方塊 (白色) */
+        .player {
+            background-color: #ffffff;
+        }
+
+        /* 食物方塊 (綠色) */
+        .target {
+            background-color: #28a745;
+        }
+
+        /* 危險物方塊 (紅色) */
+        .enemy {
+            background-color: #dc3545;
+        }
+
+        /* 遊戲失敗訊息 */
+        #game-over-message {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            z-index: 20;
+        }
+
+        #game-over-message h1 {
+            color: #dc3545;
+            font-size: 40px;
+        }
+
+        #game-over-message button {
+            padding: 12px 25px;
+            font-size: 20px;
+            cursor: pointer;
+            margin-top: 30px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="game-container">
+
+        <div id="score-board">分數: <span id="score">0</span></div>
+
+        <div id="game-over-message" style="display:none;">
+            <h1>遊戲失敗 (Game Over)</h1>
+            <p>你的分數低於 0 分！</p>
+            <button onclick="location.reload()">重新開始</button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- 遊戲參數設定 ---
+        const GAME_WIDTH = 500;
+        const GAME_HEIGHT = 500;
+        const BLOCK_SIZE = 20;
+        const ENEMY_SPEED = 1.0;    // 敵人追蹤速度
+        const MIN_ENEMY_DISTANCE = 150; // 敵人初始生成時距離玩家的最小距離
+
+        // --- DOM 元素設定 ---
+        const gameContainer = document.getElementById('game-container');
+        const scoreDisplay = document.getElementById('score');
+        const gameOverMessage = document.getElementById('game-over-message');
+
+        // --- 遊戲狀態變數 ---
+        let score = 0;
+        let playerX = 0;
+        let playerY = 0;
+        let targetX = 0;
+        let targetY = 0;
+        let enemyX = 0;
+        let enemyY = 0;
+        let mouseTargetX = 0;
+        let mouseTargetY = 0;
+        let gameLoopInterval;
+
+        // 創建遊戲方塊
+        const player = createBlock('player');
+        const target = createBlock('target');
+        const enemy = createBlock('enemy');
+
+        // --- 輔助函數 ---
+        function createBlock(className) {
+            const block = document.createElement('div');
+            block.className = className;
+            gameContainer.appendChild(block);
+            return block;
+        }
+        function setBlockPosition(block, x, y) {
+            block.style.left = `${x}px`;
+            block.style.top = `${y}px`;
+        }
+
+        function getRandomPosition() {
+            const max_x = (GAME_WIDTH - BLOCK_SIZE) / BLOCK_SIZE;
+            const max_y = (GAME_HEIGHT - BLOCK_SIZE) / BLOCK_SIZE;
+            const x = Math.floor(Math.random() * (max_x + 1)) * BLOCK_SIZE;
+            const y = Math.floor(Math.random() * (max_y + 1)) * BLOCK_SIZE;
+            return { x, y };
+        }
+
+        function placeTarget() {
+            let newPos;
+            do {
+                newPos = getRandomPosition();
+                targetX = newPos.x;
+                targetY = newPos.y;
+            } while (playerX === targetX && playerY === targetY);
+            setBlockPosition(target, targetX, targetY);
+        }
+
+        function placeEnemy() {
+            let newPos;
+             let dist=0;
+            do {
+                newPos = getRandomPosition();
+                enemyX = newPos.x;
+                enemyY = newPos.y;
+                dist = Math.sqrt(Math.pow(playerX - enemyX, 2) + Math.pow(playerY - enemyY, 2));
+            } while (dist < MIN_ENEMY_DISTANCE || (playerX === enemyX && playerY === enemyY));
+
+            setBlockPosition(enemy, enemyX, enemyY);
+        }
+
+        function checkCollision(x1, y1, x2, y2) {
+            const distance = Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+            return distance < BLOCK_SIZE * 0.9;
+        }
+
+        // --- 遊戲流程控制 ---
+
+        function checkCollisions() {
+            // 1. 玩家與目標方塊的碰撞
+            if (checkCollision(playerX, playerY, targetX, targetY)) {
+                score += 1;
+                scoreDisplay.textContent = score;
+                placeTarget();
+                placeEnemy();
+            }
+
+            // 2. 玩家與敵人方塊的碰撞
+            if (checkCollision(playerX, playerY, enemyX, enemyY)) {
+                score -= 10;
+                scoreDisplay.textContent = score;
+
+                placeEnemy();
+
+                if (score < 0) {
+                    gameOver();
+                }
+            }
+        }
+
+        /** 敵人追蹤邏輯：在 setInterval 中執行 */
+        function moveEnemy() {
+            const dx = playerX - enemyX;
+            const dy = playerY - enemyY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance > 0) {
+                const unitX = dx / distance;
+                const unitY = dy / distance;
+
+                // 應用速度，更新 XY 座標
+                let newEnemyX = enemyX + unitX * ENEMY_SPEED;
+                let newEnemyY = enemyY + unitY * ENEMY_SPEED;
+
+                newEnemyX = Math.max(0, Math.min(newEnemyX, GAME_WIDTH - BLOCK_SIZE));
+                newEnemyY = Math.max(0, Math.min(newEnemyY, GAME_HEIGHT - BLOCK_SIZE));
+
+                enemyX = newEnemyX;
+                enemyY = newEnemyY;
+                setBlockPosition(enemy, enemyX, enemyY);
+            }
+
+            checkCollisions();
+        }
+
+        /** 滑鼠移動事件處理：即時更新玩家位置 */
+        function handleMouseMove(e) {
+            const rect = gameContainer.getBoundingClientRect();
+
+            // 只有當滑鼠在遊戲容器內時才更新
+            if (e.clientX < rect.left || e.clientX > rect.right ||
+                e.clientY < rect.top || e.clientY > rect.bottom) {
+                return;
+            }
+
+            // 計算滑鼠在遊戲容器內的座標
+            let x = e.clientX - rect.left - BLOCK_SIZE / 2;
+            let y = e.clientY - rect.top - BLOCK_SIZE / 2;
+
+            // 邊界限制
+            playerX = Math.max(0, Math.min(x, GAME_WIDTH - BLOCK_SIZE));
+            playerY = Math.max(0, Math.min(y, GAME_HEIGHT - BLOCK_SIZE));
+
+            // 更新玩家方塊位置
+            setBlockPosition(player, playerX, playerY);
+
+            // 每次玩家移動後立即檢查碰撞，確保反應靈敏
+            checkCollisions();
+        }
+
+        /** 遊戲主循環：由 setInterval 呼叫 */
+        function gameLoop() {
+            moveEnemy();
+        }
+
+        function gameOver() {
+            clearInterval(gameLoopInterval);
+            document.removeEventListener('mousemove', handleMouseMove); 
+            gameOverMessage.style.display = 'flex';
+        }
+
+        function initializeGame() {
+            // 初始位置
+            playerX = GAME_WIDTH / 2 - BLOCK_SIZE / 2;
+            playerY = GAME_HEIGHT / 2 - BLOCK_SIZE / 2;
+            setBlockPosition(player, playerX, playerY);
+            mouseTargetX = playerX;
+            mouseTargetY = playerY;
+
+            score = 0;
+            scoreDisplay.textContent = score;
+
+            placeTarget();
+            placeEnemy();
+
+            // 啟動遊戲循環 (使用 setInterval 來穩定更新敵方位置)
+            if (gameLoopInterval) clearInterval(gameLoopInterval);
+            gameLoopInterval = setInterval(gameLoop, 1000 / 60); // 設置 60 FPS 穩定運行
+
+            // 監聽滑鼠事件 (綁定到整個 document 以確保持續追蹤)
+            document.addEventListener('mousemove', handleMouseMove);
+        }
+
+        // 啟動遊戲
+        initializeGame();
+    </script>
+</body>
+
+</html>
