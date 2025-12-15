@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>滑鼠精確追蹤吃方塊遊戲</title>
+
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            cursor: default;
+        }
+
+        #game-container {
+            position: relative;
+            width: 1000px;
+            height: 1000px;
+            border: 12px solid #0f3460;
+            box-shadow: 0 0 40px rgba(0, 255, 136, 0.3), 0 0 80px rgba(255, 0, 136, 0.2);
+            background-color: #0a0e27;
+            overflow: hidden;
+            cursor: none;
+            border-radius: 10px;
+        }
+
+        #score-board {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 32px;
+            font-weight: bold;
+            color: #00ff88;
+            z-index: 10;
+            text-shadow: 0 0 10px #00ff88, 0 0 20px #00ffff;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+        }
+
+        /* 遊戲方塊基礎樣式 */
+        .player,
+        .target,
+        .enemy {
+            position: absolute;
+            border-radius: 3px;
+        }
+
+        /* 玩家方塊 (白色) */
+        .player {
+            width: 40px;
+            height: 40px;
+            background-color: #ffffff;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.5);
+            border: 2px solid #00ffff;
+        }
+
+        /* 食物方塊 (綠色) */
+        .target {
+            width: 40px;
+            height: 40px;
+            background-color: #28a745;
+            box-shadow: 0 0 20px rgba(40, 167, 69, 0.8), 0 0 40px rgba(40, 167, 69, 0.4);
+            border: 2px solid #00ff88;
+            animation: pulse-target 0.6s ease-in-out infinite;
+        }
+
+        @keyframes pulse-target {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* 危險物方塊 (紅色) */
+        .enemy {
+            width: 40px;
+            height: 40px;
+            background-color: #dc3545;
+            box-shadow: 0 0 15px rgba(220, 53, 69, 0.8), 0 0 30px rgba(220, 53, 69, 0.4);
+            border: 2px solid #ff6b6b;
+            animation: pulse-enemy 0.4s ease-in-out infinite;
+        }
+
+        @keyframes pulse-enemy {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.2); }
+        }
+
+        /* 粒子效果 */
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 50%;
+        }
+
+        /* 遊戲失敗訊息 */
+        #game-over-message {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(20, 20, 50, 0.95));
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            z-index: 20;
+            backdrop-filter: blur(2px);
+        }
+
+        #game-over-message h1 {
+            color: #dc3545;
+            font-size: 60px;
+            text-shadow: 0 0 20px #dc3545;
+            margin: 20px 0;
+            animation: pulse-text 0.8s ease-in-out infinite;
+        }
+
+        @keyframes pulse-text {
+            0%, 100% { text-shadow: 0 0 20px #dc3545; }
+            50% { text-shadow: 0 0 40px #dc3545, 0 0 60px #ff0080; }
+        }
+
+        #game-over-message p {
+            font-size: 28px;
+            margin: 20px 0;
+            color: #00ff88;
+        }
+
+        #game-over-message button {
+            padding: 15px 40px;
+            font-size: 24px;
+            cursor: pointer;
+            margin-top: 40px;
+            background: linear-gradient(135deg, #00ff88, #00ffff);
+            color: #000;
+            border: 2px solid #00ff88;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        #game-over-message button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(0, 255, 136, 0.8), 0 0 40px rgba(0, 255, 255, 0.5);
+        }
+
+        #game-over-message button:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="game-container">
+
+        <div id="score-board">分數: <span id="score">0</span></div>
+
+        <div id="game-over-message" style="display:none;">
+            <h1>遊戲失敗 (Game Over)</h1>
+            <p>你的分數低於 0 分！</p>
+            <button onclick="location.reload()">重新開始</button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- 遊戲參數設定 ---
+        const GAME_WIDTH = 1000;
+        const GAME_HEIGHT = 1000;
+        const BLOCK_SIZE = 40;
+        const BASE_ENEMY_SPEED = 0.5;    // 敵人基本追蹤速度
+        const MIN_ENEMY_DISTANCE = 150; // 敵人初始生成時距離玩家的最小距離
+        const MIN_ENEMY_TO_ENEMY = 80; // 敵人之間的最小距離
+        
+        // 鳥群演算法參數
+        const BOID_SEPARATION_DISTANCE = 80; // 分離距離
+        const BOID_ALIGNMENT_DISTANCE = 120; // 對齐距離
+        const BOID_COHESION_DISTANCE = 150; // 聚集距離
+        const BOID_SEPARATION_WEIGHT = 1.5; // 分離權重
+        const BOID_ALIGNMENT_WEIGHT = 0.8; // 對齐權重
+        const BOID_COHESION_WEIGHT = 0.6; // 聚集權重
+        const BOID_PLAYER_WEIGHT = 1.2; // 追蹤玩家權重
+
+        // --- DOM 元素設定 ---
+        const gameContainer = document.getElementById('game-container');
+        const scoreDisplay = document.getElementById('score');
+        const gameOverMessage = document.getElementById('game-over-message');
+
+        // --- 遊戲狀態變數 ---
+        let score = 0;
+        let playerX = 0;
+        let playerY = 0;
+        let targetX = 0;
+        let targetY = 0;
+        let enemies = []; // 敵人陣列
+        let mouseTargetX = 0;
+        let mouseTargetY = 0;
+        let gameLoopInterval;
+
+        // 創建遊戲方塊
+        const player = createBlock('player');
+        const target = createBlock('target');
+
+        // --- 輔助函數 ---
+        function createBlock(className) {
+            const block = document.createElement('div');
+            block.className = className;
+            gameContainer.appendChild(block);
+            return block;
+        }
+        function setBlockPosition(block, x, y) {
+            block.style.left = `${x}px`;
+            block.style.top = `${y}px`;
+        }
+
+        function createParticles(x, y, color, count = 8) {
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                const size = Math.random() * 10 + 5;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.background = color;
+                particle.style.boxShadow = `0 0 ${size * 2}px ${color}`;
+                gameContainer.appendChild(particle);
+
+                const angle = (Math.PI * 2 * i) / count;
+                const speed = Math.random() * 4 + 3;
+                const vx = Math.cos(angle) * speed;
+                const vy = Math.sin(angle) * speed;
+                let life = 0.6;
+
+                function animateParticle() {
+                    x += vx;
+                    y += vy;
+                    life -= 0.02;
+                    particle.style.left = x + 'px';
+                    particle.style.top = y + 'px';
+                    particle.style.opacity = life;
+
+                    if (life > 0) {
+                        requestAnimationFrame(animateParticle);
+                    } else {
+                        particle.remove();
+                    }
+                }
+                animateParticle();
+            }
+        }
+
+        function getRandomPosition() {
+            const max_x = (GAME_WIDTH - BLOCK_SIZE) / BLOCK_SIZE;
+            const max_y = (GAME_HEIGHT - BLOCK_SIZE) / BLOCK_SIZE;
+            const x = Math.floor(Math.random() * (max_x + 1)) * BLOCK_SIZE;
+            const y = Math.floor(Math.random() * (max_y + 1)) * BLOCK_SIZE;
+            return { x, y };
+        }
+
+        function placeTarget() {
+            let newPos;
+            do {
+                newPos = getRandomPosition();
+                targetX = newPos.x;
+                targetY = newPos.y;
+            } while (playerX === targetX && playerY === targetY);
+            setBlockPosition(target, targetX, targetY);
+        }
+
+        function placeEnemy() {
+            let newPos;
+            let dist = 0;
+            let isValid = false;
+            
+            // 嘗試找到一個有效位置（重試最多 50 次）
+            let attempts = 0;
+            while (!isValid && attempts < 50) {
+                newPos = getRandomPosition();
+                dist = Math.sqrt(Math.pow(playerX - newPos.x, 2) + Math.pow(playerY - newPos.y, 2));
+                
+                // 檢查是否與玩家距離足夠遠
+                if (dist < MIN_ENEMY_DISTANCE || (playerX === newPos.x && playerY === newPos.y)) {
+                    attempts++;
+                    continue;
+                }
+                
+                // 檢查是否與其他敵人距離足夠遠
+                let tooCloseToOtherEnemy = false;
+                for (let i = 0; i < enemies.length; i++) {
+                    const distToEnemy = Math.sqrt(Math.pow(enemies[i].x - newPos.x, 2) + Math.pow(enemies[i].y - newPos.y, 2));
+                    if (distToEnemy < MIN_ENEMY_TO_ENEMY) {
+                        tooCloseToOtherEnemy = true;
+                        break;
+                    }
+                }
+                
+                if (tooCloseToOtherEnemy) {
+                    attempts++;
+                    continue;
+                }
+                
+                isValid = true;
+            }
+            
+            // 如果找不到有效位置，返回 null
+            return isValid ? newPos : null;
+        }
+
+        function createEnemy(x, y) {
+            const enemyBlock = createBlock('enemy');
+            const enemyObj = { block: enemyBlock, x: x, y: y };
+            setBlockPosition(enemyBlock, x, y);
+            return enemyObj;
+        }
+
+        function addNewEnemy() {
+            const pos = placeEnemy();
+            if (pos !== null) {
+                const newEnemy = createEnemy(pos.x, pos.y);
+                enemies.push(newEnemy);
+            }
+        }
+
+        function checkCollision(x1, y1, x2, y2) {
+            const distance = Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+            return distance < BLOCK_SIZE * 0.9;
+        }
+
+        // --- 遊戲流程控制 ---
+
+        function checkCollisions() {
+            // 1. 玩家與目標方塊的碰撞
+            if (checkCollision(playerX, playerY, targetX, targetY)) {
+                score += 1;
+                scoreDisplay.textContent = score;
+                // 碰撞目標時的綠色粒子特效
+                createParticles(targetX + BLOCK_SIZE / 2, targetY + BLOCK_SIZE / 2, '#28a745', 12);
+                placeTarget();
+                
+                // 每 10 分增加一個敵人
+                if (score % 10 === 0) {
+                    addNewEnemy();
+                }
+            }
+
+            // 2. 玩家與敵人方塊的碰撞
+            for (let i = 0; i < enemies.length; i++) {
+                if (checkCollision(playerX, playerY, enemies[i].x, enemies[i].y)) {
+                    score -= 10;
+                    scoreDisplay.textContent = score;
+                    // 碰撞敵人時的紅色粒子特效
+                    createParticles(enemies[i].x + BLOCK_SIZE / 2, enemies[i].y + BLOCK_SIZE / 2, '#dc3545', 10);
+                    
+                    // 敵人重新放置位置（保持位置，只改變座標）
+                    const newPos = placeEnemy();
+                    if (newPos !== null) {
+                        enemies[i].x = newPos.x;
+                        enemies[i].y = newPos.y;
+                        setBlockPosition(enemies[i].block, newPos.x, newPos.y);
+                    }
+
+                    if (score < 0) {
+                        gameOver();
+                    }
+                }
+            }
+        }
+
+        /** 鳥群演算法 - 分離規則：遠離過近的敵人 */
+        function calculateSeparation(enemy) {
+            let separateX = 0;
+            let separateY = 0;
+            let count = 0;
+
+            for (let i = 0; i < enemies.length; i++) {
+                if (enemies[i] === enemy) continue;
+
+                const dx = enemy.x - enemies[i].x;
+                const dy = enemy.y - enemies[i].y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < BOID_SEPARATION_DISTANCE && distance > 0) {
+                    // 根據距離加權，距離越近斥力越強
+                    const weight = 1 / (distance + 0.1);
+                    separateX += (dx / distance) * weight;
+                    separateY += (dy / distance) * weight;
+                    count++;
+                }
+            }
+
+            if (count > 0) {
+                separateX /= count;
+                separateY /= count;
+            }
+
+            return { x: separateX, y: separateY };
+        }
+
+        /** 鳥群演算法 - 對齊規則：與周圍敵人速度相同 */
+        function calculateAlignment(enemy) {
+            let avgVelX = 0;
+            let avgVelY = 0;
+            let count = 0;
+
+            for (let i = 0; i < enemies.length; i++) {
+                if (enemies[i] === enemy) continue;
+
+                const dx = enemy.x - enemies[i].x;
+                const dy = enemy.y - enemies[i].y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < BOID_ALIGNMENT_DISTANCE && distance > 0) {
+                    if (enemies[i].vx !== undefined) avgVelX += enemies[i].vx;
+                    if (enemies[i].vy !== undefined) avgVelY += enemies[i].vy;
+                    count++;
+                }
+            }
+
+            if (count > 0) {
+                avgVelX /= count;
+                avgVelY /= count;
+            }
+
+            return { x: avgVelX, y: avgVelY };
+        }
+
+        /** 鳥群演算法 - 聚集規則：移向周圍敵人的中心 */
+        function calculateCohesion(enemy) {
+            let centerX = 0;
+            let centerY = 0;
+            let count = 0;
+
+            for (let i = 0; i < enemies.length; i++) {
+                if (enemies[i] === enemy) continue;
+
+                const dx = enemy.x - enemies[i].x;
+                const dy = enemy.y - enemies[i].y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < BOID_COHESION_DISTANCE && distance > 0) {
+                    centerX += enemies[i].x;
+                    centerY += enemies[i].y;
+                    count++;
+                }
+            }
+
+            if (count > 0) {
+                centerX /= count;
+                centerY /= count;
+                centerX -= enemy.x;
+                centerY -= enemy.y;
+            }
+
+            return { x: centerX, y: centerY };
+        }
+
+        /** 追蹤玩家的規則 */
+        function calculatePlayerTracking(enemy) {
+            const dx = playerX - enemy.x;
+            const dy = playerY - enemy.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance > 0) {
+                return { x: dx / distance, y: dy / distance };
+            }
+            return { x: 0, y: 0 };
+        }
+
+        /** 敵人追蹤邏輯：在 setInterval 中執行 */
+        function moveEnemies() {
+            // 根據分數計算敵人速度
+            const currentEnemySpeed = BASE_ENEMY_SPEED + (score * 0.05);
+            
+            for (let i = 0; i < enemies.length; i++) {
+                const enemy = enemies[i];
+
+                // 計算四個行為力
+                const separation = calculateSeparation(enemy);
+                const alignment = calculateAlignment(enemy);
+                const cohesion = calculateCohesion(enemy);
+                const playerTracking = calculatePlayerTracking(enemy);
+
+                // 組合所有力量
+                let velocityX = 
+                    separation.x * BOID_SEPARATION_WEIGHT +
+                    alignment.x * BOID_ALIGNMENT_WEIGHT +
+                    cohesion.x * BOID_COHESION_WEIGHT +
+                    playerTracking.x * BOID_PLAYER_WEIGHT;
+
+                let velocityY = 
+                    separation.y * BOID_SEPARATION_WEIGHT +
+                    alignment.y * BOID_ALIGNMENT_WEIGHT +
+                    cohesion.y * BOID_COHESION_WEIGHT +
+                    playerTracking.y * BOID_PLAYER_WEIGHT;
+
+                // 正規化速度向量
+                const magnitude = Math.sqrt(velocityX * velocityX + velocityY * velocityY);
+                if (magnitude > 0) {
+                    velocityX = (velocityX / magnitude) * currentEnemySpeed;
+                    velocityY = (velocityY / magnitude) * currentEnemySpeed;
+                }
+
+                // 儲存速度用於對齊計算
+                enemy.vx = velocityX;
+                enemy.vy = velocityY;
+
+                // 更新位置
+                let newEnemyX = enemy.x + velocityX;
+                let newEnemyY = enemy.y + velocityY;
+
+                // 邊界限制
+                newEnemyX = Math.max(0, Math.min(newEnemyX, GAME_WIDTH - BLOCK_SIZE));
+                newEnemyY = Math.max(0, Math.min(newEnemyY, GAME_HEIGHT - BLOCK_SIZE));
+
+                enemy.x = newEnemyX;
+                enemy.y = newEnemyY;
+                setBlockPosition(enemy.block, enemy.x, enemy.y);
+            }
+
+            // 敵人之間的碰撞檢測
+            handleEnemyCollisions();
+
+            checkCollisions();
+        }
+
+        /** 處理敵人之間的碰撞 */
+        function handleEnemyCollisions() {
+            for (let i = 0; i < enemies.length; i++) {
+                for (let j = i + 1; j < enemies.length; j++) {
+                    const enemy1 = enemies[i];
+                    const enemy2 = enemies[j];
+
+                    const dx = enemy2.x - enemy1.x;
+                    const dy = enemy2.y - enemy1.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    // 如果敵人相碰（距離小於兩個方塊寬度）
+                    if (distance < BLOCK_SIZE && distance > 0) {
+                        // 碰撞特效
+                        createParticles(
+                            (enemy1.x + enemy2.x) / 2 + BLOCK_SIZE / 2,
+                            (enemy1.y + enemy2.y) / 2 + BLOCK_SIZE / 2,
+                            '#ff6b6b',
+                            6
+                        );
+
+                        // 重置碰撞的敵人位置
+                        const newPos1 = placeEnemy();
+                        if (newPos1 !== null) {
+                            enemy1.x = newPos1.x;
+                            enemy1.y = newPos1.y;
+                            setBlockPosition(enemy1.block, enemy1.x, enemy1.y);
+                        }
+
+                        const newPos2 = placeEnemy();
+                        if (newPos2 !== null) {
+                            enemy2.x = newPos2.x;
+                            enemy2.y = newPos2.y;
+                            setBlockPosition(enemy2.block, enemy2.x, enemy2.y);
+                        }
+                    }
+                }
+            }
+        }
+
+        /** 滑鼠移動事件處理：即時更新玩家位置 */
+        function handleMouseMove(e) {
+            const rect = gameContainer.getBoundingClientRect();
+
+            // 只有當滑鼠在遊戲容器內時才更新
+            if (e.clientX < rect.left || e.clientX > rect.right ||
+                e.clientY < rect.top || e.clientY > rect.bottom) {
+                return;
+            }
+
+            // 計算滑鼠在遊戲容器內的座標
+            let x = e.clientX - rect.left - BLOCK_SIZE / 2;
+            let y = e.clientY - rect.top - BLOCK_SIZE / 2;
+
+            // 邊界限制
+            playerX = Math.max(0, Math.min(x, GAME_WIDTH - BLOCK_SIZE));
+            playerY = Math.max(0, Math.min(y, GAME_HEIGHT - BLOCK_SIZE));
+
+            // 更新玩家方塊位置
+            setBlockPosition(player, playerX, playerY);
+
+            // 每次玩家移動後立即檢查碰撞，確保反應靈敏
+            checkCollisions();
+        }
+
+        /** 遊戲主循環：由 setInterval 呼叫 */
+        function gameLoop() {
+            moveEnemies();
+        }
+
+        function gameOver() {
+            clearInterval(gameLoopInterval);
+            document.removeEventListener('mousemove', handleMouseMove); 
+            gameOverMessage.style.display = 'flex';
+        }
+
+        function initializeGame() {
+            // 初始位置
+            playerX = GAME_WIDTH / 2 - BLOCK_SIZE / 2;
+            playerY = GAME_HEIGHT / 2 - BLOCK_SIZE / 2;
+            setBlockPosition(player, playerX, playerY);
+            mouseTargetX = playerX;
+            mouseTargetY = playerY;
+
+            score = 0;
+            scoreDisplay.textContent = score;
+            
+            // 清空敵人陣列
+            enemies = [];
+
+            placeTarget();
+            
+            // 初始化第一個敵人
+            addNewEnemy();
+
+            // 啟動遊戲循環 (使用 setInterval 來穩定更新敵方位置)
+            if (gameLoopInterval) clearInterval(gameLoopInterval);
+            gameLoopInterval = setInterval(gameLoop, 1000 / 60); // 設置 60 FPS 穩定運行
+
+            // 監聽滑鼠事件 (綁定到整個 document 以確保持續追蹤)
+            document.addEventListener('mousemove', handleMouseMove);
+        }
+
+        // 啟動遊戲
+        initializeGame();
+    </script>
+</body>
+
+</html>
