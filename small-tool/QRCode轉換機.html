@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code 轉換機</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 0.95em;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 12px;
+            color: #333;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1em;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+            transition: all 0.3s ease;
+            background: #f9f9f9;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: #fff;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .options {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .option-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .option-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        input[type="number"],
+        input[type="color"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+            background: #f9f9f9;
+            cursor: pointer;
+        }
+
+        input[type="number"]:focus,
+        input[type="color"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: #fff;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.2);
+        }
+
+        input[type="color"] {
+            height: 45px;
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            min-width: 140px;
+            padding: 14px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-generate {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-generate:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-generate:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-download {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+        }
+
+        .btn-download:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-download:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-download:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-clear {
+            background: linear-gradient(135deg, #fa709a, #fee140);
+            color: #333;
+        }
+
+        .btn-clear:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(250, 112, 154, 0.4);
+        }
+
+        .btn-clear:active {
+            transform: translateY(-1px);
+        }
+
+        .qr-section {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            min-height: 350px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #qrcode {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            margin-bottom: 15px;
+        }
+
+        #qrcode canvas {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .qr-info {
+            color: #666;
+            font-size: 0.95em;
+            margin-top: 15px;
+        }
+
+        .info-icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 20px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .options {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .option-group {
+                min-width: 100%;
+            }
+
+            button {
+                min-width: 100%;
+            }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
+            z-index: 1000;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.success {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+        }
+
+        .toast.error {
+            background: linear-gradient(135deg, #f44336, #da190b);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 QR Code 轉換機</h1>
+        <p class="subtitle">輕鬆將文字轉換成 QR Code</p>
+
+        <div class="input-section">
+            <label for="input-text">輸入文字或連結</label>
+            <textarea 
+                id="input-text" 
+                placeholder="輸入要轉換的文字、URL 或任何內容..."
+            ></textarea>
+        </div>
+
+        <div class="options">
+            <div class="option-group">
+                <label for="qr-size">QR Code 大小</label>
+                <input type="number" id="qr-size" min="100" max="500" value="300" step="50">
+            </div>
+            <div class="option-group">
+                <label for="dark-color">深色</label>
+                <input type="color" id="dark-color" value="#000000">
+            </div>
+            <div class="option-group">
+                <label for="light-color">淺色</label>
+                <input type="color" id="light-color" value="#ffffff">
+            </div>
+            <div class="option-group">
+                <label for="error-level">糾錯等級</label>
+                <select id="error-level">
+                    <option value="L">低 (7%)</option>
+                    <option value="M" selected>中 (15%)</option>
+                    <option value="Q">中高 (25%)</option>
+                    <option value="H">高 (30%)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="btn-generate" onclick="generateQRCode()">🔄 生成 QR Code</button>
+            <button class="btn-download" id="download-btn" onclick="downloadQRCode()" disabled>⬇️ 下載</button>
+            <button class="btn-clear" onclick="clearAll()">🗑️ 清除</button>
+        </div>
+
+        <div class="qr-section">
+            <div id="qrcode"></div>
+            <div class="qr-info" id="qr-info">
+                <span class="info-icon">ℹ</span>
+                <span id="info-text">輸入內容後點擊「生成 QR Code」開始</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        let qrInstance = null;
+
+        function generateQRCode() {
+            const inputText = document.getElementById('input-text').value.trim();
+            const qrSize = parseInt(document.getElementById('qr-size').value);
+            const darkColor = document.getElementById('dark-color').value;
+            const lightColor = document.getElementById('light-color').value;
+            const errorLevel = document.getElementById('error-level').value;
+
+            if (!inputText) {
+                showToast('請輸入文字或連結', 'error');
+                return;
+            }
+
+            // 清除舊的 QR Code
+            const qrcodeDiv = document.getElementById('qrcode');
+            qrcodeDiv.innerHTML = '';
+
+            try {
+                // 生成新的 QR Code
+                qrInstance = new QRCode(qrcodeDiv, {
+                    text: inputText,
+                    width: qrSize,
+                    height: qrSize,
+                    colorDark: darkColor,
+                    colorLight: lightColor,
+                    correctLevel: QRCode.CorrectLevel[errorLevel]
+                });
+
+                // 更新資訊文字
+                document.getElementById('info-text').textContent = 
+                    `✅ QR Code 已生成 (${inputText.length} 個字元)`;
+
+                // 啟用下載按鈕
+                document.getElementById('download-btn').disabled = false;
+
+                showToast('QR Code 生成成功！', 'success');
+            } catch (error) {
+                showToast('生成失敗：' + error.message, 'error');
+            }
+        }
+
+        function downloadQRCode() {
+            if (!qrInstance) {
+                showToast('請先生成 QR Code', 'error');
+                return;
+            }
+
+            try {
+                const canvas = document.querySelector('#qrcode canvas');
+                if (!canvas) {
+                    showToast('無法找到 QR Code', 'error');
+                    return;
+                }
+
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = `qrcode_${new Date().getTime()}.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                showToast('QR Code 下載成功！', 'success');
+            } catch (error) {
+                showToast('下載失敗：' + error.message, 'error');
+            }
+        }
+
+        function clearAll() {
+            document.getElementById('input-text').value = '';
+            document.getElementById('qrcode').innerHTML = '';
+            document.getElementById('info-text').textContent = '輸入內容後點擊「生成 QR Code」開始';
+            document.getElementById('download-btn').disabled = true;
+            qrInstance = null;
+            showToast('已清除所有內容', 'success');
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // 監聽 Enter 鍵快速生成
+        document.getElementById('input-text').addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                generateQRCode();
+            }
+        });
+
+        // 實時更新
+        document.getElementById('qr-size').addEventListener('change', () => {
+            if (qrInstance) {
+                generateQRCode();
+            }
+        });
+
+        document.getElementById('dark-color').addEventListener('change', () => {
+            if (qrInstance) {
+                generateQRCode();
+            }
+        });
+
+        document.getElementById('light-color').addEventListener('change', () => {
+            if (qrInstance) {
+                generateQRCode();
+            }
+        });
+
+        document.getElementById('error-level').addEventListener('change', () => {
+            if (qrInstance) {
+                generateQRCode();
+            }
+        });
+
+        // 添加 slideOut 動畫
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
