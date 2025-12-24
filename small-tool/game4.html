@@ -557,30 +557,21 @@
                     const isCorner = (i === 0 || i === BOARD_HEIGHT - 1) && (j === 0 || j === BOARD_WIDTH - 1);
                     const nearCorner = (i <= 1 || i >= BOARD_HEIGHT - 2) && (j <= 1 || j >= BOARD_WIDTH - 2);
                     const isEdge = (i === 0 || i === BOARD_HEIGHT - 1 || j === 0 || j === BOARD_WIDTH - 1);
+                    const isDamage = (i === 1 && j === BOARD_WIDTH - 2) || (i === BOARD_HEIGHT - 2 && j === 1) ||
+                        (i === 1 && j === 1) || (i === BOARD_HEIGHT - 2 && j === BOARD_WIDTH - 2);
 
                     let baseWeight;
 
-                    // 難度20時使用2倍權重，難度1時使用20%的權重
-                    if (difficulty < 20) {
-                        if (isCorner) {
-                            baseWeight = 120;
-                        } else if (nearCorner && !isCorner) {
-                            baseWeight = -20;
-                        } else if (isEdge) {
-                            baseWeight = 20;
-                        } else {
-                            baseWeight = 5;
-                        }
+                    if (isDamage) {
+                        baseWeight = 200;
+                    } else if (nearCorner && !isCorner) {
+                        baseWeight = 20;
+                    } else if (isCorner) {
+                        baseWeight = -120;
+                    } else if (isEdge) {
+                        baseWeight = -20;
                     } else {
-                        if (isCorner) {
-                            baseWeight = 200;
-                        } else if (nearCorner && !isCorner) {
-                            baseWeight = -100;
-                        } else if (isEdge) {
-                            baseWeight = 100;
-                        } else {
-                            baseWeight = 0;
-                        }
+                        baseWeight = -5;
                     }
                     weights[i][j] = Math.round(baseWeight * difficultyMultiplier);
 
@@ -953,7 +944,7 @@
                     // AI先下
                     currentPlayer = WHITE;
                     updateBoard();
-                    setTimeout(makeAIMove, 500);
+                    setTimeout(() => makeAIMove(WHITE), 500);  // 修改這裡，傳入WHITE參數
                 }
             }
         }
