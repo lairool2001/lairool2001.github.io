@@ -722,7 +722,18 @@
             boardElement.style.gridTemplateColumns = `repeat(${BOARD_WIDTH}, ${CELL_SIZE}px)`;
             boardElement.style.gridTemplateRows = `repeat(${BOARD_HEIGHT}, ${CELL_SIZE}px)`;
 
-            validMoves = getValidMoves(currentPlayer);
+            // 檢查當前玩家是否有合法移動，若無則自動跳到對手
+            let displayPlayer = currentPlayer;
+            let displayMoves = getValidMoves(displayPlayer);
+
+            if (displayMoves.length === 0) {
+                const opponentMoves = getValidMoves(-displayPlayer);
+                if (opponentMoves.length > 0) {
+                    displayPlayer = -displayPlayer;
+                    displayMoves = opponentMoves;
+                }
+            }
+            validMoves = displayMoves;
 
             for (let i = 0; i < BOARD_HEIGHT; i++) {
                 for (let j = 0; j < BOARD_WIDTH; j++) {
@@ -761,49 +772,72 @@
 
         function handleCellClick(row, col) {
             if (gameOver || !isValidMove(row, col, currentPlayer)) return;
-            if (gameMode === 'ai' && currentPlayer === WHITE) return;
+
+            // AI模式下只允許玩家控制黑色
+            if (gameMode === 'ai' && currentPlayer !== BLACK) return;
 
             makeMove(row, col, currentPlayer);
             const hasFlips = piecesToFlipPositions.length > 0;
-            updateBoard();
 
             if (!checkGameState()) {
                 currentPlayer = -currentPlayer;
 
+                // 檢查新的當前玩家是否有合法移動
+                let newPlayerMoves = getValidMoves(currentPlayer);
+                if (newPlayerMoves.length === 0) {
+                    // 新玩家無法移動，再切換回來
+                    const opponentMoves = getValidMoves(-currentPlayer);
+                    if (opponentMoves.length > 0) {
+                        currentPlayer = -currentPlayer;
+                    }
+                }
+
+                updateBoard();
+
                 // 等待翻轉動畫完成後再進行下一步
                 const animationDelay = hasFlips ? 700 : 100;
 
+                // 檢查是否輪到AI
                 if (gameMode === 'ai' && currentPlayer === WHITE) {
-                    setTimeout(makeAIMove, animationDelay);
+                    setTimeout(() => makeAIMove(WHITE), animationDelay);
                 }
+            } else {
+                updateBoard();
             }
         }
 
-        function makeAIMove() {
-            const moves = getValidMoves(WHITE);
+        function makeAIMove(aiColor) {
+            const moves = getValidMoves(aiColor);
             if (moves.length === 0) {
-                if (getValidMoves(BLACK).length === 0) {
+                if (getValidMoves(-aiColor).length === 0) {
                     endGame();
                     return;
                 }
-                currentPlayer = BLACK;
+                currentPlayer = -aiColor;
                 updateBoard();
                 return;
             }
 
             const [row, col] = getAIMove();
-            makeMove(row, col, WHITE);
+            makeMove(row, col, aiColor);
             const hasFlips = piecesToFlipPositions.length > 0;
-            updateBoard();
 
             if (!checkGameState()) {
-                currentPlayer = BLACK;
+                currentPlayer = -aiColor;
 
-                // 等待翻轉動畫完成後再更新棋盤
-                const animationDelay = hasFlips ? 700 : 100;
-                setTimeout(() => {
-                    updateBoard();
-                }, animationDelay);
+                // 檢查新的當前玩家是否有合法移動
+                let newPlayerMoves = getValidMoves(currentPlayer);
+                if (newPlayerMoves.length === 0) {
+                    // 新玩家無法移動，再切換回來
+                    const opponentMoves = getValidMoves(-currentPlayer);
+                    if (opponentMoves.length > 0) {
+                        currentPlayer = -currentPlayer;
+                    }
+                }
+
+                updateBoard();
+            } else {
+                updateBoard();
             }
         }
 
@@ -864,11 +898,24 @@
                 return;
             }
 
-            if (currentPlayer === BLACK && blackMoves.length === 0) {
-                document.getElementById('game-status').textContent = '⏭️ 黑色無法移動，白色繼續';
-            } else if (currentPlayer === WHITE && whiteMoves.length === 0) {
-                document.getElementById('game-status').textContent = '⏭️ 白色無法移動，黑色繼續';
+            // 檢查當前玩家是否有合法移動
+            const currentMoves = currentPlayer === BLACK ? blackMoves : whiteMoves;
+
+            if (currentMoves.length === 0) {
+                // 當前玩家無法移動
+                const currentColor = currentPlayer === BLACK ? '黑色' : '白色';
+                const nextColor = currentPlayer === BLACK ? '白色' : '黑色';
+                const nextMoves = currentPlayer === BLACK ? whiteMoves : blackMoves;
+
+                if (nextMoves.length === 0) {
+                    // 雙方都無法移動，遊戲已結束 (由 checkGameState 處理)
+                    return;
+                }
+
+                // 對手有移動，顯示跳過提示
+                document.getElementById('game-status').textContent = `⏭️ ${currentColor}無法移動，${nextColor}繼續`;
             } else {
+                // 當前玩家有合法移動
                 const turn = currentPlayer === BLACK ? '黑色' : '白色';
                 document.getElementById('current-turn').textContent = turn;
                 document.getElementById('game-status').textContent = `🎮 ${turn}的回合`;
@@ -897,7 +944,7 @@
             }
 
             resetGame();
-            
+
             // 如果是AI模式，隨機決定誰先下
             if (mode === 'ai') {
                 if (Math.random() < 0.5) {
