@@ -577,17 +577,23 @@
 
                 }
             }
-
+            let counter = 0;
             for (let i = 0; i < BOARD_HEIGHT; i++) {
                 for (let j = 0; j < BOARD_WIDTH; j++) {
                     if (board[i][j] === WHITE) {
                         score -= weights[i][j];
+                        counter++;
                     } else if (board[i][j] === BLACK) {
                         score += weights[i][j];
+                        counter++;
                     }
                 }
             }
-            return score;
+            let doMinus = 1;
+            if (counter >= BOARD_WIDTH * BOARD_HEIGHT * 2) {
+                doMinus = -1;
+            }
+            return score * doMinus;
         }
 
         function minimax(depth, isMaximizing, alpha, beta) {
@@ -674,7 +680,7 @@
             if (difficulty <= 6) {
                 searchDepth = 2;
             } else if (difficulty <= 15) {
-                searchDepth = 3;
+                searchDepth = 4;
             } else {
                 searchDepth = 8;
             }
