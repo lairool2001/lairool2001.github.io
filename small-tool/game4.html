@@ -434,6 +434,10 @@
         let gameOver = false;
         let validMoves = [];
         let piecesToFlipPositions = []; // 記錄被翻轉的棋子位置
+        let aiThinking = false; // AI思考中標記
+        let aiWorker = null;
+        let aiColor = null;
+        let useWorker = false;
 
         function initializeBoard() {
             board = Array(BOARD_HEIGHT).fill(null).map(() => Array(BOARD_WIDTH).fill(EMPTY));
@@ -451,6 +455,10 @@
             gameOver = false;
             validMoves = [];
             updateBoard();
+            // Initialize AI Worker if supported (do not block UI)
+            if (typeof Worker !== 'undefined') {
+                initAIWorker();
+            }
         }
 
         function isValidMove(row, col, player) {
@@ -772,8 +780,8 @@
         function handleCellClick(row, col) {
             if (gameOver || !isValidMove(row, col, currentPlayer)) return;
 
-            // AI模式下只允許玩家控制黑色
-            if (gameMode === 'ai' && currentPlayer !== BLACK) return;
+            // AI模式下只允許玩家控制指定顏色
+            if (gameMode === 'ai' && currentPlayer !== playerColor) return;
 
             makeMove(row, col, currentPlayer);
             const hasFlips = piecesToFlipPositions.length > 0;
@@ -922,7 +930,78 @@
         }
 
         function resetGame() {
+            // reset AI worker state
+            try {
+                if (aiWorker) aiWorker.terminate();
+            } catch (e) { }
+            aiWorker = null;
+            aiColor = null;
+            useWorker = false;
+            // reset board
             initializeBoard();
+        }
+
+        // Initialize AI Web Worker (if supported)
+        function initAIWorker() {
+            if (typeof Worker !== 'undefined') {
+                aiWorker = new Worker('ai_worker.js');
+                aiWorker.onmessage = function (e) {
+                    const data = e.data;
+                    if (data && data.type === 'move') {
+                        handleAIMoveFromWorker(data.move, data.aiColor);
+                    }
+                };
+                useWorker = true;
+            } else {
+                useWorker = false;
+            }
+        }
+
+        // Run AI move using worker or fallback to sync
+        function runAIWorkerMove() {
+            const aiCol = aiColor;
+            if (!useWorker || !aiWorker) {
+                const move = getAIMove(aiCol);
+                if (move) {
+                    makeMove(move[0], move[1], aiCol);
+                    const hasFlips = piecesToFlipPositions.length > 0;
+                    updateBoard();
+                    if (!checkGameState()) {
+                        currentPlayer = -aiCol;
+                    }
+                } else {
+                    // no moves for AI
+                    currentPlayer = -aiCol;
+                    updateBoard();
+                }
+                return;
+            }
+            // post to worker
+            aiColor = -playerColor;
+            aiWorker.postMessage({ type: 'compute', board: board, BOARD_WIDTH: BOARD_WIDTH, BOARD_HEIGHT: BOARD_HEIGHT, BLACK: BLACK, WHITE: WHITE, difficulty: difficulty, aiColor: aiColor });
+            aiThinking = true;
+            document.getElementById('game-status').textContent = '🤖 AI思考中...';
+        }
+
+        function handleAIMoveFromWorker(move, color) {
+            aiThinking = false;
+            if (!move) {
+                // no moves for AI, pass to human
+                currentPlayer = -color;
+                updateBoard();
+                return;
+            }
+            makeMove(move[0], move[1], color);
+            const hasFlips = piecesToFlipPositions.length > 0;
+            updateBoard();
+            // after AI move, check if human has moves, else AI goes again
+            const humanMoves = getValidMoves(-color);
+            if (humanMoves.length === 0) {
+                setTimeout(() => runAIWorkerMove(), 500);
+            } else {
+                currentPlayer = -color;
+                updateStatus();
+            }
         }
 
         function setGameMode(mode) {
@@ -949,9 +1028,11 @@
                 if (Math.random() < 0.5) {
                     // AI先下
                     currentPlayer = WHITE;
-                    updateBoard();
-                    setTimeout(() => makeAIMove(WHITE), 500);  // 修改這裡，傳入WHITE參數
+                } else {
+                    currentPlayer = BLACK;
                 }
+                updateBoard();
+                setTimeout(() => runAIWorkerMove(), 500);
             }
         }
 
