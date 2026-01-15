@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>圈圈叉叉 - AI場外作弊版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 700px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #ff6b6b;
+            font-size: 0.9em;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+        }
+
+        .player-info {
+            text-align: center;
+        }
+
+        .player-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .player-symbol {
+            font-size: 2em;
+        }
+
+        .game-board-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto 20px;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            aspect-ratio: 1;
+            padding: 10px;
+            background: rgba(200, 200, 200, 0.3);
+            border-radius: 15px;
+            position: relative;
+        }
+
+        .cell {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 10px;
+            font-size: 2em;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .cell.outer-cell {
+            background: linear-gradient(135deg, #ffd93d, #ff6b6b);
+            opacity: 0.6;
+            cursor: not-allowed;
+            font-size: 1.5em;
+        }
+
+        .cell.playable:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .cell.taken {
+            cursor: not-allowed;
+            opacity: 0.9;
+        }
+
+        .cell.winning {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            animation: pulse 0.5s ease-in-out infinite;
+        }
+
+        .cell.cheated {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+            animation: cheatFlash 1s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        @keyframes cheatFlash {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .board-overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            pointer-events: none;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+        }
+
+        .overlay-cell {
+            border: 2px dashed transparent;
+        }
+
+        .overlay-cell.main-area {
+            border-color: #4CAF50;
+        }
+
+        .status {
+            text-align: center;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #fff;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(245, 87, 108, 0.6);
+        }
+
+        .cheat-mode {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff3cd;
+            border: 2px dashed #ff6b6b;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .cheat-mode h3 {
+            color: #ff6b6b;
+            margin-bottom: 10px;
+        }
+
+        .ai-cheating {
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #fff;
+            border-radius: 10px;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .legend {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+
+        .legend-box {
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+        }
+
+        .legend-box.main {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .legend-box.outer {
+            background: linear-gradient(135deg, #ffd93d, #ff6b6b);
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⭕ 圈圈叉叉 ❌</h1>
+        <p class="subtitle">⚠️ AI 會在場外作弊！中間3x3是正規區域！</p>
+
+        <div class="score-board">
+            <div class="score-item">
+                <div class="score-label">玩家勝利</div>
+                <div class="score-value" id="playerWins">0</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">AI 勝利</div>
+                <div class="score-value" id="aiWins">0</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">平手</div>
+                <div class="score-value" id="draws">0</div>
+            </div>
+        </div>
+
+        <div class="game-info">
+            <div class="player-info">
+                <div class="player-name">玩家 (只能在藍色區域)</div>
+                <div class="player-symbol">⭕</div>
+            </div>
+            <div class="player-info">
+                <div class="player-name">AI (可以場外作弊)</div>
+                <div class="player-symbol">❌</div>
+            </div>
+        </div>
+
+        <div class="status" id="status">你的回合 - 點擊中間3x3區域放置 ⭕</div>
+
+        <div class="game-board-container">
+            <div class="game-board" id="board">
+                <!-- 25個格子 (5x5) -->
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-box main"></div>
+                <span>中間3x3區域 - 玩家可下棋的正規區域</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box outer"></div>
+                <span>外圍區域 - AI作弊專用區域（玩家不能使用）</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" onclick="resetGame()">🔄 重新開始</button>
+            <button class="btn btn-danger" onclick="enableCheatMode()">😈 啟用作弊模式</button>
+        </div>
+
+        <div class="cheat-mode" id="cheatMode" style="display: none;">
+            <h3>🎭 作弊控制面板</h3>
+            <p style="margin-bottom: 10px; color: #666;">AI 作弊機率：<span id="cheatChance">40</span>%</p>
+            <input type="range" id="cheatSlider" min="0" max="100" value="40" 
+                   style="width: 100%; margin-bottom: 10px;" 
+                   oninput="updateCheatChance(this.value)">
+            <div class="controls">
+                <button class="btn btn-danger" onclick="forceAICheat()">💀 強制 AI 作弊</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const PLAYER = 'O';
+        const AI = 'X';
+        let board = Array(25).fill(''); // 5x5 = 25格
+        let currentPlayer = PLAYER;
+        let gameActive = true;
+        let cheatProbability = 0.4;
+        let playerWins = 0;
+        let aiWins = 0;
+        let draws = 0;
+
+        // 定義中間3x3區域的索引 (在5x5棋盤中)
+        const mainArea = [6, 7, 8, 11, 12, 13, 16, 17, 18];
+        
+        // 外圍區域 (AI可以作弊的區域)
+        const outerArea = [0, 1, 2, 3, 4, 5, 9, 10, 14, 15, 19, 20, 21, 22, 23, 24];
+
+        // 中間3x3的勝利模式 (轉換成5x5棋盤的索引)
+        const winPatterns = [
+            [6, 7, 8],      // 橫
+            [11, 12, 13],
+            [16, 17, 18],
+            [6, 11, 16],    // 直
+            [7, 12, 17],
+            [8, 13, 18],
+            [6, 12, 18],    // 斜
+            [8, 12, 16]
+        ];
+
+        function initBoard() {
+            const boardElement = document.getElementById('board');
+            boardElement.innerHTML = '';
+            
+            for (let i = 0; i < 25; i++) {
+                const cell = document.createElement('button');
+                cell.className = 'cell';
+                
+                if (mainArea.includes(i)) {
+                    cell.classList.add('playable');
+                } else {
+                    cell.classList.add('outer-cell');
+                }
+                
+                cell.dataset.index = i;
+                cell.onclick = () => playerMove(i);
+                boardElement.appendChild(cell);
+            }
+            
+            updateBoard();
+        }
+
+        function updateBoard() {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach((cell, index) => {
+                const value = board[index];
+                cell.textContent = value === 'O' ? '⭕' : value === 'X' ? '❌' : '';
+                cell.classList.toggle('taken', value !== '');
+            });
+        }
+
+        function playerMove(index) {
+            // 玩家只能在中間3x3區域下棋
+            if (!gameActive || !mainArea.includes(index) || board[index] !== '' || currentPlayer !== PLAYER) {
+                if (!mainArea.includes(index) && gameActive && currentPlayer === PLAYER) {
+                    updateStatus('⚠️ 只能在中間藍色區域下棋！');
+                    setTimeout(() => {
+                        updateStatus('你的回合 - 點擊中間3x3區域放置 ⭕');
+                    }, 1500);
+                }
+                return;
+            }
+
+            board[index] = PLAYER;
+            updateBoard();
+
+            if (checkWin(PLAYER)) {
+                endGame('玩家');
+                return;
+            }
+
+            if (mainArea.every(i => board[i] !== '')) {
+                endGame('平手');
+                return;
+            }
+
+            currentPlayer = AI;
+            updateStatus('AI 思考中...');
+            
+            setTimeout(() => {
+                aiMove();
+            }, 500);
+        }
+
+        function aiMove() {
+            if (!gameActive) return;
+
+            // AI 作弊判斷
+            const shouldCheat = Math.random() < cheatProbability;
+
+            if (shouldCheat) {
+                aiCheat();
+            } else {
+                aiNormalMove();
+            }
+        }
+
+        function aiNormalMove() {
+            // AI正常下棋（只在中間3x3）
+            let move = findWinningMove(AI);
+            
+            if (move === -1) {
+                move = findWinningMove(PLAYER);
+            }
+            
+            if (move === -1) {
+                const available = mainArea.filter(i => board[i] === '');
+                if (available.length > 0) {
+                    move = available[Math.floor(Math.random() * available.length)];
+                }
+            }
+
+            if (move !== -1) {
+                board[move] = AI;
+                updateBoard();
+
+                if (checkWin(AI)) {
+                    endGame('AI');
+                    return;
+                }
+
+                if (mainArea.every(i => board[i] !== '')) {
+                    endGame('平手');
+                    return;
+                }
+            }
+
+            currentPlayer = PLAYER;
+            updateStatus('你的回合 - 點擊中間3x3區域放置 ⭕');
+        }
+
+        function aiCheat() {
+            updateStatus('😈 AI 正在場外作弊！');
+            document.querySelector('.container').classList.add('ai-cheating');
+            
+            setTimeout(() => {
+                document.querySelector('.container').classList.remove('ai-cheating');
+                
+                // AI 在外圍區域偷偷下棋
+                const availableOuter = outerArea.filter(i => board[i] === '');
+                
+                if (availableOuter.length > 0) {
+                    // 隨機選1-3個外圍位置作弊
+                    const cheatCount = Math.min(Math.floor(Math.random() * 3) + 1, availableOuter.length);
+                    
+                    for (let i = 0; i < cheatCount; i++) {
+                        const randomIndex = Math.floor(Math.random() * availableOuter.length);
+                        const cheatPosition = availableOuter[randomIndex];
+                        board[cheatPosition] = AI;
+                        
+                        // 標記作弊格子
+                        setTimeout(() => {
+                            const cell = document.querySelectorAll('.cell')[cheatPosition];
+                            cell.classList.add('cheated');
+                        }, i * 200);
+                        
+                        availableOuter.splice(randomIndex, 1);
+                    }
+                    
+                    updateBoard();
+                    
+                    // 檢查是否因作弊而獲勝
+                    setTimeout(() => {
+                        if (checkWinWithOuter(AI)) {
+                            endGame('AI (場外作弊)');
+                            return;
+                        }
+                        
+                        // AI 正常在中間區域也下一步
+                        aiNormalMove();
+                    }, cheatCount * 200 + 300);
+                } else {
+                    aiNormalMove();
+                }
+            }, 1000);
+        }
+
+        function forceAICheat() {
+            if (!gameActive) return;
+            
+            currentPlayer = AI;
+            aiCheat();
+        }
+
+        function findWinningMove(player) {
+            for (let pattern of winPatterns) {
+                const values = pattern.map(i => board[i]);
+                const playerCount = values.filter(v => v === player).length;
+                const emptyCount = values.filter(v => v === '').length;
+                
+                if (playerCount === 2 && emptyCount === 1) {
+                    return pattern.find(i => board[i] === '');
+                }
+            }
+            return -1;
+        }
+
+        function checkWin(player) {
+            return winPatterns.some(pattern => {
+                return pattern.every(index => board[index] === player);
+            });
+        }
+
+        function checkWinWithOuter(player) {
+            // 檢查包含外圍的所有可能連線（橫、直、斜）
+            // 橫向檢查
+            for (let row = 0; row < 5; row++) {
+                for (let col = 0; col <= 2; col++) {
+                    const start = row * 5 + col;
+                    if (board[start] === player && 
+                        board[start + 1] === player && 
+                        board[start + 2] === player) {
+                        highlightWinningCells([start, start + 1, start + 2]);
+                        return true;
+                    }
+                }
+            }
+            
+            // 直向檢查
+            for (let col = 0; col < 5; col++) {
+                for (let row = 0; row <= 2; row++) {
+                    const start = row * 5 + col;
+                    if (board[start] === player && 
+                        board[start + 5] === player && 
+                        board[start + 10] === player) {
+                        highlightWinningCells([start, start + 5, start + 10]);
+                        return true;
+                    }
+                }
+            }
+            
+            // 斜向檢查（左上到右下）
+            for (let row = 0; row <= 2; row++) {
+                for (let col = 0; col <= 2; col++) {
+                    const start = row * 5 + col;
+                    if (board[start] === player && 
+                        board[start + 6] === player && 
+                        board[start + 12] === player) {
+                        highlightWinningCells([start, start + 6, start + 12]);
+                        return true;
+                    }
+                }
+            }
+            
+            // 斜向檢查（右上到左下）
+            for (let row = 0; row <= 2; row++) {
+                for (let col = 2; col < 5; col++) {
+                    const start = row * 5 + col;
+                    if (board[start] === player && 
+                        board[start + 4] === player && 
+                        board[start + 8] === player) {
+                        highlightWinningCells([start, start + 4, start + 8]);
+                        return true;
+                    }
+                }
+            }
+            
+            return false;
+        }
+
+        function highlightWinningCells(indices) {
+            indices.forEach(index => {
+                document.querySelectorAll('.cell')[index].classList.add('winning');
+            });
+        }
+
+        function endGame(winner) {
+            gameActive = false;
+            
+            if (winner === '平手') {
+                updateStatus('🤝 平手！');
+                draws++;
+                document.getElementById('draws').textContent = draws;
+            } else if (winner.includes('AI')) {
+                updateStatus(`😈 ${winner} 獲勝！`);
+                if (winner.includes('AI')) {
+                    aiWins++;
+                    document.getElementById('aiWins').textContent = aiWins;
+                }
+            } else {
+                updateStatus('🎉 玩家獲勝！恭喜你擊敗作弊AI！');
+                playerWins++;
+                document.getElementById('playerWins').textContent = playerWins;
+                if (checkWin(PLAYER)) {
+                    winPatterns.forEach(pattern => {
+                        if (pattern.every(i => board[i] === PLAYER)) {
+                            highlightWinningCells(pattern);
+                        }
+                    });
+                }
+            }
+        }
+
+        function updateStatus(message) {
+            document.getElementById('status').textContent = message;
+        }
+
+        function resetGame() {
+            board = Array(25).fill('');
+            currentPlayer = PLAYER;
+            gameActive = true;
+            updateBoard();
+            updateStatus('你的回合 - 點擊中間3x3區域放置 ⭕');
+            
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.classList.remove('winning', 'cheated');
+            });
+        }
+
+        function enableCheatMode() {
+            const cheatMode = document.getElementById('cheatMode');
+            cheatMode.style.display = cheatMode.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function updateCheatChance(value) {
+            cheatProbability = value / 100;
+            document.getElementById('cheatChance').textContent = value;
+        }
+
+        // 初始化
+        initBoard();
+        updateStatus('你的回合 - 點擊中間3x3區域放置 ⭕');
+    </script>
+</body>
+</html>
