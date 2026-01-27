@@ -426,23 +426,20 @@
         const WHITE = -1;
         const EMPTY = 0;
         const CELL_SIZE = 60;
-        let difficulty = 5; // 難度等級 1-10
+        let difficulty = 5;
 
         let board = [];
         let currentPlayer = BLACK;
-        let gameMode = 'ai'; // 'ai' or 'pvp'
+        let gameMode = 'ai';
         let gameOver = false;
         let validMoves = [];
-        let piecesToFlipPositions = []; // 記錄被翻轉的棋子位置
-        let aiThinking = false; // AI思考中標記
-        let aiWorker = null;
-        let aiColor = null;
-        let useWorker = false;
+        let piecesToFlipPositions = [];
+        let playerColor = BLACK;
+        let aiThinking = false;
 
         function initializeBoard() {
             board = Array(BOARD_HEIGHT).fill(null).map(() => Array(BOARD_WIDTH).fill(EMPTY));
 
-            // 初始位置 (棋盤中間)
             const startRow = Math.floor(BOARD_HEIGHT / 2) - 1;
             const startCol = Math.floor(BOARD_WIDTH / 2) - 1;
 
@@ -455,10 +452,6 @@
             gameOver = false;
             validMoves = [];
             updateBoard();
-            // Initialize AI Worker if supported (do not block UI)
-            if (typeof Worker !== 'undefined') {
-                initAIWorker();
-            }
         }
 
         function isValidMove(row, col, player) {
@@ -506,7 +499,7 @@
 
         function makeMove(row, col, player) {
             board[row][col] = player;
-            piecesToFlipPositions = []; // 清空翻轉位置記錄
+            piecesToFlipPositions = [];
 
             const opponent = -player;
             const directions = [
@@ -527,7 +520,7 @@
                     } else if (board[r][c] === player && piecesToFlip.length > 0) {
                         piecesToFlip.forEach(([fr, fc]) => {
                             board[fr][fc] = player;
-                            piecesToFlipPositions.push([fr, fc]); // 記錄翻轉位置
+                            piecesToFlipPositions.push([fr, fc]);
                         });
                         break;
                     } else {
@@ -550,18 +543,14 @@
             return { black, white };
         }
 
-        function evaluatePosition() {
+        function evaluatePosition(aiColor) {
             let score = 0;
-
-            // 根據難度調整常數倍數 (難度1=0.2倍, 難度20=2.0倍)
             const difficultyMultiplier = 0.2 + (difficulty - 1) * 0.1;
 
-            // 動態生成權重矩陣 - 基礎常數會根據難度倍增
             const weights = [];
             for (let i = 0; i < BOARD_HEIGHT; i++) {
                 weights[i] = [];
                 for (let j = 0; j < BOARD_WIDTH; j++) {
-                    // 角落:120分, 靠近角落:-20分, 邊邊:20分, 其他:5分
                     const isCorner = (i === 0 || i === BOARD_HEIGHT - 1) && (j === 0 || j === BOARD_WIDTH - 1);
                     const nearCorner = (i <= 1 || i >= BOARD_HEIGHT - 2) && (j <= 1 || j >= BOARD_WIDTH - 2);
                     const isEdge = (i === 0 || i === BOARD_HEIGHT - 1 || j === 0 || j === BOARD_WIDTH - 1);
@@ -569,7 +558,6 @@
                         (i === 1 && j === 1) || (i === BOARD_HEIGHT - 2 && j === BOARD_WIDTH - 2);
 
                     let baseWeight;
-
                     if (isDamage) {
                         baseWeight = 200;
                     } else if (nearCorner && !isCorner) {
@@ -582,21 +570,22 @@
                         baseWeight = -5;
                     }
                     weights[i][j] = Math.round(baseWeight * difficultyMultiplier);
-
                 }
             }
+
             let counter = 0;
             for (let i = 0; i < BOARD_HEIGHT; i++) {
                 for (let j = 0; j < BOARD_WIDTH; j++) {
-                    if (board[i][j] === WHITE) {
-                        score -= weights[i][j];
-                        counter++;
-                    } else if (board[i][j] === BLACK) {
+                    if (board[i][j] === aiColor) {
                         score += weights[i][j];
+                        counter++;
+                    } else if (board[i][j] === -aiColor) {
+                        score -= weights[i][j];
                         counter++;
                     }
                 }
             }
+
             let doMinus = 1;
             if (counter >= BOARD_WIDTH * BOARD_HEIGHT * 2) {
                 doMinus = -1;
@@ -604,38 +593,35 @@
             return score * doMinus;
         }
 
-        function minimax(depth, isMaximizing, alpha, beta) {
+        function minimax(depth, isMaximizing, alpha, beta, aiColor) {
             if (depth === 0) {
-                return evaluatePosition();
+                return evaluatePosition(aiColor);
             }
 
-            const player = isMaximizing ? BLACK : WHITE;
+            const player = isMaximizing ? aiColor : -aiColor;
             const moves = getValidMoves(player);
 
             if (moves.length === 0) {
                 const opponentMoves = getValidMoves(-player);
                 if (opponentMoves.length === 0) {
-                    return evaluatePosition();
+                    return evaluatePosition(aiColor);
                 }
-                return minimax(depth - 1, !isMaximizing, alpha, beta);
+                return minimax(depth - 1, !isMaximizing, alpha, beta, aiColor);
             }
 
             if (isMaximizing) {
                 let maxEval = -Infinity;
                 for (let [row, col] of moves) {
-                    // 快速複製棋盤 - 只複製需要的部分
                     const oldValue = board[row][col];
                     const savedState = [];
                     makeMove(row, col, player);
 
-                    // 保存被翻轉的位置狀態
                     for (let [r, c] of piecesToFlipPositions) {
                         savedState.push([r, c, board[r][c]]);
                     }
 
-                    const eval_ = minimax(depth - 1, false, alpha, beta);
+                    const eval_ = minimax(depth - 1, false, alpha, beta, aiColor);
 
-                    // 復原棋盤
                     board[row][col] = oldValue;
                     for (let [r, c, val] of savedState) {
                         board[r][c] = -val;
@@ -649,19 +635,16 @@
             } else {
                 let minEval = Infinity;
                 for (let [row, col] of moves) {
-                    // 快速複製棋盤 - 只複製需要的部分
                     const oldValue = board[row][col];
                     const savedState = [];
                     makeMove(row, col, player);
 
-                    // 保存被翻轉的位置狀態
                     for (let [r, c] of piecesToFlipPositions) {
                         savedState.push([r, c, board[r][c]]);
                     }
 
-                    const eval_ = minimax(depth - 1, true, alpha, beta);
+                    const eval_ = minimax(depth - 1, true, alpha, beta, aiColor);
 
-                    // 復原棋盤
                     board[row][col] = oldValue;
                     for (let [r, c, val] of savedState) {
                         board[r][c] = -val;
@@ -675,15 +658,13 @@
             }
         }
 
-        function getAIMove() {
-            const moves = getValidMoves(WHITE);
+        function getAIMove(aiColor) {
+            const moves = getValidMoves(aiColor);
             if (moves.length === 0) return null;
 
             let bestMove = moves[0];
             let bestScore = -Infinity;
 
-            // 根據難度調整搜尋深度
-            // 難度1-6使用深度2, 難度7-15使用深度3, 難度16-20使用深度8
             let searchDepth;
             if (difficulty <= 6) {
                 searchDepth = 2;
@@ -694,19 +675,17 @@
             }
 
             for (let [row, col] of moves) {
-                // 快速複製棋盤 - 只複製需要的部分
                 const oldValue = board[row][col];
                 const savedState = [];
-                makeMove(row, col, WHITE);
+                makeMove(row, col, aiColor);
 
-                // 保存被翻轉的位置狀態
                 for (let [r, c] of piecesToFlipPositions) {
                     savedState.push([r, c, board[r][c]]);
                 }
 
-                const score = minimax(searchDepth, false, -Infinity, Infinity);
+                const isMaximizing = aiColor === BLACK;
+                const score = minimax(searchDepth, !isMaximizing, -Infinity, Infinity, aiColor);
 
-                // 復原棋盤
                 board[row][col] = oldValue;
                 for (let [r, c, val] of savedState) {
                     board[r][c] = -val;
@@ -724,12 +703,9 @@
             const boardElement = document.getElementById('board');
             boardElement.innerHTML = '';
 
-            // 動態調整棋盤grid大小
-            const cellCount = Math.max(BOARD_WIDTH, BOARD_HEIGHT);
             boardElement.style.gridTemplateColumns = `repeat(${BOARD_WIDTH}, ${CELL_SIZE}px)`;
             boardElement.style.gridTemplateRows = `repeat(${BOARD_HEIGHT}, ${CELL_SIZE}px)`;
 
-            // 檢查當前玩家是否有合法移動，若無則自動跳到對手
             let displayPlayer = currentPlayer;
             let displayMoves = getValidMoves(displayPlayer);
 
@@ -754,9 +730,8 @@
                     if (board[i][j] !== EMPTY) {
                         const piece = document.createElement('div');
                         piece.className = board[i][j] === BLACK ? 'piece black' : 'piece white';
-                        piece.textContent = board[i][j] === BLACK ? '●' : '●';
+                        piece.textContent = '●';
 
-                        // 檢查是否需要應用翻轉動畫
                         const isFlipping = piecesToFlipPositions.some(p => p[0] === i && p[1] === j);
                         if (isFlipping) {
                             piece.classList.add('flip-animation', 'flip-pulse');
@@ -772,13 +747,12 @@
 
             updateScore();
             updateStatus();
-
-            // 清空翻轉位置列表，為下次移動做準備
             piecesToFlipPositions = [];
         }
 
         function handleCellClick(row, col) {
-            if (gameOver || !isValidMove(row, col, currentPlayer)) return;
+            if (gameOver || aiThinking) return;
+            if (!isValidMove(row, col, currentPlayer)) return;
 
             // AI模式下只允許玩家控制指定顏色
             if (gameMode === 'ai' && currentPlayer !== playerColor) return;
@@ -788,25 +762,17 @@
 
             if (!checkGameState()) {
                 currentPlayer = -currentPlayer;
-
-                // 檢查新的當前玩家是否有合法移動
-                let newPlayerMoves = getValidMoves(currentPlayer);
-                if (newPlayerMoves.length === 0) {
-                    // 新玩家無法移動，再切換回來
-                    const opponentMoves = getValidMoves(-currentPlayer);
-                    if (opponentMoves.length > 0) {
-                        currentPlayer = -currentPlayer;
-                    }
-                }
-
                 updateBoard();
 
-                // 等待翻轉動畫完成後再進行下一步
                 const animationDelay = hasFlips ? 700 : 100;
 
                 // 檢查是否輪到AI
-                if (gameMode === 'ai' && currentPlayer === WHITE) {
-                    setTimeout(() => makeAIMove(WHITE), animationDelay);
+                if (gameMode === 'ai') {
+                    const aiColor = -playerColor;
+                    if (currentPlayer === aiColor) {
+                        aiThinking = true;
+                        setTimeout(() => makeAIMove(aiColor), animationDelay);
+                    }
                 }
             } else {
                 updateBoard();
@@ -818,34 +784,52 @@
             if (moves.length === 0) {
                 if (getValidMoves(-aiColor).length === 0) {
                     endGame();
+                    aiThinking = false;
                     return;
                 }
                 currentPlayer = -aiColor;
                 updateBoard();
+                aiThinking = false;
                 return;
             }
 
-            const [row, col] = getAIMove();
-            makeMove(row, col, aiColor);
+            const move = getAIMove(aiColor);
+            if (!move) {
+                if (getValidMoves(-aiColor).length === 0) {
+                    endGame();
+                } else {
+                    currentPlayer = -aiColor;
+                    updateBoard();
+                }
+                aiThinking = false;
+                return;
+            }
+
+            makeMove(move[0], move[1], aiColor);
             const hasFlips = piecesToFlipPositions.length > 0;
 
             if (!checkGameState()) {
                 currentPlayer = -aiColor;
-
-                // 檢查新的當前玩家是否有合法移動
-                let newPlayerMoves = getValidMoves(currentPlayer);
-                if (newPlayerMoves.length === 0) {
-                    // 新玩家無法移動，再切換回來
-                    const opponentMoves = getValidMoves(-currentPlayer);
-                    if (opponentMoves.length > 0) {
-                        currentPlayer = -currentPlayer;
-                    }
-                }
-
                 updateBoard();
+
+                const opponentColor = -aiColor;
+                const opponentMoves = getValidMoves(opponentColor);
+                if (opponentMoves.length === 0) {
+                    const aiMoves = getValidMoves(aiColor);
+                    if (aiMoves.length === 0) {
+                        endGame();
+                        aiThinking = false;
+                        return;
+                    }
+                    // Opponent has no moves, AI goes again
+                    setTimeout(() => makeAIMove(aiColor), 700);
+                    return;
+                }
             } else {
                 updateBoard();
             }
+
+            aiThinking = false;
         }
 
         function checkGameState() {
@@ -855,20 +839,6 @@
             if (blackMoves.length === 0 && whiteMoves.length === 0) {
                 endGame();
                 return true;
-            }
-
-            if (currentPlayer === BLACK && blackMoves.length === 0) {
-                currentPlayer = WHITE;
-                if (whiteMoves.length === 0) {
-                    endGame();
-                    return true;
-                }
-            } else if (currentPlayer === WHITE && whiteMoves.length === 0) {
-                currentPlayer = BLACK;
-                if (blackMoves.length === 0) {
-                    endGame();
-                    return true;
-                }
             }
 
             return false;
@@ -905,24 +875,19 @@
                 return;
             }
 
-            // 檢查當前玩家是否有合法移動
             const currentMoves = currentPlayer === BLACK ? blackMoves : whiteMoves;
 
             if (currentMoves.length === 0) {
-                // 當前玩家無法移動
                 const currentColor = currentPlayer === BLACK ? '黑色' : '白色';
                 const nextColor = currentPlayer === BLACK ? '白色' : '黑色';
                 const nextMoves = currentPlayer === BLACK ? whiteMoves : blackMoves;
 
                 if (nextMoves.length === 0) {
-                    // 雙方都無法移動，遊戲已結束 (由 checkGameState 處理)
                     return;
                 }
 
-                // 對手有移動，顯示跳過提示
                 document.getElementById('game-status').textContent = `⏭️ ${currentColor}無法移動，${nextColor}繼續`;
             } else {
-                // 當前玩家有合法移動
                 const turn = currentPlayer === BLACK ? '黑色' : '白色';
                 document.getElementById('current-turn').textContent = turn;
                 document.getElementById('game-status').textContent = `🎮 ${turn}的回合`;
@@ -930,109 +895,54 @@
         }
 
         function resetGame() {
-            // reset AI worker state
-            try {
-                if (aiWorker) aiWorker.terminate();
-            } catch (e) { }
-            aiWorker = null;
-            aiColor = null;
-            useWorker = false;
-            // reset board
-            initializeBoard();
-        }
-
-        // Initialize AI Web Worker (if supported)
-        function initAIWorker() {
-            if (typeof Worker !== 'undefined') {
-                aiWorker = new Worker('ai_worker.js');
-                aiWorker.onmessage = function (e) {
-                    const data = e.data;
-                    if (data && data.type === 'move') {
-                        handleAIMoveFromWorker(data.move, data.aiColor);
-                    }
-                };
-                useWorker = true;
-            } else {
-                useWorker = false;
-            }
-        }
-
-        // Run AI move using worker or fallback to sync
-        function runAIWorkerMove() {
-            const aiCol = aiColor;
-            if (!useWorker || !aiWorker) {
-                const move = getAIMove(aiCol);
-                if (move) {
-                    makeMove(move[0], move[1], aiCol);
-                    const hasFlips = piecesToFlipPositions.length > 0;
-                    updateBoard();
-                    if (!checkGameState()) {
-                        currentPlayer = -aiCol;
-                    }
-                } else {
-                    // no moves for AI
-                    currentPlayer = -aiCol;
-                    updateBoard();
-                }
-                return;
-            }
-            // post to worker
-            aiColor = -playerColor;
-            aiWorker.postMessage({ type: 'compute', board: board, BOARD_WIDTH: BOARD_WIDTH, BOARD_HEIGHT: BOARD_HEIGHT, BLACK: BLACK, WHITE: WHITE, difficulty: difficulty, aiColor: aiColor });
-            aiThinking = true;
-            document.getElementById('game-status').textContent = '🤖 AI思考中...';
-        }
-
-        function handleAIMoveFromWorker(move, color) {
             aiThinking = false;
-            if (!move) {
-                // no moves for AI, pass to human
-                currentPlayer = -color;
-                updateBoard();
-                return;
-            }
-            makeMove(move[0], move[1], color);
-            const hasFlips = piecesToFlipPositions.length > 0;
-            updateBoard();
-            // after AI move, check if human has moves, else AI goes again
-            const humanMoves = getValidMoves(-color);
-            if (humanMoves.length === 0) {
-                setTimeout(() => runAIWorkerMove(), 500);
-            } else {
-                currentPlayer = -color;
-                updateStatus();
-            }
+            initializeBoard();
         }
 
         function setGameMode(mode) {
             gameMode = mode;
 
-            // 更新按鈕狀態
             document.querySelectorAll('.mode-buttons button').forEach(btn => {
                 btn.classList.remove('mode-active');
             });
-            event.target.classList.add('mode-active');
+            
+            if (event && event.target) {
+                event.target.classList.add('mode-active');
+            }
 
-            // 顯示或隱藏難度選項
             const difficultySection = document.getElementById('difficulty-section');
+            
             if (mode === 'ai') {
                 difficultySection.style.display = 'block';
+                // 隨機分配玩家棋色
+                playerColor = Math.random() < 0.5 ? BLACK : WHITE;
             } else {
                 difficultySection.style.display = 'none';
             }
 
             resetGame();
 
-            // 如果是AI模式，隨機決定誰先下
             if (mode === 'ai') {
+                // AI 模式：隨機決定誰先手
+                const aiColor = -playerColor;  // AI 控制的顏色是玩家顏色的反色
+                
                 if (Math.random() < 0.5) {
-                    // AI先下
                     currentPlayer = WHITE;
                 } else {
                     currentPlayer = BLACK;
                 }
+
+                // 如果輪到 AI，讓 AI 走；否則顯示棋盤等玩家走
+                if (currentPlayer === aiColor) {
+                    aiThinking = true;
+                    setTimeout(() => makeAIMove(aiColor), 500);
+                } else {
+                    updateBoard();
+                }
+            } else {
+                // 雙人模式：黑色先手
+                currentPlayer = BLACK;
                 updateBoard();
-                setTimeout(() => runAIWorkerMove(), 500);
             }
         }
 
@@ -1049,7 +959,6 @@
             difficulty = parseInt(value);
             document.getElementById('difficulty-value').textContent = difficulty;
 
-            // 更新難度提示
             const hintText = {
                 1: '難度 1：非常簡單，AI會隨意移動',
                 2: '難度 2：簡單，AI移動較差',
@@ -1078,7 +987,6 @@
         // 初始化
         initializeBoard();
 
-        // 添加難度滑塊事件監聽
         document.getElementById('difficulty-slider').addEventListener('input', (e) => {
             changeDifficulty(e.target.value);
         });
