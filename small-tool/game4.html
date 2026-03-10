@@ -41,6 +41,54 @@
             backdrop-filter: blur(10px);
         }
 
+        .turn-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 12px 20px;
+            margin-bottom: 15px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+            animation: turnGlow 1.5s ease-in-out infinite;
+        }
+
+        @keyframes turnGlow {
+            0%, 100% { box-shadow: 0 0 8px rgba(255, 235, 59, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(255, 235, 59, 0.7); }
+        }
+
+        .turn-piece {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .turn-piece.black {
+            background: radial-gradient(circle at 30% 30%, #333, #000);
+            color: #fff;
+        }
+
+        .turn-piece.white {
+            background: radial-gradient(circle at 30% 30%, #fff, #f0f0f0);
+            color: #000;
+        }
+
+        .turn-indicator.game-ended {
+            animation: none;
+            background: rgba(0, 0, 0, 0.6);
+        }
+
         .board {
             display: grid;
             gap: 1px;
@@ -333,6 +381,10 @@
 <body>
     <div class="container">
         <div class="game-board">
+            <div class="turn-indicator" id="turn-indicator">
+                <div class="turn-piece black" id="turn-piece">●</div>
+                <span id="turn-text">黑色的回合</span>
+            </div>
             <div class="board" id="board"></div>
         </div>
 
@@ -706,17 +758,7 @@
             boardElement.style.gridTemplateColumns = `repeat(${BOARD_WIDTH}, ${CELL_SIZE}px)`;
             boardElement.style.gridTemplateRows = `repeat(${BOARD_HEIGHT}, ${CELL_SIZE}px)`;
 
-            let displayPlayer = currentPlayer;
-            let displayMoves = getValidMoves(displayPlayer);
-
-            if (displayMoves.length === 0) {
-                const opponentMoves = getValidMoves(-displayPlayer);
-                if (opponentMoves.length > 0) {
-                    displayPlayer = -displayPlayer;
-                    displayMoves = opponentMoves;
-                }
-            }
-            validMoves = displayMoves;
+            validMoves = getValidMoves(currentPlayer);
 
             for (let i = 0; i < BOARD_HEIGHT; i++) {
                 for (let j = 0; j < BOARD_WIDTH; j++) {
@@ -762,6 +804,24 @@
 
             if (!checkGameState()) {
                 currentPlayer = -currentPlayer;
+
+                // 如果對手沒有合法走法，跳過回到當前玩家
+                if (getValidMoves(currentPlayer).length === 0) {
+                    const skippedColor = currentPlayer === BLACK ? '黑色' : '白色';
+                    const nextColor = currentPlayer === BLACK ? '白色' : '黑色';
+                    currentPlayer = -currentPlayer;
+                    updateBoard();
+                    document.getElementById('game-status').textContent = `⏭️ ${skippedColor}無法移動，${nextColor}繼續`;
+
+                    // AI模式：跳過後如果輪到AI
+                    if (gameMode === 'ai' && currentPlayer === -playerColor) {
+                        const animationDelay = hasFlips ? 700 : 100;
+                        aiThinking = true;
+                        setTimeout(() => makeAIMove(-playerColor), animationDelay);
+                    }
+                    return;
+                }
+
                 updateBoard();
 
                 const animationDelay = hasFlips ? 700 : 100;
@@ -871,10 +931,26 @@
             const blackMoves = getValidMoves(BLACK);
             const whiteMoves = getValidMoves(WHITE);
 
+            const turnPiece = document.getElementById('turn-piece');
+            const turnText = document.getElementById('turn-text');
+            const turnIndicator = document.getElementById('turn-indicator');
+
             if (gameOver) {
+                const { black, white } = getScore();
+                turnIndicator.classList.add('game-ended');
+                if (black > white) {
+                    turnPiece.className = 'turn-piece black';
+                    turnText.textContent = `黑色勝利！ ${black} - ${white}`;
+                } else if (white > black) {
+                    turnPiece.className = 'turn-piece white';
+                    turnText.textContent = `白色勝利！ ${white} - ${black}`;
+                } else {
+                    turnText.textContent = `平手！ ${black} - ${white}`;
+                }
                 return;
             }
 
+            turnIndicator.classList.remove('game-ended');
             const currentMoves = currentPlayer === BLACK ? blackMoves : whiteMoves;
 
             if (currentMoves.length === 0) {
@@ -887,10 +963,17 @@
                 }
 
                 document.getElementById('game-status').textContent = `⏭️ ${currentColor}無法移動，${nextColor}繼續`;
+                // 更新棋盤上方指示器為實際下棋方
+                const actualPlayer = currentPlayer === BLACK ? WHITE : BLACK;
+                turnPiece.className = actualPlayer === BLACK ? 'turn-piece black' : 'turn-piece white';
+                turnText.textContent = `${nextColor}繼續下`;
             } else {
                 const turn = currentPlayer === BLACK ? '黑色' : '白色';
                 document.getElementById('current-turn').textContent = turn;
                 document.getElementById('game-status').textContent = `🎮 ${turn}的回合`;
+                // 更新棋盤上方指示器
+                turnPiece.className = currentPlayer === BLACK ? 'turn-piece black' : 'turn-piece white';
+                turnText.textContent = `${turn}的回合`;
             }
         }
 
