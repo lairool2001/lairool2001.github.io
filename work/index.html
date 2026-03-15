@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-TW">
 
 <head>
     <meta charset="UTF-8">
@@ -9,19 +9,48 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <title>貓咪不作戰的作品集</title>
     <link href="cat-normal.css" rel="stylesheet" type="text/css" media="all">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="icon" href="favicon.ico" />
     <style type="text/css">
-
+        /* 選單 Logo 區 */
+        .menu-logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 16px;
+            height: 65px;
+            float: left;
+            color: #a78bfa;
+            font-size: 17px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-shadow: 0 0 16px rgba(167,139,250,0.5);
+            border-right: 1px solid rgba(255,255,255,0.07);
+            margin-right: 6px;
+        }
+        .menu-logo i {
+            font-size: 1.1em;
+        }
+        /* 頂部列表包在 flex 容器裡 */
+        #top_menu_content {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+        }
     </style>
 </head>
 
 <body>
     <div class="top-menu">
         <div id="a00">
+            <div class="menu-logo">
+                <i class="fa-solid fa-layer-group"></i>
+                作品集
+            </div>
             <div id="top_menu_content" class="top_menu_content"></div>
         </div>
         <div id="display_icon" class="display_icon" ontouchstart="display_icon_mouse_down()"
-            onmousedown="display_icon_mouse_down()">[[[[</div>
+            onmousedown="display_icon_mouse_down()">&#9776;</div>
     </div>
     <div id="changeWhite"></div>
     <div id="div2">

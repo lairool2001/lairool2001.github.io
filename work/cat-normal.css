@@ -1,243 +1,297 @@
- body {
-     margin: 0;
-     overflow-y: scroll;
- }
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
 
- #changeWhite {
-     width: 100%;
-     height: 100%;
-     z-index: 9;
-     position: fixed;
+* {
+    box-sizing: border-box;
+}
 
-     background: rgb(255, 255, 255);
-     background: rgb(255, 255, 255);
-     background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) 70%, rgba(255, 255, 255, 0) 100%);
- }
+body {
+    margin: 0;
+    overflow-y: scroll;
+    font-size: 1.6em;
+    height: auto;
+    background: #0b0c14;
+    color: #d8d8e8;
+    font-family: 'Noto Sans TC', 'Microsoft JhengHei', 'Segoe UI', sans-serif;
+}
 
- .change {
-     animation-name: show1;
-     animation-duration: 3s;
-     animation-iteration-count: 1;
-     animation-fill-mode: both;
-     animation-duration: normal;
- }
+/* === 頁面背景裝飾 === */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 60% 40% at 20% 20%, rgba(88, 60, 180, 0.15) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 50% at 80% 80%, rgba(20, 80, 120, 0.12) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}
 
- .change2 {
-     animation-name: show2;
-     animation-duration: 3s;
-     animation-iteration-count: 1;
-     animation-fill-mode: both;
- }
+/* === 過場遮罩 === */
+#changeWhite {
+    width: 100%;
+    height: 100%;
+    z-index: 9;
+    position: fixed;
+    background: linear-gradient(180deg, #0b0c14 0%, #0b0c14 70%, rgba(11, 12, 20, 0) 100%);
+}
 
- @keyframes show1 {
-     0% {
-         height: 0%;
-     }
+.change {
+    animation-name: show1;
+    animation-duration: 3s;
+    animation-iteration-count: 1;
+    animation-fill-mode: both;
+}
 
-     100% {
-         height: 120%;
-     }
- }
+.change2 {
+    animation-name: show2;
+    animation-duration: 3s;
+    animation-iteration-count: 1;
+    animation-fill-mode: both;
+}
 
- @keyframes show2 {
-     0% {
-         height: 120%;
-     }
+@keyframes show1 {
+    0%   { height: 0%; }
+    100% { height: 120%; }
+}
 
-     100% {
-         height: 0%;
-     }
- }
+@keyframes show2 {
+    0%   { height: 120%; }
+    100% { height: 0%; }
+}
 
- img {
-     box-shadow: 0px 0px 5px 3px #666668;
-     max-height: 512px;
-     width: auto;
-     max-width: 100%;
-     margin: 10px;
- }
+/* === 圖片 / iframe === */
+img {
+    box-shadow: 0 6px 28px rgba(0, 0, 0, 0.7);
+    max-height: 480px;
+    width: auto;
+    max-width: 100%;
+    margin: 10px;
+    border-radius: 8px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
 
- iframe {
-     box-shadow: 0px 0px 5px 3px #666668;
-     margin: 10px;
-     max-width: 100%;
- }
+img:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 36px rgba(0, 0, 0, 0.85);
+}
 
- hr {
-     background-image: url("img/line_6070546.jpg");
-     background-repeat: repeat-x;
-     background-size: contain;
-     background-position: center;
-     border: none;
-     height: 100px;
-     width: 100%;
-     margin: 0;
-     padding: 0;
- }
+iframe {
+    box-shadow: 0 6px 28px rgba(0, 0, 0, 0.7);
+    margin: 10px;
+    max-width: 100%;
+    border-radius: 8px;
+    border: none;
+}
 
- #div1 {
-     padding: 50px;
-     margin: 50px;
- }
+/* === 分隔線 === */
+hr {
+    background-image: url("img/line_6070546.jpg");
+    background-repeat: repeat-x;
+    background-size: contain;
+    background-position: center;
+    border: none;
+    height: 80px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    opacity: 0.2;
+    filter: invert(1) hue-rotate(200deg) saturate(0.5);
+}
 
- #div1::selection {
-     background-color: rgb(1, 1, 1);
-     color: white;
-     text-shadow: 0 0 6px white;
-     box-shadow: 0 0 6px black;
- }
+/* === 內容區 === */
+#div1 {
+    padding: 40px 50px;
+    margin: 20px auto;
+    max-width: 860px;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    backdrop-filter: blur(10px);
+    line-height: 1.8;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+}
 
- div.display_icon {
-     width: 1em;
-     float: right;
-     padding-right: 20px;
-     background-color: black;
-     background-color: #00000050;
- }
+#div1::selection {
+    background-color: #5b4fcf;
+    color: white;
+}
 
+#div2 {
+    position: relative;
+    top: 35px;
+    font-size: 0.8em;
+    width: 100%;
+    word-break: break-all;
+    text-align: center;
+    margin-bottom: 2em;
+    margin-left: 0;
+    margin-right: 0;
+}
 
- div.top_menu_content {
-     float: left;
-     white-space: nowrap;
-     width: 100%;
-     height: auto;
-     background-color: black;
-     display: block;
-     white-space: pre-line;
-     padding: 10px;
-     padding-bottom: 5px;
-     line-height: 2.2em;
-     font-size: 23px;
-     box-sizing: border-box;
- }
+/* === 頂部選單 === */
+div.top-menu {
+    top: 0;
+    position: fixed;
+    left: 0;
+    color: white;
+    z-index: 10;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    height: 65px;
+    width: 100%;
+    background: rgba(11, 12, 20, 0.88);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    box-shadow: 0 2px 24px rgba(0, 0, 0, 0.6);
+}
 
- div.top-menu {
-     top: 0px;
-     position: fixed;
-     left: 0;
-     color: white;
-     z-index: 1;
-     -webkit-user-select: none;
-     -moz-user-select: none;
-     height: 65px;
-     width: 100%;
- }
+#a00 {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
 
- #div2 {
-     position: relative;
-     top: 35px;
-     font-size: 26px;
-     width: 100%;
-     word-break: break-all;
-     text-align: center;
-     margin-bottom: 1em;
-     margin-left: 0;
-     margin-right: 0;
- }
+div.top_menu_content {
+    float: left;
+    width: 100%;
+    height: auto;
+    background: rgba(18, 18, 32, 0.97);
+    display: block;
+    white-space: pre-line;
+    padding: 7px 14px 5px 14px;
+    line-height: 2.0em;
+    font-size: 17px;
+    box-sizing: border-box;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
 
- div.article {
-     box-shadow: 0px 0px 12px 3px black;
-     width: calc(100% - 12px * 2 - 20px);
-     line-height: auto;
-     text-align: left;
-     font-size: 0.7em;
-     word-break: break-all;
-     padding: 10px;
-     margin: 15px;
- }
+div.display_icon {
+    width: auto;
+    float: right;
+    padding: 0 18px;
+    color: rgba(255, 255, 255, 0.45);
+    cursor: pointer;
+    font-size: 0.7em;
+    line-height: 3.2em;
+    transition: color 0.2s;
+    letter-spacing: 2px;
+}
 
- div.article a {
-     color: blue;
-     text-decoration: none;
- }
+div.display_icon:hover {
+    color: rgba(255, 255, 255, 0.9);
+}
 
- body {
-     font-size: 2em;
-     height: auto;
- }
+/* === 選單項目 === */
+.no_select_menu {
+    padding: 3px 9px;
+    color: rgba(200, 200, 225, 0.78);
+    text-decoration: none;
+    border-radius: 5px;
+    transition: color 0.18s ease, background 0.18s ease;
+    cursor: pointer;
+    display: inline-block;
+}
 
- body rt {
-     font-size: 25px;
- }
+.no_select_menu:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.1);
+}
 
- h1 {
-     letter-spacing: 0px;
-     margin: 0px;
- }
+.select_menu {
+    padding: 3px 9px;
+    color: #a78bfa;
+    text-decoration: none;
+    border-radius: 5px;
+    border-bottom: 2px solid #a78bfa;
+    background: rgba(167, 139, 250, 0.12);
+    cursor: pointer;
+    display: inline-block;
+}
 
- a rt {
-     font-size: 0.4em;
- }
+/* === 連結 === */
+.link {
+    color: #93c5fd;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(147, 197, 253, 0.35);
+    transition: color 0.18s, border-color 0.18s;
+}
 
- .no_select_menu {
-     padding: 5px;
- }
+.link:hover {
+    color: #bfdbfe;
+    border-bottom-color: #93c5fd;
+}
 
- .select_menu {
-     border-width: 2px;
-     border-bottom-style: dashed;
-     border-color: gainsboro;
-     padding: 5px;
- }
+a {
+    color: #a5b4fc;
+    text-decoration: none;
+    transition: color 0.18s;
+}
 
- #a00 {
-     margin: 0;
-     padding: 0;
-     width: 100%;
- }
+a:hover {
+    color: #c7d2fe;
+}
 
- .link {
-     border-bottom: 1px solid black;
- }
+/* === 代碼塊 === */
+.codeblock {
+    padding-left: 1em !important;
+    display: block;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 0.72em;
+    overflow: auto;
+    background: #12121e;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 12px 12px 12px 21px;
+    line-height: 1.6em;
+    color: #c9cfe8;
+}
 
- .codeblock {
-     padding-left: 1em !important;
-     display: block;
-     /* fixes a strange ie margin bug */
-     font-family: Courier New;
-     font-size: 10pt;
-     overflow: auto;
-     background: #f0f0f0 url(img/code.gif) left top repeat-y;
-     border: 1px solid #ccc;
-     padding: 10px 10px 10px 21px;
-     /* max-height: 1000px; */
-     line-height: 1.2em;
- }
+/* === 文章塊 === */
+div.article {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 8px;
+    width: calc(100% - 24px);
+    line-height: 1.7;
+    text-align: left;
+    font-size: 0.7em;
+    word-break: break-all;
+    padding: 14px;
+    margin: 12px;
+}
 
- /*@media screen and (max-device-width: 480px) {
-     div.top-menu {
-         font-size: 74px;
-         position: relative;
-     }
+div.article a {
+    color: #7dd3fc;
+    text-decoration: none;
+}
 
-     div.content {
-         top: 100px;
-     }
+div.article a:hover {
+    color: #bae6fd;
+}
 
-     rt {
-          font-size: 52px; 
- }
+/* === 文字排版 === */
+body rt {
+    font-size: 0.38em;
+    color: rgba(180, 180, 210, 0.45);
+    opacity: 0.7;
+}
 
- div.content {
-     position: relative;
-     top: 35px;
-     font-size: 40px;
- }
+h1 {
+    letter-spacing: 0;
+    margin: 0;
+    color: #ffffff;
+}
 
- img {
-     max-width: 80vw;
-     max-height: auto;
- }
+a rt {
+    font-size: 0.38em;
+}
 
-
- div.top_menu_content {
-     line-height: 90px;
-     font-size: 55px;
-     padding: 10px;
-     width: 100%;
-     box-sizing: border-box;
- }
-
- }
-
- */
+/* === 文字選取樣式 === */
+::selection {
+    background-color: rgba(91, 79, 207, 0.4);
+    color: #ffffff;
+}
