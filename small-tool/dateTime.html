@@ -90,15 +90,16 @@
 
         .time-line {
             display: flex;
-            align-items: baseline;
+            flex-direction: column;
+            align-items: center;
             justify-content: center;
-            gap: 0.4em;
+            gap: 0.2em;
             font-weight: 200;
             letter-spacing: 0.02em;
         }
 
         .period {
-            font-size: 5rem;
+            font-size: 3rem;
             color: rgba(255, 200, 240, 0.85);
             font-weight: 300;
             letter-spacing: 0.08em;
@@ -108,17 +109,18 @@
             border-radius: 0.5em;
             display: inline-block;
             backdrop-filter: blur(10px);
+            text-shadow: 0 0 20px rgba(255, 200, 240, 0.5), 0 0 10px rgba(140, 180, 255, 0.3);
         }
 
         .time {
-            font-size: 16rem;
+            font-size: 12rem;
             font-family: "Segoe UI Light", "Helvetica Neue", system-ui, sans-serif;
             font-weight: 100;
             background: linear-gradient(180deg, #fff 30%, #b8d4ff 70%, #8aa9ff 100%);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            text-shadow: 0 0 80px rgba(140, 180, 255, 0.4);
+            text-shadow: 0 0 60px rgba(140, 180, 255, 0.6), 0 0 30px rgba(100, 150, 255, 0.4), 0 0 15px rgba(80, 120, 255, 0.3);
             font-variant-numeric: tabular-nums;
             line-height: 1;
             white-space: nowrap;
