@@ -62,18 +62,30 @@
             margin-bottom: 0.4em;
             text-shadow: 0 0 30px rgba(140, 180, 255, 0.4);
             white-space: nowrap;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 0.4em;
+        }
+
+        #date {
+            display: inline-block;
+            padding: 0.1em 0.6em;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 0.5em;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
         }
 
         .weekday {
             display: inline-block;
-            margin-left: 0.6em;
             padding: 0.1em 0.6em;
             border: 1px solid rgba(255, 255, 255, 0.25);
             border-radius: 0.5em;
             font-size: 0.7em;
-            vertical-align: middle;
             color: rgba(255, 255, 255, 0.95);
             background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
         }
 
         .time-line {
@@ -91,6 +103,11 @@
             font-weight: 300;
             letter-spacing: 0.08em;
             white-space: nowrap;
+            padding: 0.2em 0.6em;
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            border-radius: 0.5em;
+            display: inline-block;
+            backdrop-filter: blur(10px);
         }
 
         .time {
@@ -105,6 +122,11 @@
             font-variant-numeric: tabular-nums;
             line-height: 1;
             white-space: nowrap;
+            padding: 0.2em 0.6em;
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            border-radius: 0.5em;
+            display: inline-block;
+            backdrop-filter: blur(10px);
         }
 
         .colon {
@@ -121,6 +143,11 @@
             font-variant-numeric: tabular-nums;
             margin-top: 0.4em;
             letter-spacing: 0.25em;
+            padding: 0.3em 0.6em;
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            border-radius: 0.5em;
+            display: inline-block;
+            backdrop-filter: blur(10px);
         }
 
         .hint {
