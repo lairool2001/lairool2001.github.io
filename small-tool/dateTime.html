@@ -54,6 +54,18 @@
             transition: transform 0.2s ease;
         }
 
+        .info-iframe {
+            width: 100%;
+            height: 120px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            opacity: 0.6;
+            margin-bottom: 1.5rem;
+            border-radius: 0.5em;
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+        }
+
         .date-line {
             font-size: 3.5rem;
             font-weight: 300;
@@ -177,6 +189,7 @@
 </head>
 <body>
     <div class="clock">
+        <iframe class="info-iframe" src="https://bgw.neocities.org/info.txt" title="Info"></iframe>
         <div class="date-line">
             <span id="date">----年--月--日</span>
             <span class="weekday" id="weekday">星期-</span>
