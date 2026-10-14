@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta http-equiv="content-language" content="zh-tw">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="js.cookie.min.js"></script>
     <link rel="Stylesheet" type="text/css" href="css/jPicker-1.1.6.min.css" />
@@ -12,17 +13,60 @@
     <script src="jpicker-1.1.6.min.js" type="text/javascript"></script>
     <title id="text10">圖型編輯器</title>
     <style type="text/css">
-        #div_left {
-            width: 300px;
-            min-height: 90vh;
-            background-color: antiquewhite;
-            float: left;
+        :root {
+            --ink: #0f172a;
+            --ink-2: #334155;
+            --muted: #64748b;
+            --faint: #94a3b8;
+            --line: rgba(15, 23, 42, 0.08);
+            --line-strong: rgba(15, 23, 42, 0.14);
+            --surface: rgba(255, 255, 255, 0.86);
+            --surface-solid: #ffffff;
+            --field: #f8fafc;
+            --canvas: #f4f6fb;
+            --grid-dot: #d3d9e6;
+            --accent: #4f46e5;
+            --accent-hover: #4338ca;
+            --accent-soft: #eef2ff;
+            --accent-ring: rgba(79, 70, 229, 0.22);
+            --danger: #e11d48;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 12px 32px -12px rgba(15, 23, 42, 0.28);
+            --sidebar-w: 312px;
+            --gap: 12px;
+            --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", sans-serif;
+            --mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace;
         }
 
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            height: 100%;
+            overflow: hidden;
+            background: var(--canvas);
+            color: var(--ink);
+            font-family: var(--font);
+            font-size: 13px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        button,
+        input,
+        textarea,
+        select {
+            font: inherit;
+            color: inherit;
+        }
+
+        /* ───────── 畫布 ───────── */
         #div_right {
             padding: 0px;
             margin: 0px;
-            float: left;
             -moz-user-select: none;
             -webkit-user-select: none;
             -ms-user-select: none;
@@ -30,160 +74,896 @@
             -o-user-select: none;
         }
 
-        #t1 {
-            margin: 0px;
-            padding: 0px;
-            min-width: 200px;
-            height: 30px;
-        }
-
-        #t1:read-only {
-            background: #505050;
-        }
-
-        #t2 {
-            margin: 0px;
-            padding: 0px;
-            min-width: 200px;
-            height: 80px;
-        }
-
-        #t2:read-only {
-            background: #505050;
-        }
-
-        #searchText {
-            min-width: 200px;
-            height: 20px;
-        }
-
         #svg1 {
-            background-color: aquamarine;
-            border: 1px double black;
+            background-color: var(--canvas);
+            background-image: radial-gradient(var(--grid-dot) 1.2px, transparent 1.4px);
+            background-size: 24px 24px;
             margin: 0 auto;
             width: 100vw;
             height: 100vh;
             left: 0;
             top: 0;
-            z-index: -1;
+            z-index: 0;
             position: fixed;
+            cursor: default;
+        }
+
+        #svg1.panning {
+            cursor: grabbing;
+        }
+
+        #svg1 rect {
+            rx: 10px;
+            ry: 10px;
+            cursor: grab;
+            transition: filter 0.15s ease;
+        }
+
+        #svg1 rect:not(.selected) {
+            filter: drop-shadow(0 1px 1.5px rgba(15, 23, 42, 0.12));
+        }
+
+        #svg1 line {
+            cursor: pointer;
+            stroke-linecap: round;
+            transition: filter 0.15s ease;
+        }
+
+        #svg1.line-hover {
+            cursor: pointer;
+        }
+
+        #svg1 line:hover,
+        #svg1 line.hover {
+            filter: drop-shadow(0 0 2px rgba(79, 70, 229, 0.55));
         }
 
         .rect1_text {
             text-anchor: middle;
             font-size: 20px;
             font-family: "Microsoft JhengHei";
+            font-weight: 500;
+            cursor: grab;
         }
 
-        .box {
-            border: 2px dotted gray;
-            width: auto;
-            max-width: 230px;
-            padding: 5px;
-            margin: 5px;
+        /*選取中的方塊或線條發亮*/
+        #svg1 .selected,
+        #svg1 line.selected {
+            filter: drop-shadow(0 0 2px #6366f1) drop-shadow(0 0 7px rgba(99, 102, 241, 0.75));
         }
 
-        .infoBox {
-            max-width: 250px;
-            min-width: 250px;
-            border-left: 1px dashed black;
-            border-right: 1px dashed black;
-            text-align: center;
+        /* ───────── 側邊欄 ───────── */
+        #div_left {
+            position: fixed;
+            z-index: 10;
+            top: var(--gap);
+            left: var(--gap);
+            bottom: var(--gap);
+            width: var(--sidebar-w);
+            display: flex;
+            flex-direction: column;
+            background: var(--surface);
+            -webkit-backdrop-filter: blur(18px) saturate(1.4);
+            backdrop-filter: blur(18px) saturate(1.4);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s ease;
         }
 
-        .ColorPick {
-            width: 50px;
+        body.sidebar-closed #div_left {
+            transform: translateX(calc(-100% - var(--gap) * 2));
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 14px 12px 16px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .logo {
+            width: 30px;
+            height: 30px;
+            flex: none;
+            border-radius: 9px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            box-shadow: 0 4px 12px -4px rgba(99, 102, 241, 0.7);
+        }
+
+        .sidebar-header h1 {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 650;
+            letter-spacing: 0.01em;
+            flex: 1;
+        }
+
+        .sidebar-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 6px 14px 14px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--line-strong) transparent;
+        }
+
+        .section {
+            padding: 14px 2px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 0 0 10px;
+            font-size: 11px;
+            font-weight: 650;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .field {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .field:last-child {
+            margin-bottom: 0;
+        }
+
+        .field-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-weight: 550;
+            color: var(--ink-2);
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            min-height: 32px;
+        }
+
+        .row + .row {
+            margin-top: 4px;
+        }
+
+        .row > span {
+            color: var(--ink-2);
+            font-weight: 500;
+        }
+
+        textarea,
+        input[type="number"],
+        input[type="text"]:not(.ColorPick) {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid var(--line-strong);
+            border-radius: var(--radius-sm);
+            background: var(--field);
+            outline: none;
+            resize: none;
+            line-height: 1.45;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+        }
+
+        textarea:hover,
+        input[type="number"]:hover {
+            border-color: rgba(15, 23, 42, 0.24);
+        }
+
+        textarea:focus,
+        input[type="number"]:focus {
+            background: var(--surface-solid);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-ring);
+        }
+
+        #t1 {
+            height: 38px;
+            font-size: 14px;
+            font-weight: 550;
+        }
+
+        #t2 {
+            height: 84px;
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        #t1:read-only,
+        #t2:read-only {
+            background: transparent;
+            border-style: dashed;
+            color: var(--faint);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        #searchText,
+        #t3 {
+            height: 36px;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .search-wrap {
+            position: relative;
+        }
+
+        .search-wrap svg {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--faint);
+            pointer-events: none;
+        }
+
+        .search-wrap #searchText {
+            padding-left: 32px;
         }
 
         #myNumber {
-            width: 50px;
+            width: 76px;
+            text-align: center;
+            padding: 6px 8px;
         }
 
-        #div_center_bottom {
-            background: #A2A2A250;
-            position: static;
-            left: 25vw;
-            top: 80vh;
-            color: white;
-            font-size: 40px;
-            text-shadow: black 0em 0em 0.5em, black 0em 0em 0.1em;
-            max-width: 60vw;
+        /* 按鈕 */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            height: 36px;
+            padding: 0 14px;
+            border: 1px solid var(--line-strong);
+            border-radius: var(--radius-sm);
+            background: var(--surface-solid);
+            color: var(--ink);
+            font-weight: 550;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.08s ease;
         }
 
-        #loadDiv {
-            border: 1px single black;
-            background-color: aliceblue;
-            float: left;
-            position: relative;
-            width: 30vw;
+        .btn:hover {
+            background: var(--field);
+            border-color: rgba(15, 23, 42, 0.22);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn:focus-visible,
+        .icon-btn:focus-visible,
+        .seg button:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 3px var(--accent-ring);
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+            box-shadow: 0 6px 16px -8px rgba(79, 70, 229, 0.9);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
+        }
+
+        .btn-primary kbd {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.28);
+            color: #fff;
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        .btn-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .btn-grid .btn {
+            padding: 0 10px;
+            font-size: 12.5px;
+        }
+
+        .btn-grid .btn.wide {
+            grid-column: span 2;
+        }
+
+        .icon-btn {
+            width: 30px;
+            height: 30px;
+            flex: none;
+            display: grid;
+            place-items: center;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--muted);
+            cursor: pointer;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+
+        .icon-btn:hover {
+            background: rgba(15, 23, 42, 0.06);
+            color: var(--ink);
+        }
+
+        /* 分段控制：線條類型 */
+        .seg {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 3px;
+            padding: 3px;
+            border-radius: var(--radius-sm);
+            background: rgba(15, 23, 42, 0.05);
+        }
+
+        .seg button {
+            height: 34px;
+            display: grid;
+            place-items: center;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--ink-2);
+            font-size: 11.5px;
+            cursor: pointer;
+            transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .seg button:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        .seg button.active {
+            background: var(--surface-solid);
+            color: var(--accent);
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.14);
+        }
+
+        .seg button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .hint {
+            margin: 8px 0 0;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        kbd {
+            display: inline-grid;
+            place-items: center;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 5px;
+            border: 1px solid var(--line-strong);
+            border-bottom-width: 2px;
+            border-radius: 6px;
+            background: var(--surface-solid);
+            color: var(--ink-2);
+            font-family: var(--mono);
+            font-size: 10.5px;
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        /* 快捷鍵清單 */
+        details.help summary {
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 10px;
+            color: var(--muted);
+            font-weight: 550;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        details.help summary::-webkit-details-marker {
             display: none;
         }
 
-        #loadSelect {
-            width: 20vw;
+        details.help summary svg {
+            transition: transform 0.2s ease;
+        }
+
+        details.help[open] summary svg {
+            transform: rotate(90deg);
+        }
+
+        .shortcuts {
+            list-style: none;
+            margin: 10px 0 0;
+            padding: 0;
+        }
+
+        .shortcuts li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 5px 0;
+            color: var(--ink-2);
+        }
+
+        .shortcuts li span:last-child {
+            display: flex;
+            gap: 4px;
+            flex: none;
+        }
+
+        /* 獨立/複數徽章 */
+        #text15:empty {
+            display: none;
+        }
+
+        #text15 {
+            display: inline-flex;
+            align-items: center;
+            height: 20px;
+            padding: 0 8px;
+            border-radius: 999px;
+            border: 1px solid currentColor;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+            opacity: 0.85;
+        }
+
+        /* 色彩選擇列 */
+        .ColorPick {
+            width: 76px;
+            height: 26px;
+            padding: 0 4px;
+            border: 1px solid var(--line-strong);
+            border-radius: 7px;
+            font-family: var(--mono);
+            font-size: 11px;
+            text-align: center;
+            text-transform: uppercase;
+            outline: none;
+        }
+
+        .color-row .jPicker .Icon {
+            vertical-align: middle;
+            margin-left: 4px;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 0 0 1px var(--line-strong);
+        }
+
+        .color-row > span:last-child {
+            display: flex;
+            align-items: center;
+        }
+
+        /* 檔案 */
+        #file1 {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* 開關 */
+        .switch {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            color: var(--ink-2);
+            font-weight: 500;
+        }
+
+        .switch input {
+            appearance: none;
+            -webkit-appearance: none;
+            position: relative;
+            width: 36px;
+            height: 20px;
+            margin: 0;
+            border-radius: 999px;
+            background: #cbd5e1;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .switch input::after {
+            content: "";
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.3);
+            transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .switch input:checked {
+            background: var(--accent);
+        }
+
+        .switch input:checked::after {
+            transform: translateX(16px);
+        }
+
+        .switch input:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 3px var(--accent-ring);
+        }
+
+        /* ───────── 畫布浮動元件 ───────── */
+        .floating {
+            position: fixed;
+            z-index: 9;
+            background: var(--surface);
+            -webkit-backdrop-filter: blur(14px) saturate(1.4);
+            backdrop-filter: blur(14px) saturate(1.4);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        #openSidebar {
+            top: var(--gap);
+            left: var(--gap);
+            width: 40px;
+            height: 40px;
+            display: grid;
+            place-items: center;
+            color: var(--ink-2);
+            cursor: pointer;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        body.sidebar-closed #openSidebar {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* 縮放工具列 */
+        #zoomBar {
+            right: var(--gap);
+            bottom: var(--gap);
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            padding: 4px;
+        }
+
+        #zoomLabel {
+            min-width: 56px;
+            height: 30px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            font-family: var(--mono);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--ink-2);
+            cursor: pointer;
+        }
+
+        #zoomLabel:hover {
+            background: rgba(15, 23, 42, 0.06);
+        }
+
+        .zoom-sep {
+            width: 1px;
+            height: 18px;
+            margin: 0 3px;
+            background: var(--line-strong);
+        }
+
+        /* 已選方塊與鄰居 */
+        #div_center_bottom {
+            left: calc(var(--sidebar-w) + var(--gap) * 2);
+            right: calc(var(--gap) + 200px);
+            bottom: var(--gap);
+            width: max-content;
+            max-width: calc(100vw - var(--sidebar-w) - 240px);
+            margin: 0 auto;
+            padding: 10px 14px;
+            transition: left 0.28s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        body.sidebar-closed #div_center_bottom {
+            left: calc(var(--gap) + 52px);
+            max-width: calc(100vw - 280px);
+        }
+
+        #div_center_bottom:has(#around_text:empty) {
+            opacity: 0;
+            transform: translateY(8px);
+            pointer-events: none;
+        }
+
+        #around_text {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+            max-height: 30vh;
+            overflow-y: auto;
+        }
+
+        .sel-name {
+            font-weight: 650;
+            font-size: 14px;
+            margin-right: 2px;
+        }
+
+        .sel-meta {
+            color: var(--muted);
+            font-size: 12px;
+            margin-right: 4px;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            height: 24px;
+            padding: 0 10px;
+            border-radius: 999px;
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-size: 12px;
+            font-weight: 550;
+        }
+
+        /* 訊息提示 */
+        #info {
+            position: fixed;
+            z-index: 11;
+            top: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 8px 16px;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.88);
+            color: #fff;
+            font-size: 12.5px;
+            font-weight: 500;
+            white-space: nowrap;
+            box-shadow: 0 10px 24px -10px rgba(15, 23, 42, 0.6);
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        /* 拖放檔案 */
+        #dropOverlay {
+            position: fixed;
+            inset: 0;
+            z-index: 20;
+            display: grid;
+            place-items: center;
+            background: rgba(79, 70, 229, 0.08);
+            border: 3px dashed var(--accent);
+            color: var(--accent);
+            font-size: 18px;
+            font-weight: 650;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s ease;
+        }
+
+        body.dragging-file #dropOverlay {
+            opacity: 1;
+        }
+
+        #loadDiv {
+            display: none;
+        }
+
+        @media (max-width: 640px) {
+            :root {
+                --sidebar-w: calc(100vw - 24px);
+            }
+
+            #div_center_bottom {
+                display: none;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition: none !important;
+            }
         }
 
     </style>
 </head>
 
 <body onkeydown="body_onkeydown(event);" onkeyup="body_onkeyup(event);">
-    <div id="div_left">
-        <audio id="lineAudio" src="sound/18V_Cordless_Drill_Switch.mp3"></audio>
-        <audio id="deletaAudio" src="sound/Air_Woosh_Underwater.mp3"></audio>
-        <audio id="createAudio" src="sound/Beep_Short.mp3"></audio>
-        <div class="box">
-            <span id="text1">左鍵點擊方塊可以設定名稱與資料，右鍵分別點擊方塊連線，DEL刪除方塊或連線，C創造方塊，WASD可移動畫布，右鍵也可拖拉畫布。</span>
-            <br />
-            <br />
-            <button onclick="create_onclick(this,event);"><span id="text8">在中央創造方塊</span></button>
+    <audio id="lineAudio" src="sound/18V_Cordless_Drill_Switch.mp3"></audio>
+    <audio id="deletaAudio" src="sound/Air_Woosh_Underwater.mp3"></audio>
+    <audio id="createAudio" src="sound/Beep_Short.mp3"></audio>
+    <aside id="div_left">
+        <header class="sidebar-header">
+            <div class="logo">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="14" width="7" height="7" rx="2"></rect><path d="M10 6.5h4.5a2 2 0 0 1 2 2V14"></path></svg>
+            </div>
+            <h1 id="appTitle">圖型編輯器</h1>
+            <button class="icon-btn" onclick="toggleSidebar(false);" id="closeSidebar" title="收合側邊欄">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M9 4v16M15.5 10l-2 2 2 2"></path></svg>
+            </button>
+        </header>
+        <div class="sidebar-body">
+            <section class="section">
+                <button class="btn btn-primary" onclick="create_onclick(this,event);">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+                    <span id="text8">在中央創造方塊</span>
+                    <kbd>C</kbd>
+                </button>
+                <details class="help">
+                    <summary>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg>
+                        <span id="helpTitle">操作說明與快捷鍵</span>
+                    </summary>
+                    <ul class="shortcuts" id="text1">
+                        <li><span>選取 / 拖曳方塊</span><span><kbd>左鍵</kbd></span></li>
+                        <li><span>連線兩個方塊</span><span><kbd>右鍵</kbd><kbd>右鍵</kbd></span></li>
+                        <li><span>移動畫布</span><span><kbd>右鍵拖曳</kbd><kbd>WASD</kbd></span></li>
+                        <li><span>縮放畫布</span><span><kbd>滾輪</kbd></span></li>
+                        <li><span>刪除方塊或連線</span><span><kbd>Del</kbd></span></li>
+                        <li><span>切換箭頭類型</span><span><kbd>T</kbd></span></li>
+                        <li><span>搜尋 / 名稱 / 資料</span><span><kbd>F</kbd><kbd>F2</kbd><kbd>F3</kbd></span></li>
+                        <li><span>儲存到本地</span><span><kbd>Q</kbd></span></li>
+                    </ul>
+                </details>
+            </section>
+
+            <section class="section">
+                <h2 class="section-title"><span id="sec1">方塊</span></h2>
+                <label class="field">
+                    <span class="field-label"><span id="text4">名稱</span><span id="text15"></span></span>
+                    <textarea id="t1" oninput="t1_OnInput();" placeholder="先在畫布上選取一個方塊" spellcheck="false"></textarea>
+                </label>
+                <label class="field">
+                    <span class="field-label"><span id="text5">資料</span><kbd>F3</kbd></span>
+                    <textarea id="t2" placeholder="記錄這個方塊的細節…"></textarea>
+                </label>
+            </section>
+
+            <section class="section">
+                <h2 class="section-title"><span id="text3">搜尋</span><kbd>F</kbd></h2>
+                <div class="search-wrap">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+                    <textarea id="searchText" rows="1" placeholder="輸入方塊名稱" spellcheck="false" onfocus="searchOnInput(this,event);" oninput=" searchOnInput(this,event);"></textarea>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2 class="section-title"><span id="sec2">連線</span></h2>
+                <div class="field">
+                    <span class="field-label"><span id="text16">箭頭類型</span><kbd>T</kbd></span>
+                    <div class="seg">
+                        <button onclick="setSelectedLineArrowType('none');" id="lineTypeNone" title="無箭頭">
+                            <svg width="30" height="10" viewBox="0 0 30 10"><path d="M3 5h24" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
+                        </button>
+                        <button onclick="setSelectedLineArrowType('start');" id="lineTypeStart" title="左邊箭頭">
+                            <svg width="30" height="10" viewBox="0 0 30 10"><path d="M5 5h22" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path><path d="M1 5l6-4v8z" fill="currentColor"></path></svg>
+                        </button>
+                        <button onclick="setSelectedLineArrowType('end');" id="lineTypeEnd" title="右邊箭頭">
+                            <svg width="30" height="10" viewBox="0 0 30 10"><path d="M3 5h22" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path><path d="M29 5l-6-4v8z" fill="currentColor"></path></svg>
+                        </button>
+                        <button onclick="setSelectedLineArrowType('both');" id="lineTypeBoth" title="雙向箭頭">
+                            <svg width="30" height="10" viewBox="0 0 30 10"><path d="M5 5h20" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path><path d="M1 5l6-4v8z M29 5l-6-4v8z" fill="currentColor"></path></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="row">
+                    <span id="text2">線條粗細</span>
+                    <input type="number" id="myNumber" oninput="number_onInput(this,event);" defaultValue="2" value="2" min="1" max="20">
+                </div>
+                <div class="row color-row">
+                    <span id="text11">線條顏色</span><span><input class="ColorPick" type="text" id="color4" value="64748B" /></span>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2 class="section-title"><span id="sec3">方塊樣式</span></h2>
+                <div class="row color-row">
+                    <span id="text12">外框顏色</span><span><input class="ColorPick" type="text" id="color1" value="4F46E5" /></span>
+                </div>
+                <div class="row color-row">
+                    <span id="text13">方塊顏色</span><span><input class="ColorPick" type="text" id="color2" value="FFFFFF" /></span>
+                </div>
+                <div class="row color-row">
+                    <span id="text14">文字顏色</span><span><input class="ColorPick" type="text" id="color3" value="1E1B4B" /></span>
+                </div>
+                <p class="hint" id="colorHint">顏色會套用到目前選取的方塊或線條，以及之後新建的項目。</p>
+            </section>
+
+            <section class="section">
+                <h2 class="section-title"><span id="sec4">檔案</span></h2>
+                <label class="field">
+                    <span class="field-label" id="text9">檔案名稱</span>
+                    <textarea id="t3" rows="1" spellcheck="false">圖形連線</textarea>
+                </label>
+                <div class="btn-grid">
+                    <button class="btn wide" onclick="button_SaveStorage(this,event)" id="button_SaveStorageElement">儲存進度到本地</button>
+                    <button class="btn" onclick="button_LoadStorage(this,event)" id="button_LoadStorageElement">讀取上一次進度</button>
+                    <label class="btn" for="file1" id="text6">開啟檔案…</label>
+                    <button class="btn" onclick="save_onclick(this,event);" id="button1">匯出 .txt</button>
+                    <button class="btn" onclick="save2_onclick(this,event);" id="button2">匯出 .svg</button>
+                </div>
+                <input type="file" id="file1" accept=".txt,.json,text/plain" onchange="onChange(event);" />
+                <p class="hint" id="dropHint">也可以直接把存檔拖曳到畫面上開啟。</p>
+            </section>
+
+            <section class="section">
+                <label class="switch">
+                    <span id="text7">音效</span>
+                    <input type="checkbox" checked id="soundCheckBox" />
+                </label>
+            </section>
         </div>
-        <div class="box">
-            <span id="text2">線段粗細(px):</span>
-            <input type="number" id="myNumber" oninput="number_onInput(this,event);" defaultValue="2" value="2" min="1" max="20">
-            <br />
-            <span id="text11">線條顏色:</span><input class="ColorPick" type="text" id="color4" value="000000" /><br />
-            <span id="text12">外框顏色:</span><input class="ColorPick" type="text" id="color1" value="000000" /><br />
-            <span id="text13">方塊顏色:</span><input class="ColorPick" type="text" id="color2" value="FF0000" /><br />
-            <span id="text14">文字顏色:</span><input class="ColorPick" type="text" id="color3" value="000000" />
-        </div>
-        <div class="infoBox">
-            <span id="info">這裡是資訊欄</span>
-        </div>
-        <div class="box">
-            <span id="text3">[F]搜尋:</span>
-            <br />
-            <textarea id="searchText" onfocus="searchOnInput(this,event);" oninput=" searchOnInput(this,event);"></textarea>
-        </div>
-        <div class="box">
-            <span id="text4">[F2]方塊名稱:</span><span id="text15">[x1] 獨立</span>
-            <br />
-            <textarea id="t1" oninput="t1_OnInput();"></textarea>
-            <br />
-            <span id="text5">[F3]方塊資料:</span>
-            <textarea id="t2"></textarea>
-        </div>
-        <div class="box">
-            <span id="text6">讀取檔案:</span>
-            <br />
-            <input type="file" id="file1" onchange="onChange(event);"></input>
-            <br />
-            <button onclick="button_LoadStorage(this,event)" id="button_LoadStorageElement">讀取本地上一次進度</button>
-        </div>
-        <div class="box">
-            <span id="text9">存檔名稱:</span>
-            <br />
-            <textarea id="t3">圖形連線</textarea>
-            <button onclick="save_onclick(this,event);" id="button1">儲存完整文字資料</button>
-            <button onclick="save2_onclick(this,event);" id="button2">儲存完整.svg檔</button>
-            <button onclick="button_SaveStorage(this,event)" id="button_SaveStorageElement">[Q]儲存進度到本地</button>
-        </div>
-        <div class="box">
-            <input type="checkbox" checked id="soundCheckBox"><span id="text7">音效</span></input>
-        </div>
-    </div>
+    </aside>
+
     <div id="div_right" onContextMenu="return false">
     </div>
-    <div id="div_center_bottom"><span id="around_text">123</span></div>
+
+    <button class="floating" id="openSidebar" onclick="toggleSidebar(true);" title="展開側邊欄">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M9 4v16M13 10l2 2-2 2"></path></svg>
+    </button>
+
+    <div class="floating" id="zoomBar">
+        <button class="icon-btn" onclick="zoomBy(1 / 1.2);" id="zoomOutBtn" title="縮小">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14"></path></svg>
+        </button>
+        <button id="zoomLabel" onclick="zoomReset();" title="重設為 100%">100%</button>
+        <button class="icon-btn" onclick="zoomBy(1.2);" id="zoomInBtn" title="放大">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+        </button>
+        <span class="zoom-sep"></span>
+        <button class="icon-btn" onclick="fitView();" id="fitBtn" title="顯示全部">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4"></path></svg>
+        </button>
+    </div>
+
+    <div class="floating" id="div_center_bottom"><span id="around_text"></span></div>
+    <span id="info"></span>
+    <div id="dropOverlay"><span id="dropText">放開以開啟存檔</span></div>
     <div id="loadDiv" onshow="">
         <select size="30" id="loadSelect">
             <option value="volvo">Volvo</option>
@@ -272,8 +1052,16 @@
         /**初始化函數*/
         function ini() {
             div_right.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="svg1" width="900" height="800" onmousedown="svg_onMouseDown(event)" viewBox="0 0 900 800" onMouseUp="onMouseUp(event);"></svg>`;
+            ensureArrowDefs();
             previous_select_rect = null;
             previous_select_text = null;
+            last_select_line = null;
+            last_select_rect = null;
+            pending_deselect_rect = false;
+            down_client = {
+                x: 0,
+                y: 0
+            };
             drag = false;
             select_rect = null;
             select_text = null;
@@ -303,10 +1091,145 @@
             svg1.onmousemove = on_mouse_move;
             svg1.onmousedown = null;
             svg1.addEventListener('mousedown', on_mouse_down, true);
+            svg1.addEventListener('wheel', on_wheel, {
+                passive: false
+            });
+            svg1.addEventListener('mousedown', e => {
+                if (e.button == 2) svg1.classList.add('panning');
+            });
+            //viewBox 改變時同步背景格點與縮放比例
+            new MutationObserver(syncCanvasChrome).observe(svg1, {
+                attributes: true,
+                attributeFilter: ['viewBox']
+            });
+            ensureArrowDefs();
+            fitView();
         }
+        window.addEventListener('mouseup', () => {
+            if (window.svg1) svg1.classList.remove('panning');
+        });
+        window.addEventListener('resize', syncCanvasChrome);
+
+        var ZOOM_MIN = 0.2,
+            ZOOM_MAX = 4;
+        /**目前畫面縮放比例(螢幕px / SVG單位)*/
+        function getZoom() {
+            let vb = svg1.viewBox.baseVal;
+            return Math.min(svg1.clientWidth / vb.width, svg1.clientHeight / vb.height);
+        }
+        /**以螢幕座標為中心縮放畫布*/
+        function zoomAt(factor, clientX, clientY) {
+            let vb = svg1.viewBox.baseVal;
+            let zoom = getZoom();
+            let target = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoom * factor));
+            factor = target / zoom;
+            if (factor == 1) return;
+            let pt = svg1.createSVGPoint();
+            pt.x = clientX;
+            pt.y = clientY;
+            let p = pt.matrixTransform(svg1.getScreenCTM().inverse());
+            let w = vb.width / factor,
+                h = vb.height / factor;
+            let x = p.x - (p.x - vb.x) / factor,
+                y = p.y - (p.y - vb.y) / factor;
+            svg1.setAttribute('viewBox', `${x} ${y} ${w} ${h}`);
+        }
+        /**可見畫布區域的中心(扣掉側邊欄)*/
+        function visibleCenter() {
+            let left = sidebarOffset();
+            return {
+                x: left + (window.innerWidth - left) / 2,
+                y: window.innerHeight / 2
+            };
+        }
+        /**按鈕縮放*/
+        function zoomBy(factor) {
+            let c = visibleCenter();
+            zoomAt(factor, c.x, c.y);
+        }
+        /**重設為100%*/
+        function zoomReset() {
+            let c = visibleCenter();
+            zoomAt(1 / getZoom(), c.x, c.y);
+        }
+        /**滾輪縮放*/
+        function on_wheel(event) {
+            event.preventDefault();
+            let factor = Math.exp(-event.deltaY * (event.ctrlKey ? 0.01 : 0.0015));
+            zoomAt(factor, event.clientX, event.clientY);
+        }
+        /**側邊欄占用的螢幕寬度*/
+        function sidebarOffset() {
+            if (document.body.classList.contains('sidebar-closed') || window.innerWidth <= 640) return 0;
+            return div_left.getBoundingClientRect().right;
+        }
+        /**讓所有內容顯示在可見區域內*/
+        function fitView() {
+            let W = svg1.clientWidth,
+                H = svg1.clientHeight;
+            let box;
+            try {
+                box = svg1.getBBox();
+            } catch {
+                return;
+            }
+            if (!W || !H || !box || (box.width == 0 && box.height == 0)) return;
+            let left = sidebarOffset(),
+                pad = 64;
+            let availW = Math.max(100, W - left - pad * 2),
+                availH = Math.max(100, H - pad * 2);
+            let s = Math.min(availW / box.width, availH / box.height, 1.25);
+            s = Math.max(ZOOM_MIN, s);
+            let x = box.x - (left + pad + (availW - box.width * s) / 2) / s;
+            let y = box.y - (pad + (availH - box.height * s) / 2) / s;
+            svg1.setAttribute('viewBox', `${x} ${y} ${W / s} ${H / s}`);
+        }
+        /**同步背景格點位置與縮放標籤*/
+        function syncCanvasChrome() {
+            if (!window.svg1 || !svg1.getScreenCTM) return;
+            let ctm = svg1.getScreenCTM();
+            if (!ctm) return;
+            let size = 24 * ctm.a;
+            while (size < 12) size *= 2;
+            svg1.style.backgroundSize = `${size}px ${size}px`;
+            svg1.style.backgroundPosition = `${ctm.e}px ${ctm.f}px`;
+            zoomLabel.textContent = Math.round(getZoom() * 100) + '%';
+        }
+        /**展開/收合側邊欄*/
+        function toggleSidebar(open) {
+            document.body.classList.toggle('sidebar-closed', !open);
+            try {
+                localStorage.setItem('sidebar-closed', open ? '0' : '1');
+            } catch {}
+        }
+        try {
+            if (localStorage.getItem('sidebar-closed') == '1') document.body.classList.add('sidebar-closed');
+        } catch {}
+
+        //拖曳存檔到畫面上開啟
+        let dragDepth = 0;
+        window.addEventListener('dragenter', e => {
+            if (e.dataTransfer && [...e.dataTransfer.types].includes('Files')) {
+                dragDepth++;
+                document.body.classList.add('dragging-file');
+            }
+        });
+        window.addEventListener('dragleave', () => {
+            dragDepth = Math.max(0, dragDepth - 1);
+            if (dragDepth == 0) document.body.classList.remove('dragging-file');
+        });
+        window.addEventListener('dragover', e => e.preventDefault());
+        window.addEventListener('drop', e => {
+            e.preventDefault();
+            dragDepth = 0;
+            document.body.classList.remove('dragging-file');
+            let file = e.dataTransfer.files[0];
+            if (file) loadFromFile(file);
+        });
 
         console.log(svg1.viewBox);
         addABlock();
+        fitView();
 
         var savez = [];
         //addABlock();
@@ -360,7 +1283,7 @@
             data.ab = ab;
             data.blockById = blockById;
             data.version = 2;
-            data.innerHTML = div_right.innerHTML;
+            data.innerHTML = getCleanSvgHTML();
             data.name = t3.value
             return data;
         }
@@ -381,14 +1304,14 @@
             }
             console.log(findCount);
             if (findCount == 1) {
-                text15.style.color = "blue"
-                text15.innerHTML = "[x1] 獨立";
+                text15.style.color = "#059669"
+                text15.innerHTML = "名稱唯一";
             } else if (findCount == 0) {
-                text15.style.color = "gray"
-                text15.innerHTML = "[x0] 無";
+                text15.style.color = "#94a3b8"
+                text15.innerHTML = "未選取";
             } else {
-                text15.style.color = "red"
-                text15.innerHTML = "[xN] 複數";
+                text15.style.color = "#e11d48"
+                text15.innerHTML = "名稱重複";
             }
             if (translate != null) {
                 text15.innerHTML = translate[text15.innerHTML];
@@ -411,26 +1334,58 @@
             if (lang.includes("zh")) {
                 //use default
             } else {
-                text1.innerHTML = "Letft click block to set name or detail. Right click 2 block to connect. Press del to delete block or line. Press C to create block. WASD can move the canvas.Right mouse button hold can also move the canvas.";
-                text2.innerHTML = "Line stroke width(px):"
-                text3.innerHTML = "[F]Search:"
-                text4.innerHTML = "[F2]Block name:"
-                text5.innerHTML = "[F3]Block detail:"
-                text6.innerHTML = "Load file:"
-                text7.innerHTML = "Play Sound"
-                text8.innerHTML = "Create block at center"
-                text9.innerHTML = "Save file Name:"
+                const kb = k => k.split(" ").map(x => `<kbd>${x}</kbd>`).join("");
+                text1.innerHTML = [
+                    ["Select / drag block", "Left"],
+                    ["Connect two blocks", "Right Right"],
+                    ["Pan canvas", "Right-drag WASD"],
+                    ["Zoom canvas", "Wheel"],
+                    ["Delete block or line", "Del"],
+                    ["Switch arrow type", "T"],
+                    ["Search / name / detail", "F F2 F3"],
+                    ["Save to local storage", "Q"]
+                ].map(([label, keys]) => `<li><span>${label}</span><span>${kb(keys)}</span></li>`).join("");
+                helpTitle.innerHTML = "Controls & shortcuts"
+                appTitle.innerHTML = "Graph Editor"
+                sec1.innerHTML = "Block"
+                sec2.innerHTML = "Connection"
+                sec3.innerHTML = "Block style"
+                sec4.innerHTML = "File"
+                text2.innerHTML = "Line width"
+                text3.innerHTML = "Search"
+                text4.innerHTML = "Name"
+                text5.innerHTML = "Detail"
+                text6.innerHTML = "Open file…"
+                text7.innerHTML = "Sound effects"
+                text8.innerHTML = "Create block"
+                text9.innerHTML = "File name"
                 text10.innerHTML = "Graph Editor"
-                text11.innerHTML = "Connect line:"
-                text12.innerHTML = "Block outer frame:"
-                text13.innerHTML = "Block background:"
-                text14.innerHTML = "Word color:"
+                text11.innerHTML = "Line color"
+                text12.innerHTML = "Outline color"
+                text13.innerHTML = "Fill color"
+                text14.innerHTML = "Text color"
+                text16.innerHTML = "Arrow type"
+                colorHint.innerHTML = "Colors apply to the selected block or line, and to new items."
+                dropHint.innerHTML = "You can also drop a save file anywhere on the page."
+                dropText.innerHTML = "Drop to open the save file"
+                lineTypeNone.title = "No arrow"
+                lineTypeStart.title = "Left arrow"
+                lineTypeEnd.title = "Right arrow"
+                lineTypeBoth.title = "Double arrow"
+                closeSidebar.title = "Collapse sidebar"
+                openSidebar.title = "Expand sidebar"
+                zoomInBtn.title = "Zoom in"
+                zoomOutBtn.title = "Zoom out"
+                zoomLabel.title = "Reset to 100%"
+                fitBtn.title = "Fit all"
+                t1.placeholder = "Select a block on the canvas first"
+                t2.placeholder = "Notes about this block…"
+                searchText.placeholder = "Type a block name"
                 t3.value = "Graph"
-                button1.innerHTML = "Save data text"
-                button2.innerHTML = "Save .svg"
-                button_LoadStorageElement.innerHTML = "Load local storage"
-                button_SaveStorageElement.innerHTML = "[Q]Save local storage"
-                info.innerHTML = "This is infomation box."
+                button1.innerHTML = "Export .txt"
+                button2.innerHTML = "Export .svg"
+                button_LoadStorageElement.innerHTML = "Load last save"
+                button_SaveStorageElement.innerHTML = "Save to local storage"
 
                 translate = {};
                 translate["找到完全相同文字的方塊"] = "Found the exact same block of text."
@@ -453,9 +1408,15 @@
                 translate["讀取檔案錯誤！初始化畫布。"] = "Loading file error! Initialized the canvas."
                 translate["取消連線"] = "Cancel connect."
                 translate["取消選取方塊"] = "Deselected block";
-                translate["[x1] 獨立"] = "[x1] alone";
-                translate["[x0] 無"] = "[x2] void";
-                translate["[xN] 複數"] = "[xN] multiple";
+                translate["名稱唯一"] = "Unique";
+                translate["未選取"] = "None";
+                translate["名稱重複"] = "Duplicate";
+                translate["線條類型：無箭頭"] = "Line type: no arrow";
+                translate["線條類型：左邊箭頭"] = "Line type: left arrow";
+                translate["線條類型：右邊箭頭"] = "Line type: right arrow";
+                translate["線條類型：雙向箭頭"] = "Line type: double arrow";
+                translate["請先選取線條"] = "Please select a line first.";
+                translate["取消選取直線"] = "Deselected the line.";
             }
         }
         /**放開按鍵做的事情*/
@@ -631,6 +1592,11 @@
                     //d
                     xMin += power;
                     break;
+                case 84:
+                    //T
+                    cycleSelectedLineArrowType();
+                    okToBodyKeydown = false;
+                    break;
                 case 46:
                     //del
                     DeleteBlockAndNeighborLinez();
@@ -703,8 +1669,16 @@
         }
         /**返回是否選取左邊3個文字框*/
         function isFocueOnLeft() {
-            return document.activeElement == searchText || document.activeElement == t1 || document.activeElement == t2;
+            //在任何輸入框打字時都不觸發快捷鍵
+            let e = document.activeElement;
+            return e != null && (e.tagName == "TEXTAREA" || e.tagName == "SELECT" || (e.tagName == "INPUT" && e.type != "checkbox"));
         }
+        //Esc 離開輸入框，回到畫布快捷鍵
+        document.addEventListener('keydown', e => {
+            if (e.key == "Escape" && isFocueOnLeft()) {
+                document.activeElement.blur();
+            }
+        });
         /**設定資料到整個頁面上*/
         function setDataByData(data) {
             //var data = JSON.parse(text);
@@ -712,6 +1686,8 @@
             flow_id_block = data.flow_id_block;
             flow_id_line = data.flow_id_line;
             div_right.innerHTML = data.innerHTML;
+            removeHighlight(div_right);
+            ensureArrowDefs();
             blockz = data.blockz;
             ab = data.ab;
             t3.value = data.name
@@ -736,7 +1712,14 @@
         }
         /**讀取文字檔要發生的事與管理*/
         function onChange(e) {
-            file = e.target.files[0];
+            if (e.target.files[0]) {
+                loadFromFile(e.target.files[0]);
+            }
+            //清空，讓同一個檔案可以再次開啟
+            e.target.value = "";
+        }
+        /**讀取存檔檔案*/
+        function loadFromFile(file) {
             file.text().then(a => {
                 try {
                     ini();
@@ -753,10 +1736,12 @@
                         showInfoAlphaDown("讀取檔案成功");
                     } else {
                         ini();
+                        setEventFuction();
                         showInfoAlphaDown("讀取檔案錯誤！初始化畫布。");
                     }
                 } catch {
                     ini();
+                    setEventFuction();
                     showInfoAlphaDown("讀取檔案錯誤！初始化畫布。");
                 }
             });
@@ -810,6 +1795,9 @@
         }
         /**滑鼠按下畫布，主要用來清掉選取與取消各種咚咚*/
         function on_mouse_down() {
+            last_select_line = select_line;
+            last_select_rect = previous_select_rect || select_rect;
+            pending_deselect_rect = false;
             select_line = null;
             previous_select_rect = select_rect = select_text = null;
             around_text.innerHTML = "";
@@ -831,12 +1819,123 @@
                 } else {
 
                 }
+                //點在空白處但靠近線條，視為點擊該線條(加大線條的點擊範圍)
+                if (event.target == svg1) {
+                    let line = findLineNear(event.clientX, event.clientY);
+                    if (line) {
+                        line_click(line, event);
+                    }
+                }
             }
+        }
+        /**線條點擊判定範圍(螢幕px，線條兩側各多少)*/
+        var LINE_HIT_TOLERANCE = 8;
+        /**找出螢幕座標附近最近的線條，沒有的話返回null*/
+        function findLineNear(clientX, clientY) {
+            let ctm = svg1.getScreenCTM();
+            if (!ctm) return null;
+            let best = null,
+                bestDist = Infinity;
+            svg1.querySelectorAll("line").forEach(l => {
+                let p = svg1.createSVGPoint();
+                p.x = l.x1.baseVal.value;
+                p.y = l.y1.baseVal.value;
+                let a = p.matrixTransform(ctm);
+                p.x = l.x2.baseVal.value;
+                p.y = l.y2.baseVal.value;
+                let b = p.matrixTransform(ctm);
+                let dist = distanceToSegment(clientX, clientY, a, b);
+                let halfWidth = (parseFloat(l.getAttribute("stroke-width")) || 2) * ctm.a / 2;
+                if (dist <= halfWidth + LINE_HIT_TOLERANCE && dist < bestDist) {
+                    best = l;
+                    bestDist = dist;
+                }
+            });
+            return best;
+        }
+        /**點到線段的距離*/
+        function distanceToSegment(px, py, a, b) {
+            let dx = b.x - a.x,
+                dy = b.y - a.y;
+            let len2 = dx * dx + dy * dy;
+            let t = len2 == 0 ? 0 : Math.max(0, Math.min(1, ((px - a.x) * dx + (py - a.y) * dy) / len2));
+            return Math.hypot(px - (a.x + t * dx), py - (a.y + t * dy));
+        }
+        /**滑鼠靠近線條時顯示可點擊的提示*/
+        function updateLineHover(event) {
+            let line = event.target == svg1 || event.target.tagName == "line" ? findLineNear(event.clientX, event.clientY) : null;
+            svg1.querySelectorAll("line.hover").forEach(l => {
+                if (l != line) l.classList.remove("hover");
+            });
+            if (line) line.classList.add("hover");
+            svg1.classList.toggle("line-hover", line != null);
         }
         /**畫布滑鼠放開，取消拖拉*/
         function onMouseUp() {
             drag = false;
+            //點擊已選取的方塊且沒有拖動，解除選取
+            if (pending_deselect_rect) {
+                pending_deselect_rect = false;
+                deselectBlock();
+            }
         }
+        /**解除方塊選取*/
+        function deselectBlock() {
+            previous_select_rect = previous_select_text = select_rect = select_text = null;
+            around_text.innerHTML = "";
+            t2.oninput = t1.oninput = null;
+            setActiveNameAndDetailBox(false);
+            showInfoAlphaDown("取消選取方塊");
+            refreshHighlight();
+        }
+        /**讓目前選取的方塊與線條發亮，其他的取消發亮*/
+        function refreshHighlight() {
+            let selected = [previous_select_rect || select_rect, select_line];
+            svg1.querySelectorAll(".selected").forEach(e => {
+                if (!selected.includes(e)) {
+                    e.classList.remove("selected");
+                }
+            });
+            selected.forEach(e => {
+                if (e && e.isConnected) {
+                    e.classList.add("selected");
+                }
+            });
+            //箭頭類型按鈕顯示目前選取線條的狀態
+            let line = select_line && select_line.isConnected ? select_line : null;
+            let type = line ? getLineArrowType(line) : null;
+            [
+                ["none", lineTypeNone],
+                ["start", lineTypeStart],
+                ["end", lineTypeEnd],
+                ["both", lineTypeBoth]
+            ].forEach(([t, button]) => {
+                button.disabled = line == null;
+                button.classList.toggle("active", t == type);
+            });
+        }
+        /**取得去除發亮效果的畫布HTML，用於存檔*/
+        function getCleanSvgHTML() {
+            let div = div_right.cloneNode(true);
+            removeHighlight(div);
+            return div.innerHTML;
+        }
+        /**移除元素內的所有發亮效果*/
+        function removeHighlight(root) {
+            root.querySelectorAll(".selected").forEach(e => e.classList.remove("selected"));
+            //畫布格點與拖曳游標只用於編輯畫面，不存進檔案
+            let svg = root.id == "svg1" ? root : root.querySelector("#svg1");
+            if (svg) {
+                svg.removeAttribute("style");
+                svg.classList.remove("panning", "line-hover");
+            }
+            root.querySelectorAll("line.hover").forEach(e => e.classList.remove("hover"));
+        }
+        setTimeout(refreshHighlight, 0);
+        //所有操作後都更新發亮(放在最後執行，讓各處理函數先改好選取狀態)
+        ["mousedown", "mouseup", "keydown", "input"].forEach(name => {
+            document.addEventListener(name, () => setTimeout(refreshHighlight, 0));
+        });
         /**更新方塊，輸入請用實體物件*/
         function updateBlock(b) {
             set_text_in_rect(b.textId, b.rectId);
@@ -883,9 +1982,106 @@
         /**線條被點擊，考慮改成按下*/
         function line_click(line, event) {
             playSound(lineAudio);
-            showInfoAlphaDown("選取直線");
-            select_line = line;
             previous_select_text = previous_select_rect = select_rect = null;
+            //再點一下已選取的線條，解除選取
+            if (last_select_line == line && event.button == 0) {
+                select_line = null;
+                showInfoAlphaDown("取消選取直線");
+            } else {
+                select_line = line;
+                showInfoAlphaDown("選取直線");
+            }
+        }
+        /**[T]切換已選取線條的類型*/
+        function cycleSelectedLineArrowType() {
+            if (select_line == null) {
+                showInfoAlphaDown("請先選取線條");
+                return;
+            }
+            let type = getLineArrowType(select_line);
+            let next = LINE_ARROW_TYPES[(LINE_ARROW_TYPES.indexOf(type) + 1) % LINE_ARROW_TYPES.length];
+            setLineArrowType(select_line, next);
+            showLineArrowTypeInfo(next);
+        }
+        /**線條類型：無、左邊(起點)箭頭、右邊(終點)箭頭、雙向箭頭*/
+        var LINE_ARROW_TYPES = ["none", "start", "end", "both"];
+        /**確保畫布內有箭頭標記定義(舊存檔可能沒有)*/
+        function ensureArrowDefs() {
+            if (document.getElementById("arrow")) {
+                return;
+            }
+            svg1.insertAdjacentHTML("afterbegin", `<defs id="arrowDefs"><marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="context-stroke"></path></marker></defs>`);
+        }
+        /**取得線條類型，輸入請用線實體*/
+        function getLineArrowType(l) {
+            return l.getAttribute("data-arrow") || "none";
+        }
+        /**設定線條類型，輸入請用線實體*/
+        function setLineArrowType(l, type) {
+            l.setAttribute("data-arrow", type);
+            if (type == "start" || type == "both") {
+                l.setAttribute("marker-start", "url(#arrow)");
+            } else {
+                l.removeAttribute("marker-start");
+            }
+            if (type == "end" || type == "both") {
+                l.setAttribute("marker-end", "url(#arrow)");
+            } else {
+                l.removeAttribute("marker-end");
+            }
+            //舊線條端點在方塊中心，箭頭會被蓋住，重新計算到方塊邊緣
+            let k = getAB(l);
+            if (k && k.aBlock && k.bBlock) {
+                let ra = document.getElementById(k.aBlock.rectId);
+                let rb = document.getElementById(k.bBlock.rectId);
+                if (ra && rb) {
+                    setLinePosition(l, ra, rb);
+                }
+            }
+        }
+        /**顯示線條類型訊息*/
+        function showLineArrowTypeInfo(type) {
+            showInfoAlphaDown({
+                none: "線條類型：無箭頭",
+                start: "線條類型：左邊箭頭",
+                end: "線條類型：右邊箭頭",
+                both: "線條類型：雙向箭頭"
+            }[type]);
+        }
+        /**左邊按鈕設定已選取線條的類型*/
+        function setSelectedLineArrowType(type) {
+            if (select_line == null) {
+                showInfoAlphaDown("請先選取線條");
+                return;
+            }
+            setLineArrowType(select_line, type);
+            showLineArrowTypeInfo(type);
+        }
+        /**取得從方塊中心往目標點方向與方塊邊緣的交點*/
+        function getRectEdgePoint(rect, from, to) {
+            let dx = to.x - from.x;
+            let dy = to.y - from.y;
+            if (dx == 0 && dy == 0) {
+                return from;
+            }
+            let hw = parseFloat(rect.getAttributeNS(null, 'width')) / 2;
+            let hh = parseFloat(rect.getAttributeNS(null, 'height')) / 2;
+            let t = Math.min(dx != 0 ? hw / Math.abs(dx) : Infinity, dy != 0 ? hh / Math.abs(dy) : Infinity);
+            return {
+                x: from.x + dx * t,
+                y: from.y + dy * t
+            };
+        }
+        /**設定線條兩端到兩個方塊的邊緣，讓箭頭不會被方塊蓋住*/
+        function setLinePosition(l, rectA, rectB) {
+            let pa = getMiddle(rectA);
+            let pb = getMiddle(rectB);
+            let ea = getRectEdgePoint(rectA, pa, pb);
+            let eb = getRectEdgePoint(rectB, pb, pa);
+            l.setAttributeNS(null, 'x1', ea.x);
+            l.setAttributeNS(null, 'y1', ea.y);
+            l.setAttributeNS(null, 'x2', eb.x);
+            l.setAttributeNS(null, 'y2', eb.y);
         }
         /**得到AB組，輸入請使用線實體*/
         function getAB(l) {
@@ -912,19 +2108,30 @@
         }
         /**明暗訊息輸出，輸入請用文字，會自動翻譯*/
         function showInfoAlphaDown(newInfo) {
-            if (translate != null) {
-                newInfo = translate[newInfo];
+            //拖曳過程中的連續訊息不需要提示
+            if (["拖拉方塊", "移動畫布", "選取畫布", "選取方塊", "選取直線"].includes(newInfo)) {
+                return;
             }
-            $("#info").stop().html(newInfo).css('opacity', 1).animate({
-                opacity: '0.2'
-            }, "slow")
+            if (translate != null) {
+                newInfo = translate[newInfo] || newInfo;
+            }
+            $("#info").stop(true).html(newInfo).css('opacity', 1).delay(1600).animate({
+                opacity: 0
+            }, 400)
         }
         /**畫布上的滑鼠移動，拖拉方塊或移動畫布*/
         function on_mouse_move(event) {
             mouse_event = event;
+            if (event.buttons == 0) {
+                updateLineHover(event);
+            }
             //console.log(event);
             //拖拉方塊
             if (select_rect != null && drag && event.buttons == 1) {
+                //有拖動就不算是再點一次解除選取
+                if (pending_deselect_rect && Math.abs(event.clientX - down_client.x) + Math.abs(event.clientY - down_client.y) > 3) {
+                    pending_deselect_rect = false;
+                }
                 showInfoAlphaDown("拖拉方塊");
                 setActiveNameAndDetailBox(true);
                 let startViewBox = svg1.getAttribute('viewBox').split(' ').map(n => parseFloat(n))
@@ -1014,22 +2221,8 @@
                 //console.log(k.aBlock.id);
                 //console.log(k.bBlock.id);
                 //console.log(block.id);
-                if (k.aBlock.id == block.id) {
-                    //console.log("a");
-                    l.setAttributeNS(null, 'x1', p.x);
-                    l.setAttributeNS(null, 'y1', p.y);
-                    p2 = getMiddle(document.getElementById(k.bBlock.rectId));
-                    l.setAttributeNS(null, 'x2', p2.x);
-                    l.setAttributeNS(null, 'y2', p2.y);
-
-                } else if (k.bBlock.id == block.id) {
-                    //console.log("b");
-                    //console.log("b");
-                    l.setAttributeNS(null, 'x2', p.x);
-                    l.setAttributeNS(null, 'y2', p.y);
-                    p2 = getMiddle(document.getElementById(k.aBlock.rectId));
-                    l.setAttributeNS(null, 'x1', p2.x);
-                    l.setAttributeNS(null, 'y1', p2.y);
+                if (k.aBlock.id == block.id || k.bBlock.id == block.id) {
+                    setLinePosition(l, document.getElementById(k.aBlock.rectId), document.getElementById(k.bBlock.rectId));
                 } else {
                     console.log("err");
                 }
@@ -1091,7 +2284,9 @@
                     if (isSame) {
                         console.log("no self");
                     } else {
+                        var oldArrowType = "none";
                         if (isExist) {
+                            oldArrowType = getLineArrowType(document.getElementById(lineId));
                             console.log('exist so delete old');
                             //console.log(lineId);
                             deleteALineById(lineId);
@@ -1117,8 +2312,12 @@
                         console.log(b2);
                         b1.linezId.push(l.id);
                         b2.linezId.push(l.id);
+                        setLineArrowType(l, oldArrowType);
 
-                        previous_select_rect = select_line = select_text = null;
+                        //新建立的連線預設為選取狀態
+                        previous_select_rect = select_rect = select_text = null;
+                        select_line = l;
+                        around_text.innerHTML = "";
                         console.log('connect');
                     }
                 }
@@ -1138,6 +2337,13 @@
                 previous_select_rect = previous_select_text = null;
                 select_line = null;
                 connect = 0;
+
+                //點擊已選取的方塊，放開時若沒拖動就解除選取
+                pending_deselect_rect = (last_select_rect != null && last_select_rect.id == s.id);
+                down_client = {
+                    x: event.clientX,
+                    y: event.clientY
+                };
 
                 let block = getBlock(select_rect);
                 seletctBlockAndSetTextAreaValueAndSync(block);
@@ -1174,42 +2380,41 @@
                 et.innerHTML = t1.value;
                 set_text_in_rect(et.id, b.rectId);
                 updateBlockLine(b);
+                renderSelectionCard(b);
             };
             t1.addEventListener('keyup', t1_UpdateAndSearchAlone);
             t2.oninput = function() {
                 b.detail = t2.value;
             }
-            around_text.innerHTML = t1.value + ":<br />"
-            for (let i = 0; i < b.linezId.length; i++) {
-                var lineId = b.linezId[i];
-                var k = ab[lineId];
-                try {
-                    if (k.aBlock.id != b.id) {
-                        text = document.getElementById(k.aBlock.textId);
-                        if (text) {
-                            around_text.innerHTML += "[" + text.innerHTML + "]　";
-                        } else {
-                            console.log(k.aBlock.textId + "is wrong!")
-                        }
-                    }
-                    if (k.bBlock.id != b.id) {
-
-                        text = document.getElementById(k.bBlock.textId);
-                        if (text) {
-                            around_text.innerHTML += "[" + text.innerHTML + "]　";
-                        } else {
-                            console.log(k.bBlock.textId + "is wrong!")
-                        }
-                    }
-                } catch {
-                    console.log(lineId)
-                    console.log(k)
-                    console.log("k && k.aBlock && k.bBlock is undefine")
-                }
-
-            }
-            around_text.innerHTML = around_text.innerHTML.substring(0, around_text.innerHTML.length - 1);
+            renderSelectionCard(b);
             setActiveNameAndDetailBox(true);
+        }
+        /**畫布底部顯示已選取方塊的名稱與相連的方塊*/
+        function renderSelectionCard(b) {
+            let names = [];
+            for (let i = 0; i < b.linezId.length; i++) {
+                let k = ab[b.linezId[i]];
+                if (!k || !k.aBlock || !k.bBlock) {
+                    console.log("k && k.aBlock && k.bBlock is undefine");
+                    continue;
+                }
+                let other = k.aBlock.id != b.id ? k.aBlock : k.bBlock;
+                let text = document.getElementById(other.textId);
+                if (text) {
+                    names.push(text.innerHTML);
+                } else {
+                    console.log(other.textId + "is wrong!");
+                }
+            }
+            let name = document.getElementById(b.textId).innerHTML;
+            let html = `<span class="sel-name">${name}</span>`;
+            if (names.length == 0) {
+                html += `<span class="sel-meta">${translate ? "No connections" : "尚無連線"}</span>`;
+            } else {
+                html += `<span class="sel-meta">${translate ? "Connected to" : "連到"} ${names.length}</span>`;
+                html += names.map(n => `<span class="chip">${n}</span>`).join("");
+            }
+            around_text.innerHTML = html;
         }
         /**設定名稱與資料是否可不可以被輸入使用*/
         function setActiveNameAndDetailBox(open) {
@@ -1306,6 +2511,7 @@
         function exportSVG(svg) {
             // first create a clone of our svg node so we don't mess the original one
             var clone = svg.cloneNode(true);
+            removeHighlight(clone);
             // parse the styles
             parseStyles(clone);
 
